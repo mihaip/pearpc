@@ -12,6 +12,10 @@ if USE_UI_GTK
 THE_UI_DIR=gtk
 endif
 
+if USE_UI_JS
+THE_UI_DIR=js
+endif
+
 if USE_UI_WIN32
 THE_UI_DIR=win32
 endif
@@ -27,6 +31,6 @@ endif
 EXTRA_DIST = gui.h
 
 SUBDIRS = $(THE_UI_DIR)
-EXTRA_SUBDIRS = beos qt gtk win32 sdl x11
+EXTRA_SUBDIRS = beos qt gtk js win32 sdl x11
 
 AM_CPPFLAGS = -I ../..

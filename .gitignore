@@ -18,3 +18,13 @@ depcomp
 install-sh
 missing
 ylwrap
+
+# Emscripten autoconf output
+a.wasm
+a.wasm.map
+compile
+configure~
+
+# When running PearPC
+nvram
+bootfile.dump

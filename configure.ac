@@ -21,7 +21,9 @@ AC_ARG_ENABLE(debug,
 AC_ARG_ENABLE(cpu,
 	[  --enable-cpu            choose cpu (generic, jitc_x86 or jitc_x86_64) [default=<YOUR-ARCH> or generic]],,enable_cpu="generic")
 AC_ARG_ENABLE(ui,
-	[  --enable-ui             choose ui (beos, gtk, qt, sdl, win32, or x11) [system-specific defaults]],,enable_ui="sdl")
+	[  --enable-ui             choose ui (beos, gtk, js, qt, sdl, win32, or x11) [system-specific defaults]],,enable_ui="sdl")
+AC_ARG_ENABLE(emscripten,
+	[  --enable-emscripten     Emscripten is the real target [default=no]],,enable_emscripten="no")
 
 PPC_CFLAGS="-Wundef -Wall -fsigned-char"
 PPC_CXXFLAGS="-Wundef -Wall -Woverloaded-virtual -std=c++11 -fsigned-char"
@@ -63,14 +65,20 @@ dnl Check OS specifica
 
 case "$target_os" in
 linux* | gnu* | k*bsd*-gnu)
-	OSAPI_DIR=posix
-	if test "x$enable_ui" = "xno"; then
-		enable_ui="x11"
-	fi	
-	AC_MSG_RESULT([*** GNU, building POSIX version. we need pthread and rt.])
-	PPC_CFLAGS="$PPC_CFLAGS -pthread"
-	PPC_CXXFLAGS="$PPC_CXXFLAGS -pthread"
-	PPC_LDADD="$PPC_LDADD -lpthread -lrt"
+	if test "x$enable_emscripten" = "xyes"; then
+		OSAPI_DIR=js
+		enable_ui=js
+		AC_MSG_RESULT([*** GNU, building Emscripten version.])
+	else
+		OSAPI_DIR=posix
+		if test "x$enable_ui" = "xno"; then
+			enable_ui="x11"
+		fi	
+		AC_MSG_RESULT([*** GNU, building POSIX version. we need pthread and rt.])
+		PPC_CFLAGS="$PPC_CFLAGS -pthread"
+		PPC_CXXFLAGS="$PPC_CXXFLAGS -pthread"
+		PPC_LDADD="$PPC_LDADD -lpthread -lrt"
+	fi
 ;;
 freebsd*) 
 	OSAPI_DIR=posix
@@ -184,6 +192,7 @@ PPC_CFLAGS="$PPC_CFLAGS -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -pipe";
 PPC_CXXFLAGS="$PPC_CXXFLAGS -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -pipe";
 
 AM_CONDITIONAL(USE_OSAPI_BEOS, test x$OSAPI_DIR = xbeos)
+AM_CONDITIONAL(USE_OSAPI_JS, test x$OSAPI_DIR = xjs)
 AM_CONDITIONAL(USE_OSAPI_POSIX, test x$OSAPI_DIR = xposix)
 AM_CONDITIONAL(USE_OSAPI_WIN32, test x$OSAPI_DIR = xwin32)
 
@@ -361,6 +370,17 @@ dnl	ac_qtdir_errmsg="not found in current PATH. Maybe QT development environment
 ;;
 gtk)
 ;;
+js)
+# 256 MB max for emulated Mac RAM, times 2 in case we need to restart (and heap
+# fragmentation prevents us from getting the same area), plus 32 MB of emulator
+# overhead.
+JS_LDFLAGS="-s INITIAL_MEMORY=570425344" # 256 MB max for emulated Mac RAM, plus 32 MB of emulator overhead
+JS_LDFLAGS="$JS_LDFLAGS -s MODULARIZE -s EXPORT_ES6 -s EXPORT_NAME=emulator"
+JS_LDFLAGS="$JS_LDFLAGS -s EXPORTED_RUNTIME_METHODS=FS"
+JS_LDFLAGS="$JS_LDFLAGS -s ENVIRONMENT=worker"
+JS_LDFLAGS="$JS_LDFLAGS -flto"
+PPC_LDFLAGS="$PPC_LDFLAGS $JS_LDFLAGS"
+;;
 beos)
 ;;
 sdl)
@@ -392,6 +412,7 @@ AM_CONDITIONAL(USE_ARCH_GENERIC, test x$ARCH_DIR = xgeneric)
 
 AM_CONDITIONAL(USE_UI_QT, test x$UI_DIR = xqt)
 AM_CONDITIONAL(USE_UI_GTK, test x$UI_DIR = xgtk)
+AM_CONDITIONAL(USE_UI_JS, test x$UI_DIR = xjs)
 AM_CONDITIONAL(USE_UI_BEOS, test x$UI_DIR = xbeos)
 AM_CONDITIONAL(USE_UI_SDL, test x$UI_DIR = xsdl)
 AM_CONDITIONAL(USE_UI_WIN32, test x$UI_DIR = xwin32)
@@ -511,11 +532,13 @@ src/system/arch/x86_64/Makefile
 src/system/arch/generic/Makefile
 src/system/osapi/Makefile
 src/system/osapi/beos/Makefile
+src/system/osapi/js/Makefile
 src/system/osapi/posix/Makefile
 src/system/osapi/win32/Makefile
 src/system/ui/Makefile
 src/system/ui/beos/Makefile
 src/system/ui/gtk/Makefile
+src/system/ui/js/Makefile
 src/system/ui/qt/Makefile
 src/system/ui/sdl/Makefile
 src/system/ui/win32/Makefile

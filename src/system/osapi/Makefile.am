@@ -4,6 +4,10 @@ if USE_OSAPI_BEOS
 THE_OSAPI_DIR=beos
 endif
 
+if USE_OSAPI_JS
+THE_OSAPI_DIR=js
+endif
+
 if USE_OSAPI_POSIX
 THE_OSAPI_DIR=posix
 endif
@@ -13,6 +17,6 @@ THE_OSAPI_DIR=win32
 endif
 
 SUBDIRS = $(THE_OSAPI_DIR)
-EXTRA_SUBDIRS = beos posix win32
+EXTRA_SUBDIRS = beos js posix win32
 
 AM_CPPFLAGS = -I ../..
