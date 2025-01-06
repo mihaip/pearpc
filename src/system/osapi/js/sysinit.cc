@@ -1,10 +1,8 @@
 #include "system/sys.h"
 
-bool initOSAPI()
-{
+bool initOSAPI() {
 	return true;
 }
 
-void doneOSAPI()
-{
+void doneOSAPI() {
 }
