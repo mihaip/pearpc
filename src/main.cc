@@ -264,6 +264,7 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 
+#ifndef EMSCRIPTEN
 		ht_printf("This program is free software; you can redistribute it and/or modify\n"
 			"it under the terms of the GNU General Public License version 2 as published by\n"
 			"the Free Software Foundation.\n"
@@ -276,7 +277,7 @@ int main(int argc, char *argv[])
 			"You should have received a copy of the GNU General Public License\n"
 			"along with this program; if not, write to the Free Software\n"
 			"Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA\n\n");
-
+#endif
 
 		if (gConfig->getConfigInt("memory_size") < 64*1024*1024) {
 			ht_printf("%s: 'memory_size' must be >= 64MB.", argv[1]);
