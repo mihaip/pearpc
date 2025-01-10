@@ -153,14 +153,10 @@ int partition_getPartitionMap( partition_map *map, void *fd) {
  *
  *						-- Sebastian
  */
-#include <stdio.h>
+
 UInt32 partition_getStartBlock(partition_map *map, const char *type, int num)
 {
 	ApplePartition **partitions = map->partitions;
-	int i;
-	for (i=0; i < map->numparts; i++) {
-		printf("getStartBlock: %d %s\n", i, partitions[num]->pmPartType);
-	}
 	if (num >= map->numparts) return 0;
 	if (strcmp(partitions[num]->pmPartType, type)) return 0;
 	return partitions[num]->pmPyPartStart;
