@@ -375,6 +375,7 @@ js)
 # fragmentation prevents us from getting the same area), plus 32 MB of emulator
 # overhead.
 JS_LDFLAGS="-s INITIAL_MEMORY=570425344" # 256 MB max for emulated Mac RAM, plus 32 MB of emulator overhead
+JS_LDFLAGS="$JS_LDFLAGS -s STACK_SIZE=131072" # 128K to handle large arrays in mapped_load_chrp
 JS_LDFLAGS="$JS_LDFLAGS -s MODULARIZE -s EXPORT_ES6 -s EXPORT_NAME=emulator"
 JS_LDFLAGS="$JS_LDFLAGS -s EXPORTED_RUNTIME_METHODS=FS"
 JS_LDFLAGS="$JS_LDFLAGS -s ENVIRONMENT=worker"

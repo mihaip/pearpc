@@ -4,12 +4,13 @@
 #include <emscripten.h>
 #include <sys/stat.h>
 
+#include "debug/tracers.h"
 #include "system/file.h"
 
-int sys_canonicalize(char *result, const char *filename) {
-	if (!sys_filename_is_absolute(filename)) return ENOENT;
-	return (realpath(filename, result)==result) ? 0 : ENOENT;
-}
+typedef struct {
+    int diskId;
+    FileOfs pos;
+} JSFile;
 
 int sys_file_mode(int mode) {
     	int m = 0;
@@ -40,21 +41,6 @@ int sys_file_mode(int mode) {
 	if (mode & S_IXGRP) m |= HT_S_IXGRP;
 	if (mode & S_IXOTH) m |= HT_S_IXOTH;
 	return m;
-}
-
-int sys_findclose(pfind_t &pfind) {
-    printf("sys_findclose()\n");
-    return 0;
-}
-
-int sys_findfirst(pfind_t &pfind, const char *dirname) {
-    printf("sys_findfirst(%s)\n", dirname);
-    return 0;
-}
-
-int sys_findnext(pfind_t &pfind) {
-    printf("sys_findnext()\n");
-    return 0;
 }
 
 static void stat_to_pstat_t(const struct stat &st, pstat_t &s) {
@@ -98,25 +84,8 @@ int sys_truncate_fd(int fd, FileOfs ofs) {
     return 0;
 }
 
-int sys_deletefile(const char *filename) {
-    printf("sys_deletefile(%s)\n", filename);
-    return 0;
-}
-
 bool sys_is_path_delim(char c) {
 	return c == '/';
-}
-
-int sys_filename_cmp(const char *a, const char *b) {
-    	while (*a && *b) {
-		if (sys_is_path_delim(*a) && sys_is_path_delim(*b)) {
-		} else if (*a != *b) {
-			break;
-		}
-		a++;
-		b++;
-	}
-	return *a - *b;
 }
 
 bool sys_filename_is_absolute(const char *filename) {
@@ -124,36 +93,79 @@ bool sys_filename_is_absolute(const char *filename) {
 }
 
 SYS_FILE *sys_fopen(const char *filename, int openmode) {
-    printf("sys_fopen(%s, %d)\n", filename, openmode);
-    return nullptr;
+    int diskId = EM_ASM_INT({
+        return workerApi.disks.open(UTF8ToString($0));
+    }, filename);
+    if (diskId == -1) {
+        SYS_FILE_WARN("Failing non-disk sys_fopen(%s, %d)\n", filename, openmode);
+        return nullptr;
+    }
+
+    SYS_FILE_TRACE("sys_fopen %s -> disk ID %d\n", filename, diskId);
+
+    return new JSFile{diskId, 0};
 }
 
 void sys_fclose(SYS_FILE *file) {
-    printf("sys_fclose()\n");
+    JSFile *jsFile = static_cast<JSFile*>(file);
+    EM_ASM_({ workerApi.disks.close($0); }, jsFile->diskId);
+    delete jsFile;
 }
 
 int sys_fread(SYS_FILE *file, byte *buf, int size) {
-    printf("sys_fread(%d)\n", size);
-    return 0;
+    JSFile *jsFile = static_cast<JSFile*>(file);
+    uint64 readSize = EM_ASM_DOUBLE({
+        return workerApi.disks.read($0, $1, $2, $3);
+    }, jsFile->diskId, buf, double(jsFile->pos), double(size));
+    SYS_FILE_TRACE("[disk %d] sys_fread %d bytes at %d\n", jsFile->diskId, size, jsFile->pos);
+    jsFile->pos += readSize;
+    return readSize;
 }
 
 int sys_fwrite(SYS_FILE *file, byte *buf, int size) {
-    printf("sys_fwrite(%d)\n", size);
-    return 0;
+    JSFile *jsFile = static_cast<JSFile*>(file);
+    uint64 writeSize = EM_ASM_DOUBLE({
+        return workerApi.disks.write($0, $1, $2, $3);
+    }, jsFile->diskId, buf, double(jsFile->pos), double(size));
+    SYS_FILE_TRACE("[disk %d] sys_fwrite %d bytes at %llu\n", jsFile->diskId, size, jsFile->pos);
+    jsFile->pos += writeSize;
+    return writeSize;
 }
 
 int sys_fseek(SYS_FILE *file, FileOfs newofs, int seekmode) {
-    printf("sys_fseek(%lld, %d)\n", newofs, seekmode);
+    JSFile *jsFile = static_cast<JSFile*>(file);
+    switch (seekmode) {
+        case SYS_SEEK_SET: {
+            SYS_FILE_TRACE("[disk %d] sys_fseek SEEK_SET to %llu\n", jsFile->diskId, newofs);
+            jsFile->pos = newofs;
+            break;
+        }
+        case SYS_SEEK_REL: {
+            jsFile->pos += newofs;
+            SYS_FILE_TRACE("[disk %d] sys_fseek SEEK_CUR by %llu -> %llu\n", jsFile->diskId, newofs, jsFile->pos);
+            break;
+        }
+        case SYS_SEEK_END: {
+            FileOfs size = EM_ASM_DOUBLE({ return workerApi.disks.size($0); }, jsFile->diskId);
+            jsFile->pos = size - newofs;
+            SYS_FILE_TRACE("[disk %d] sys_fseek SEEK_END by %llu -> %llu\n", jsFile->diskId, newofs, jsFile->pos);
+            break;
+        }
+        default:
+            SYS_FILE_TRACE("disk %d] unknown sys_fseek mode %d\n", jsFile->diskId, seekmode);
+            break;
+    }
     return 0;
 }
 
 FileOfs sys_ftell(SYS_FILE *file) {
-    printf("sys_ftell()\n");
-    return 0;
+    JSFile *jsFile = static_cast<JSFile*>(file);
+    SYS_FILE_TRACE("[disk %d] sys_ftell -> %lld\n", jsFile->diskId, jsFile->pos);
+    return jsFile->pos;
 }
 
 void sys_flush(SYS_FILE *file) {
-    printf("sys_flush()\n");
+    // No-op in JS
 }
 
 void sys_suspend() {

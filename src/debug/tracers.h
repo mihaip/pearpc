@@ -47,6 +47,7 @@
 //#define IO_USB_TRACE(msg...) ht_printf("[IO/USB] " msg)
 #define IO_SERIAL_TRACE(msg...) ht_printf("[IO/SERIAL] " msg)
 #define IO_CORE_TRACE(msg...) ht_printf("[IO/Generic] " msg)
+//#define SYS_FILE_TRACE(msg...) ht_printf("[sys/file] " msg)
 
 #define PPC_CPU_WARN(msg...) ht_printf("[CPU/CPU] <Warning> " msg)
 #define PPC_ALU_WARN(msg...) ht_printf("[CPU/ALU] <Warning> " msg)
@@ -70,8 +71,9 @@
 #define IO_USB_WARN(msg...) ht_printf("[IO/USB] <Warning> " msg)
 #define IO_SERIAL_WARN(msg...) ht_printf("[IO/SERIAL] <Warning> " msg)
 #define IO_CORE_WARN(msg...) ht_printf("[IO/Generic] <Warning> " msg)
+#define SYS_FILE_WARN(msg...) ht_printf("[sys/file] <Warning>" msg)
 
-#define PPC_CPU_ERR(msg...) {ht_printf("[CPU/CPU] <Error> " msg);exit(1); } 
+#define PPC_CPU_ERR(msg...) {ht_printf("[CPU/CPU] <Error> " msg);exit(1); }
 #define PPC_ALU_ERR(msg...) {ht_printf("[CPU/ALU] <Error> " msg);exit(1); }
 #define PPC_FPU_ERR(msg...) {ht_printf("[CPU/FPU] <Error> " msg);exit(1); }
 #define PPC_DEC_ERR(msg...) {ht_printf("[CPU/DEC] <Error> " msg);exit(1); }
@@ -93,6 +95,7 @@
 #define IO_USB_ERR(msg...) {ht_printf("[IO/IDE] <Error> " msg);exit(1); }
 #define IO_SERIAL_ERR(msg...) {ht_printf("[IO/SERIAL] <Error> " msg);exit(1); }
 #define IO_CORE_ERR(msg...) {ht_printf("[IO/Generic] <Error> " msg);exit(1); }
+#define SYS_FILE_ERR(msg...) ht_printf("[sys/file] <Error>" msg)
 
 /*
  *
@@ -191,6 +194,10 @@
 
 #ifndef IO_RTL8139_TRACE
 #define IO_RTL8139_TRACE(msg...)
+#endif
+
+#ifndef SYS_FILE_TRACE
+#define SYS_FILE_TRACE(msg...)
 #endif
 
 #endif
