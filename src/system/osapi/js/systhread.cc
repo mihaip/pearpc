@@ -30,15 +30,14 @@ void sys_destroy_thread(sys_semaphore s) {
 }
 
 int sys_lock_mutex(sys_mutex m) {
-    printf("sys_lock_mutex()\n");
+    return 0;
 }
 
 int sys_trylock_mutex(sys_mutex m) {
-    printf("sys_trylock_mutex()\n");
+    return 0;
 }
 
 void sys_unlock_mutex(sys_mutex m) {
-    printf("sys_unlock_mutex()\n");
 }
 
 void sys_signal_semaphore(sys_semaphore s) {
