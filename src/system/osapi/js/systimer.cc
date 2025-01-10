@@ -1,14 +1,14 @@
-#include <cstdio>
+#include <sys/time.h>
 
 #include "system/sysclk.h"
 
 uint64 sys_get_hiresclk_ticks() {
-    printf("sys_get_hiresclk_ticks()\n");
-    // TODO: use performance.now?
-    return 0;
+    struct timeval tv;
+    struct timezone tz;
+    gettimeofday(&tv, &tz);
+    return (uint64(tv.tv_sec) * 1000000) + tv.tv_usec;
 }
 
 uint64 sys_get_hiresclk_ticks_per_second() {
-    printf("sys_get_hiresclk_ticks_per_second()\n");
-    return 0;
+    return 1000000;
 }
