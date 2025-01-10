@@ -196,12 +196,14 @@ extern "C" int SDL_main(int argc, char *argv[])
 }
 #endif
 
+#ifndef EMSCRIPTEN
 static bool running;
 void *cpuThreadLoop(void *) {
 	ppc_cpu_run();
 	running = false;
 	return NULL;
 }
+#endif
 
 int main(int argc, char *argv[])
 {	
@@ -434,6 +436,9 @@ int main(int argc, char *argv[])
 		gDisplay->print("now starting client...");
 		gDisplay->setAnsiColor(VCP(VC_WHITE, CONSOLE_BG));
 
+#ifdef EMSCRIPTEN
+		ppc_cpu_run();
+#else
 		running = true;
 		sys_thread cpuThread;
 		sys_create_thread(&cpuThread, 0, cpuThreadLoop, NULL);
@@ -442,6 +447,7 @@ int main(int argc, char *argv[])
 			usleep(1000);
 		}
 		sys_destroy_thread(cpuThread);
+#endif
 		io_done();
 
 	} catch (const std::exception &e) {
