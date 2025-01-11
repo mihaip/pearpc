@@ -24,6 +24,7 @@
 
 #include "system/systhread.h"
 #include "system/arch/sysendian.h"
+#include "system/ui/gui.h"
 #include "tools/snprintf.h"
 #include "debug/tracers.h"
 #include "cpu/cpu.h"
@@ -139,6 +140,9 @@ void ppc_cpu_run()
 			gCPU.pdec--;
 		}
 		if ((ops & 0x3ffff)==0) {
+#ifdef EMSCRIPTEN
+			sys_gui_cpu_ops_hook(ops);
+#endif
 /*			if (pic_check_interrupt()) {
 				gCPU.exception_pending = true;
 				gCPU.ext_exception = true;

@@ -19,6 +19,15 @@ void sys_gui_event() {
     static_cast<JSSystemDisplay*>(gDisplay)->blit();
 }
 
+void sys_gui_cpu_ops_hook(uint ops) {
+    // We get invoked every 0x3ffff (256K ops), but for now blit every 
+    // 0x7ffff (512K) ops which is roughly 60 Hz on my machine.
+    // TODO: use realtime click to actually try to hit 60fps.
+    if ((ops & 0x7ffff) == 0) {
+        static_cast<JSSystemDisplay*>(gDisplay)->blit();
+    }
+}
+
 void initUI(const char *title, const DisplayCharacteristics &aCharacteristics, int redraw_ms, const KeyboardCharacteristics &keyCharacteristics, bool fullscreen) {
 	gDisplay = allocSystemDisplay(title, aCharacteristics, redraw_ms);
 	// gMouse = allocSystemMouse();
