@@ -45,6 +45,7 @@
 #include "system/sys.h"
 #include "system/sysclk.h"
 #include "system/systhread.h"
+#include "system/ui/gui.h"
 
 #include "cuda.h"
 
@@ -844,6 +845,7 @@ static bool doProcessCudaEvent(const SystemEvent &ev)
 {
 	switch (ev.type) {
 	case sysevKey: {
+		IO_CUDA_TRACE("keyboard event: keycode=%s pressed=%s\n", ev.key.keycode, ev.key.pressed ? "true" : "false");
 		uint8 k = ev.key.keycode;
 		if (!ev.key.pressed) {
 			k |= 0x80;
@@ -874,11 +876,12 @@ static bool doProcessCudaEvent(const SystemEvent &ev)
 		}
 		if (!ev.mouse.button2) dx |= 0x80;
 		if (!ev.mouse.button1) dy |= 0x80;
-//		ht_printf("adb mouse: cur: %d, %d d: %d, %d\n", ev.mouseEvent.x, ev.mouseEvent.y, dx, dy);
+		IO_CUDA_TRACE("mouse event: cur: %d, %d d: %x, %x\n", ev.mouse.relx, ev.mouse.rely, dx, dy);
 		cuda_send_packet(ADB_PACKET, 4, 0x40, 0x3c, dy, dx);
 		return true;
 	}
 	default:
+		IO_CUDA_WARN("unknown event type: %d\n", ev.type);
 		return false;
 	}
 }
@@ -921,23 +924,30 @@ static bool tryProcessCudaEvent(const SystemEvent &ev)
 	return false;
 }
 
+static void processCudaEvents()
+{
+//	IO_CUDA_WARN("waiting on semaphore\n");
+	sys_wait_semaphore(gCUDAEventSem);
+//	IO_CUDA_WARN("semaphore signalled\n");
+	SystemEventObject *seo;
+	while ((seo = (SystemEventObject*)gCUDAEvents.deQueue())) {
+		tryProcessCudaEvent(seo->mEv);
+		delete seo;
+	}
+}
+
+#ifndef EMSCRIPTEN
 static void *cudaEventLoop(void *arg)
 {
 	gKeyboard->attachEventHandler(cudaEventHandler);
 	gMouse->attachEventHandler(cudaEventHandler);
 	sys_lock_semaphore(gCUDAEventSem);
 	while (1) {
-//		IO_CUDA_WARN("waiting on semaphore\n");
-		sys_wait_semaphore(gCUDAEventSem);
-//		IO_CUDA_WARN("semaphore signalled\n");
-		SystemEventObject *seo;
-		while ((seo = (SystemEventObject*)gCUDAEvents.deQueue())) {
-			tryProcessCudaEvent(seo->mEv);
-			delete seo;
-		}
+		processCudaEvents();
 	}
 	return NULL;
 }
+#endif
 
 bool cuda_prom_get_key(uint32 &key)
 {
@@ -980,8 +990,12 @@ void cuda_init()
 		IO_CUDA_ERR("Can't create semaphore\n");
 	}
 
+#ifdef EMSCRIPTEN
+	sys_gui_cuda_hook(cudaEventHandler, processCudaEvents);
+#else
 	sys_thread cudaEventLoopThread;
 	sys_create_thread(&cudaEventLoopThread, 0, cudaEventLoop, NULL);
+#endif
 }
 
 void cuda_done()

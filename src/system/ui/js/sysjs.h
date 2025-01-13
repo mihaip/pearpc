@@ -23,6 +23,11 @@ private:
     int jsFrameBufferSize;
 };
 
+class SystemKeyboard;
+class SystemMouse;
+
 SystemDisplay *allocSystemDisplay(const char *title, const DisplayCharacteristics &chr, int redraw_ms);
+SystemKeyboard *allocSystemKeyboard();
+SystemMouse *allocSystemMouse();
 
 #endif

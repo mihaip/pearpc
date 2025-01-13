@@ -39,6 +39,13 @@ bool sys_gui_open_file_dialog(String &ret, const String &title, const String &fi
 int sys_gui_messagebox(const String &title, const String &text, int buttons);
 
 void sys_gui_event();
+
+#ifdef EMSCRIPTEN
+#include "system/event.h"
+
 void sys_gui_cpu_ops_hook(uint ops);
+void sys_gui_cuda_hook(SystemEventHandler cudaEventHandler, void (*processCudaEvents)());
+#endif
+
 
 #endif

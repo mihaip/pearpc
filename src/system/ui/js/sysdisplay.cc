@@ -7,16 +7,17 @@
 JSSystemDisplay::JSSystemDisplay(
     const DisplayCharacteristics &chr, int redraw_ms)
     : SystemDisplay(chr, redraw_ms) {
-	mClientChar = chr;
+    mClientChar = chr;
     int frameBufferSize =
         mClientChar.width * mClientChar.height * mClientChar.bytesPerPixel;
-	gFrameBuffer = (byte*)malloc(frameBufferSize);
-	memset(gFrameBuffer, 0, frameBufferSize);
+    gFrameBuffer = (byte*)malloc(frameBufferSize);
+    memset(gFrameBuffer, 0, frameBufferSize);
 
     jsFrameBufferSize = mClientChar.width * mClientChar.height * 4;
     jsFrameBuffer.reset(new byte[jsFrameBufferSize]);
 
-	damageFrameBufferAll();
+    damageFrameBufferAll();
+    setMouseGrab(true);
 
     EM_ASM_({ workerApi.didOpenVideo($0, $1); }, mClientChar.width, mClientChar.height);
 }
@@ -29,7 +30,7 @@ void JSSystemDisplay::blit() {
     }
 
     // TODO: take into account damage area and only blit that part.
-	healFrameBuffer();
+    healFrameBuffer();
 
     byte *jsFrameBuffer = this->jsFrameBuffer.get();
     int frameBufferSize =
@@ -81,14 +82,14 @@ void JSSystemDisplay::displayShow() {
 }
 
 void JSSystemDisplay::convertCharacteristicsToHost(DisplayCharacteristics &aHostChar, const DisplayCharacteristics &aClientChar) {
-	aHostChar = aClientChar;
+    aHostChar = aClientChar;
     aHostChar.bytesPerPixel = 4;
-	aHostChar.scanLineLength = aHostChar.bytesPerPixel * aHostChar.width;
+    aHostChar.scanLineLength = aHostChar.bytesPerPixel * aHostChar.width;
 }
 
 bool JSSystemDisplay::changeResolution(const DisplayCharacteristics &aCharacteristics) {
-	mClientChar = aCharacteristics;
-	gFrameBuffer = (byte*)realloc(
+    mClientChar = aCharacteristics;
+    gFrameBuffer = (byte*)realloc(
         gFrameBuffer,
         mClientChar.width * mClientChar.height * mClientChar.bytesPerPixel);
 
@@ -102,14 +103,16 @@ bool JSSystemDisplay::changeResolution(const DisplayCharacteristics &aCharacteri
 
 void JSSystemDisplay::getHostCharacteristics(Container &modes) {
     DisplayCharacteristics *hostChar = new DisplayCharacteristics();
-	convertCharacteristicsToHost(*hostChar, mClientChar);
+    convertCharacteristicsToHost(*hostChar, mClientChar);
     modes.insert(hostChar);
 }
 
 void JSSystemDisplay::setMouseGrab(bool enable) {
-    ::printf("JSSystemDisplay::setMouseGrab\n");
+    // Mouse is always grabbed as far as PearPC is concerned, we just don't sent
+    // events if it's not.
+    SystemDisplay::setMouseGrab(true);
 }
 
 SystemDisplay *allocSystemDisplay(const char *title, const DisplayCharacteristics &chr, int redraw_ms) {
-	return new JSSystemDisplay(chr, redraw_ms);
+    return new JSSystemDisplay(chr, redraw_ms);
 }
