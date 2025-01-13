@@ -155,6 +155,10 @@ void initUI(const char *title, const DisplayCharacteristics &aCharacteristics, i
     gLastMouseEvent.mouse.y = 0;
 
     gKeyboard = allocSystemKeyboard();
+    if (!gKeyboard->setKeyConfig(keyCharacteristics)) {
+        printf("no keyConfig, or is empty\n");
+        exit(1);
+    }
 }
 
 void doneUI() {
