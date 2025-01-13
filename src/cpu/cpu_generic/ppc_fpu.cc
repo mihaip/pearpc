@@ -734,13 +734,13 @@ double ppc_fpu_get_double(ppc_double &d)
  *	fabsx		Floating Absolute Value
  *	.484
  */
-void ppc_opc_fabsx()
+void ppc_opc_fabsx(uint32 opc)
 {
 	int frD, frA, frB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frD, frA, frB);
+	PPC_OPC_TEMPL_X(opc, frD, frA, frB);
 	PPC_OPC_ASSERT(frA==0);
 	gCPU.fpr[frD] = gCPU.fpr[frB] & ~FPU_SIGN_BIT;
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fabs.\n");
 	}
@@ -749,10 +749,10 @@ void ppc_opc_fabsx()
  *	faddx		Floating Add (Double-Precision)
  *	.485
  */
-void ppc_opc_faddx()
+void ppc_opc_faddx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	PPC_OPC_ASSERT(frC==0);
 	ppc_double A, B, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
@@ -762,7 +762,7 @@ void ppc_opc_faddx()
 	}
 	ppc_fpu_add(D, A, B);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fadd.\n");
 	}
@@ -771,10 +771,10 @@ void ppc_opc_faddx()
  *	faddx		Floating Add Single
  *	.486
  */
-void ppc_opc_faddsx()
+void ppc_opc_faddsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	PPC_OPC_ASSERT(frC==0);
 	ppc_double A, B, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
@@ -784,7 +784,7 @@ void ppc_opc_faddsx()
 	}
 	ppc_fpu_add(D, A, B);
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fadds.\n");
 	}
@@ -803,10 +803,10 @@ static uint32 ppc_fpu_cmp_and_mask[8] = {
 	0xf0ffffff,
 	0x0fffffff,
 };
-void ppc_opc_fcmpo()
+void ppc_opc_fcmpo(uint32 opc)
 {
 	int crfD, frA, frB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, crfD, frA, frB);
+	PPC_OPC_TEMPL_X(opc, crfD, frA, frB);
 	crfD >>= 2;
 	ppc_double A, B;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
@@ -829,10 +829,10 @@ void ppc_opc_fcmpo()
  *	fcmpu		Floating Compare Unordered
  *	.489
  */
-void ppc_opc_fcmpu()
+void ppc_opc_fcmpu(uint32 opc)
 {
 	int crfD, frA, frB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, crfD, frA, frB);
+	PPC_OPC_TEMPL_X(opc, crfD, frA, frB);
 	crfD >>= 2;
 	ppc_double A, B;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
@@ -854,15 +854,15 @@ void ppc_opc_fcmpu()
  *	fctiwx		Floating Convert to Integer Word
  *	.492
  */
-void ppc_opc_fctiwx()
+void ppc_opc_fctiwx(uint32 opc)
 {
 	int frD, frA, frB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frD, frA, frB);
+	PPC_OPC_TEMPL_X(opc, frD, frA, frB);
 	PPC_OPC_ASSERT(frA==0);
 	ppc_double B;
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
 	gCPU.fpr[frD] = ppc_fpu_double_to_int(B);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fctiw.\n");
 	}
@@ -871,10 +871,10 @@ void ppc_opc_fctiwx()
  *	fctiwzx		Floating Convert to Integer Word with Round toward Zero
  *	.493
  */
-void ppc_opc_fctiwzx()
+void ppc_opc_fctiwzx(uint32 opc)
 {
 	int frD, frA, frB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frD, frA, frB);
+	PPC_OPC_TEMPL_X(opc, frD, frA, frB);
 	PPC_OPC_ASSERT(frA==0);
 	uint32 oldfpscr = gCPU.fpscr;
 	gCPU.fpscr &= ~3;
@@ -883,7 +883,7 @@ void ppc_opc_fctiwzx()
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
 	gCPU.fpr[frD] = ppc_fpu_double_to_int(B);
 	gCPU.fpscr = oldfpscr;
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fctiwz.\n");
 	}
@@ -892,10 +892,10 @@ void ppc_opc_fctiwzx()
  *	fdivx		Floating Divide (Double-Precision)
  *	.494
  */
-void ppc_opc_fdivx()
+void ppc_opc_fdivx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	PPC_OPC_ASSERT(frC==0);
 	ppc_double A, B, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
@@ -912,7 +912,7 @@ void ppc_opc_fdivx()
 	}
 	ppc_fpu_div(D, A, B);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fdiv.\n");
 	}
@@ -921,10 +921,10 @@ void ppc_opc_fdivx()
  *	fdivsx		Floating Divide Single
  *	.495
  */
-void ppc_opc_fdivsx()
+void ppc_opc_fdivsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	PPC_OPC_ASSERT(frC==0);
 	ppc_double A, B, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
@@ -941,7 +941,7 @@ void ppc_opc_fdivsx()
 	}
 	ppc_fpu_div(D, A, B);
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fdivs.\n");
 	}
@@ -950,17 +950,17 @@ void ppc_opc_fdivsx()
  *	fmaddx		Floating Multiply-Add (Double-Precision)
  *	.496
  */
-void ppc_opc_fmaddx()
+void ppc_opc_fmaddx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	ppc_double A, B, C, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
 	ppc_fpu_unpack_double(C, gCPU.fpr[frC]);
 	ppc_fpu_mul_add(D, A, C, B);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fmadd.\n");
 	}
@@ -969,17 +969,17 @@ void ppc_opc_fmaddx()
  *	fmaddx		Floating Multiply-Add Single
  *	.497
  */
-void ppc_opc_fmaddsx()
+void ppc_opc_fmaddsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	ppc_double A, B, C, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
 	ppc_fpu_unpack_double(C, gCPU.fpr[frC]);
 	ppc_fpu_mul_add(D, A, C, B);
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fmadds.\n");
 	}
@@ -988,13 +988,13 @@ void ppc_opc_fmaddsx()
  *	fmrx		Floating Move Register
  *	.498
  */
-void ppc_opc_fmrx()
+void ppc_opc_fmrx(uint32 opc)
 {
 	int frD, rA, frB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frD, rA, frB);
+	PPC_OPC_TEMPL_X(opc, frD, rA, frB);
 	PPC_OPC_ASSERT(rA==0);
 	gCPU.fpr[frD] = gCPU.fpr[frB];
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fmr.\n");
 	}
@@ -1003,10 +1003,10 @@ void ppc_opc_fmrx()
  *	fmsubx		Floating Multiply-Subtract (Double-Precision)
  *	.499
  */
-void ppc_opc_fmsubx()
+void ppc_opc_fmsubx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	ppc_double A, B, C, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
@@ -1014,7 +1014,7 @@ void ppc_opc_fmsubx()
 	B.s ^= 1;
 	ppc_fpu_mul_add(D, A, C, B);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fmsub.\n");
 	}
@@ -1023,17 +1023,17 @@ void ppc_opc_fmsubx()
  *	fmsubsx		Floating Multiply-Subtract Single
  *	.500
  */
-void ppc_opc_fmsubsx()
+void ppc_opc_fmsubsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	ppc_double A, B, C, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
 	ppc_fpu_unpack_double(C, gCPU.fpr[frC]);
 	ppc_fpu_mul_add(D, A, C, B);
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fmsubs.\n");
 	}
@@ -1042,10 +1042,10 @@ void ppc_opc_fmsubsx()
  *	fmulx		Floating Multipy (Double-Precision)
  *	.501
  */
-void ppc_opc_fmulx()
+void ppc_opc_fmulx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	PPC_OPC_ASSERT(frB==0);
 	ppc_double A, C, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
@@ -1057,7 +1057,7 @@ void ppc_opc_fmulx()
 	ppc_fpu_mul(D, A, C);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
 //	*((double*)&gCPU.fpr[frD]) = *((double*)(&gCPU.fpr[frA]))*(*((double*)(&gCPU.fpr[frC])));
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fmul.\n");
 	}
@@ -1066,10 +1066,10 @@ void ppc_opc_fmulx()
  *	fmulsx		Floating Multipy Single
  *	.502
  */
-void ppc_opc_fmulsx()
+void ppc_opc_fmulsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	PPC_OPC_ASSERT(frB==0);
 	ppc_double A, C, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
@@ -1080,7 +1080,7 @@ void ppc_opc_fmulsx()
 	}
 	ppc_fpu_mul(D, A, C);
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fmuls.\n");
 	}
@@ -1089,13 +1089,13 @@ void ppc_opc_fmulsx()
  *	fnabsx		Floating Negative Absolute Value
  *	.503
  */
-void ppc_opc_fnabsx()
+void ppc_opc_fnabsx(uint32 opc)
 {
 	int frD, frA, frB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frD, frA, frB);
+	PPC_OPC_TEMPL_X(opc, frD, frA, frB);
 	PPC_OPC_ASSERT(frA==0);
 	gCPU.fpr[frD] = gCPU.fpr[frB] | FPU_SIGN_BIT;
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fnabs.\n");
 	}
@@ -1104,13 +1104,13 @@ void ppc_opc_fnabsx()
  *	fnegx		Floating Negate
  *	.504
  */
-void ppc_opc_fnegx()
+void ppc_opc_fnegx(uint32 opc)
 {
 	int frD, frA, frB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frD, frA, frB);
+	PPC_OPC_TEMPL_X(opc, frD, frA, frB);
 	PPC_OPC_ASSERT(frA==0);
 	gCPU.fpr[frD] = gCPU.fpr[frB] ^ FPU_SIGN_BIT;
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fneg.\n");
 	}
@@ -1119,10 +1119,10 @@ void ppc_opc_fnegx()
  *	fnmaddx		Floating Negative Multiply-Add (Double-Precision) 
  *	.505
  */
-void ppc_opc_fnmaddx()
+void ppc_opc_fnmaddx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	ppc_double A, B, C, D/*, E*/;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
@@ -1130,7 +1130,7 @@ void ppc_opc_fnmaddx()
 	ppc_fpu_mul_add(D, A, C, B);
 	D.s ^= 1;
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fnmadd.\n");
 	}
@@ -1139,10 +1139,10 @@ void ppc_opc_fnmaddx()
  *	fnmaddsx	Floating Negative Multiply-Add Single
  *	.506
  */
-void ppc_opc_fnmaddsx()
+void ppc_opc_fnmaddsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	ppc_double A, B, C, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
@@ -1150,7 +1150,7 @@ void ppc_opc_fnmaddsx()
 	ppc_fpu_mul_add(D, A, C, B);
 	D.s ^= 1;
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fnmadds.\n");
 	}
@@ -1159,10 +1159,10 @@ void ppc_opc_fnmaddsx()
  *	fnmsubx		Floating Negative Multiply-Subtract (Double-Precision)
  *	.507
  */
-void ppc_opc_fnmsubx()
+void ppc_opc_fnmsubx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	ppc_double A, B, C, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
@@ -1171,7 +1171,7 @@ void ppc_opc_fnmsubx()
 	ppc_fpu_mul_add(D, A, C, B);
 	D.s ^= 1;
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fnmsub.\n");
 	}
@@ -1180,10 +1180,10 @@ void ppc_opc_fnmsubx()
  *	fnsubsx		Floating Negative Multiply-Subtract Single
  *	.508
  */
-void ppc_opc_fnmsubsx()
+void ppc_opc_fnmsubsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	ppc_double A, B, C, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
@@ -1192,7 +1192,7 @@ void ppc_opc_fnmsubsx()
 	ppc_fpu_mul_add(D, A, C, B);
 	D.s ^= 1;
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fnmsubs.\n");
 	}
@@ -1201,12 +1201,12 @@ void ppc_opc_fnmsubsx()
  *	fresx		Floating Reciprocal Estimate Single
  *	.509
  */
-void ppc_opc_fresx()
+void ppc_opc_fresx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	PPC_OPC_ASSERT(frA==0 && frC==0);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fres.\n");
 	}
@@ -1216,15 +1216,15 @@ void ppc_opc_fresx()
  *	frspx		Floating Round to Single
  *	.511
  */
-void ppc_opc_frspx()
+void ppc_opc_frspx(uint32 opc)
 {
 	int frD, frA, frB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frD, frA, frB);
+	PPC_OPC_TEMPL_X(opc, frD, frA, frB);
 	PPC_OPC_ASSERT(frA==0);
 	ppc_double B;
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(B, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("frsp.\n");
 	}
@@ -1233,10 +1233,10 @@ void ppc_opc_frspx()
  *	frsqrtex	Floating Reciprocal Square Root Estimate
  *	.512
  */
-void ppc_opc_frsqrtex()
+void ppc_opc_frsqrtex(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	PPC_OPC_ASSERT(frA==0 && frC==0);
 	ppc_double B;
 	ppc_double D;
@@ -1247,7 +1247,7 @@ void ppc_opc_frsqrtex()
 	E.type = ppc_fpr_norm; E.s = 0; E.e = 0; E.m = 0x80000000000000ULL;
 	ppc_fpu_div(D, E, Q);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);	
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("frsqrte.\n");
 	}
@@ -1256,10 +1256,10 @@ void ppc_opc_frsqrtex()
  *	fselx		Floating Select
  *	.514
  */
-void ppc_opc_fselx()
+void ppc_opc_fselx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	ppc_double A;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
 	if (A.type == ppc_fpr_NaN || (A.type != ppc_fpr_zero && A.s)) {
@@ -1267,7 +1267,7 @@ void ppc_opc_fselx()
 	} else {
 		gCPU.fpr[frD] = gCPU.fpr[frC];
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fsel.\n");
 	}
@@ -1276,17 +1276,17 @@ void ppc_opc_fselx()
  *	fsqrtx		Floating Square Root (Double-Precision)
  *	.515
  */
-void ppc_opc_fsqrtx()
+void ppc_opc_fsqrtx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	PPC_OPC_ASSERT(frA==0 && frC==0);
 	ppc_double B;
 	ppc_double D;
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
 	ppc_fpu_sqrt(D, B);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fsqrt.\n");
 	}
@@ -1295,12 +1295,12 @@ void ppc_opc_fsqrtx()
  *	fsqrtsx		Floating Square Root Single
  *	.515
  */
-void ppc_opc_fsqrtsx()
+void ppc_opc_fsqrtsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	PPC_OPC_ASSERT(frA==0 && frC==0);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fsqrts.\n");
 	}
@@ -1310,10 +1310,10 @@ void ppc_opc_fsqrtsx()
  *	fsubx		Floating Subtract (Double-Precision)
  *	.517
  */
-void ppc_opc_fsubx()
+void ppc_opc_fsubx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	PPC_OPC_ASSERT(frC==0);
 	ppc_double A, B, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
@@ -1326,7 +1326,7 @@ void ppc_opc_fsubx()
 	}
 	ppc_fpu_add(D, A, B);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fsub.\n");
 	}
@@ -1335,10 +1335,10 @@ void ppc_opc_fsubx()
  *	fsubsx		Floating Subtract Single
  *	.518
  */
-void ppc_opc_fsubsx()
+void ppc_opc_fsubsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, frD, frA, frB, frC);
+	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	PPC_OPC_ASSERT(frC==0);
 	ppc_double A, B, D;
 	ppc_fpu_unpack_double(A, gCPU.fpr[frA]);
@@ -1351,7 +1351,7 @@ void ppc_opc_fsubsx()
 	}
 	ppc_fpu_add(D, A, B);
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr1 flags
 		PPC_FPU_ERR("fsubs.\n");
 	}

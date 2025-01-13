@@ -875,11 +875,11 @@ bool ppc_prom_page_free(uint32 ea)
  *	dcbz		Data Cache Clear to Zero
  *	.464
  */
-void ppc_opc_dcbz()
+void ppc_opc_dcbz(uint32 opc)
 {
 	//PPC_L1_CACHE_LINE_SIZE
 	int rA, rD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rD, rA, rB);
 	// assert rD=0
 	uint32 a = (rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB];
 	// BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -893,11 +893,11 @@ void ppc_opc_dcbz()
  *	lbz		Load Byte and Zero
  *	.521
  */
-void ppc_opc_lbz()
+void ppc_opc_lbz(uint32 opc)
 {
 	int rA, rD;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rD, rA, imm);
 	uint8 r;
 	int ret = ppc_read_effective_byte((rA?gCPU.gpr[rA]:0)+imm, r);
 	if (ret == PPC_MMU_OK) {
@@ -908,11 +908,11 @@ void ppc_opc_lbz()
  *	lbzu		Load Byte and Zero with Update
  *	.522
  */
-void ppc_opc_lbzu()
+void ppc_opc_lbzu(uint32 opc)
 {
 	int rA, rD;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rD, rA, imm);
 	// FIXME: check rA!=0 && rA!=rD
 	uint8 r;
 	int ret = ppc_read_effective_byte(gCPU.gpr[rA]+imm, r);
@@ -925,10 +925,10 @@ void ppc_opc_lbzu()
  *	lbzux		Load Byte and Zero with Update Indexed
  *	.523
  */
-void ppc_opc_lbzux()
+void ppc_opc_lbzux(uint32 opc)
 {
 	int rA, rD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rD, rA, rB);
 	// FIXME: check rA!=0 && rA!=rD
 	uint8 r;
 	int ret = ppc_read_effective_byte(gCPU.gpr[rA]+gCPU.gpr[rB], r);
@@ -941,10 +941,10 @@ void ppc_opc_lbzux()
  *	lbzx		Load Byte and Zero Indexed
  *	.524
  */
-void ppc_opc_lbzx()
+void ppc_opc_lbzx(uint32 opc)
 {
 	int rA, rD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rD, rA, rB);
 	uint8 r;
 	int ret = ppc_read_effective_byte((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], r);
 	if (ret == PPC_MMU_OK) {
@@ -955,7 +955,7 @@ void ppc_opc_lbzx()
  *	lfd		Load Floating-Point Double
  *	.530
  */
-void ppc_opc_lfd()
+void ppc_opc_lfd(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
@@ -963,7 +963,7 @@ void ppc_opc_lfd()
 	}
 	int rA, frD;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, frD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, frD, rA, imm);
 	uint64 r;
 	int ret = ppc_read_effective_dword((rA?gCPU.gpr[rA]:0)+imm, r);
 	if (ret == PPC_MMU_OK) {
@@ -974,7 +974,7 @@ void ppc_opc_lfd()
  *	lfdu		Load Floating-Point Double with Update
  *	.531
  */
-void ppc_opc_lfdu()
+void ppc_opc_lfdu(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
@@ -982,7 +982,7 @@ void ppc_opc_lfdu()
 	}
 	int rA, frD;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, frD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, frD, rA, imm);
 	// FIXME: check rA!=0
 	uint64 r;
 	int ret = ppc_read_effective_dword(gCPU.gpr[rA]+imm, r);
@@ -995,14 +995,14 @@ void ppc_opc_lfdu()
  *	lfdux		Load Floating-Point Double with Update Indexed
  *	.532
  */
-void ppc_opc_lfdux()
+void ppc_opc_lfdux(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
 		return;
 	}
 	int rA, frD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, frD, rA, rB);
 	// FIXME: check rA!=0
 	uint64 r;
 	int ret = ppc_read_effective_dword(gCPU.gpr[rA]+gCPU.gpr[rB], r);
@@ -1015,14 +1015,14 @@ void ppc_opc_lfdux()
  *	lfdx		Load Floating-Point Double Indexed
  *	.533
  */
-void ppc_opc_lfdx()
+void ppc_opc_lfdx(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
 		return;
 	}
 	int rA, frD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, frD, rA, rB);
 	uint64 r;
 	int ret = ppc_read_effective_dword((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], r);
 	if (ret == PPC_MMU_OK) {
@@ -1033,7 +1033,7 @@ void ppc_opc_lfdx()
  *	lfs		Load Floating-Point Single
  *	.534
  */
-void ppc_opc_lfs()
+void ppc_opc_lfs(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
@@ -1041,7 +1041,7 @@ void ppc_opc_lfs()
 	}
 	int rA, frD;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, frD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, frD, rA, imm);
 	uint32 r;
 	int ret = ppc_read_effective_word((rA?gCPU.gpr[rA]:0)+imm, r);
 	if (ret == PPC_MMU_OK) {
@@ -1056,7 +1056,7 @@ void ppc_opc_lfs()
  *	lfsu		Load Floating-Point Single with Update
  *	.535
  */
-void ppc_opc_lfsu()
+void ppc_opc_lfsu(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
@@ -1064,7 +1064,7 @@ void ppc_opc_lfsu()
 	}
 	int rA, frD;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, frD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, frD, rA, imm);
 	// FIXME: check rA!=0
 	uint32 r;
 	int ret = ppc_read_effective_word(gCPU.gpr[rA]+imm, r);
@@ -1081,14 +1081,14 @@ void ppc_opc_lfsu()
  *	lfsux		Load Floating-Point Single with Update Indexed
  *	.536
  */
-void ppc_opc_lfsux()
+void ppc_opc_lfsux(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
 		return;
 	}
 	int rA, frD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, frD, rA, rB);
 	// FIXME: check rA!=0
 	uint32 r;
 	int ret = ppc_read_effective_word(gCPU.gpr[rA]+gCPU.gpr[rB], r);
@@ -1105,14 +1105,14 @@ void ppc_opc_lfsux()
  *	lfsx		Load Floating-Point Single Indexed
  *	.537
  */
-void ppc_opc_lfsx()
+void ppc_opc_lfsx(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
 		return;
 	}
 	int rA, frD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, frD, rA, rB);
 	uint32 r;
 	int ret = ppc_read_effective_word((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], r);
 	if (ret == PPC_MMU_OK) {
@@ -1127,11 +1127,11 @@ void ppc_opc_lfsx()
  *	lha		Load Half Word Algebraic
  *	.538
  */
-void ppc_opc_lha()
+void ppc_opc_lha(uint32 opc)
 {
 	int rA, rD;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rD, rA, imm);
 	uint16 r;
 	int ret = ppc_read_effective_half((rA?gCPU.gpr[rA]:0)+imm, r);
 	if (ret == PPC_MMU_OK) {
@@ -1142,11 +1142,11 @@ void ppc_opc_lha()
  *	lhau		Load Half Word Algebraic with Update
  *	.539
  */
-void ppc_opc_lhau()
+void ppc_opc_lhau(uint32 opc)
 {
 	int rA, rD;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rD, rA, imm);
 	uint16 r;
 	// FIXME: rA != 0
 	int ret = ppc_read_effective_half(gCPU.gpr[rA]+imm, r);
@@ -1159,10 +1159,10 @@ void ppc_opc_lhau()
  *	lhaux		Load Half Word Algebraic with Update Indexed
  *	.540
  */
-void ppc_opc_lhaux()
+void ppc_opc_lhaux(uint32 opc)
 {
 	int rA, rD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rD, rA, rB);
 	uint16 r;
 	// FIXME: rA != 0
 	int ret = ppc_read_effective_half(gCPU.gpr[rA]+gCPU.gpr[rB], r);
@@ -1175,10 +1175,10 @@ void ppc_opc_lhaux()
  *	lhax		Load Half Word Algebraic Indexed
  *	.541
  */
-void ppc_opc_lhax()
+void ppc_opc_lhax(uint32 opc)
 {
 	int rA, rD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rD, rA, rB);
 	uint16 r;
 	// FIXME: rA != 0
 	int ret = ppc_read_effective_half((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], r);
@@ -1190,10 +1190,10 @@ void ppc_opc_lhax()
  *	lhbrx		Load Half Word Byte-Reverse Indexed
  *	.542
  */
-void ppc_opc_lhbrx()
+void ppc_opc_lhbrx(uint32 opc)
 {
 	int rA, rD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rD, rA, rB);
 	uint16 r;
 	int ret = ppc_read_effective_half((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], r);
 	if (ret == PPC_MMU_OK) {
@@ -1204,11 +1204,11 @@ void ppc_opc_lhbrx()
  *	lhz		Load Half Word and Zero
  *	.543
  */
-void ppc_opc_lhz()
+void ppc_opc_lhz(uint32 opc)
 {
 	int rA, rD;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rD, rA, imm);
 	uint16 r;
 	int ret = ppc_read_effective_half((rA?gCPU.gpr[rA]:0)+imm, r);
 	if (ret == PPC_MMU_OK) {
@@ -1219,11 +1219,11 @@ void ppc_opc_lhz()
  *	lhzu		Load Half Word and Zero with Update
  *	.544
  */
-void ppc_opc_lhzu()
+void ppc_opc_lhzu(uint32 opc)
 {
 	int rA, rD;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rD, rA, imm);
 	uint16 r;
 	// FIXME: rA!=0
 	int ret = ppc_read_effective_half(gCPU.gpr[rA]+imm, r);
@@ -1236,10 +1236,10 @@ void ppc_opc_lhzu()
  *	lhzux		Load Half Word and Zero with Update Indexed
  *	.545
  */
-void ppc_opc_lhzux()
+void ppc_opc_lhzux(uint32 opc)
 {
 	int rA, rD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rD, rA, rB);
 	uint16 r;
 	// FIXME: rA != 0
 	int ret = ppc_read_effective_half(gCPU.gpr[rA]+gCPU.gpr[rB], r);
@@ -1252,10 +1252,10 @@ void ppc_opc_lhzux()
  *	lhzx		Load Half Word and Zero Indexed
  *	.546
  */
-void ppc_opc_lhzx()
+void ppc_opc_lhzx(uint32 opc)
 {
 	int rA, rD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rD, rA, rB);
 	uint16 r;
 	int ret = ppc_read_effective_half((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], r);
 	if (ret == PPC_MMU_OK) {
@@ -1266,11 +1266,11 @@ void ppc_opc_lhzx()
  *	lmw		Load Multiple Word
  *	.547
  */
-void ppc_opc_lmw()
+void ppc_opc_lmw(uint32 opc)
 {
 	int rD, rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rD, rA, imm);
 	uint32 ea = (rA ? gCPU.gpr[rA] : 0) + imm;
 	while (rD <= 31) {
 		if (ppc_read_effective_word(ea, gCPU.gpr[rD])) {
@@ -1284,10 +1284,10 @@ void ppc_opc_lmw()
  *	lswi		Load String Word Immediate
  *	.548
  */
-void ppc_opc_lswi()
+void ppc_opc_lswi(uint32 opc)
 {
 	int rA, rD, NB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rD, rA, NB);
+	PPC_OPC_TEMPL_X(opc, rD, rA, NB);
 	if (NB==0) NB=32;
 	uint32 ea = rA ? gCPU.gpr[rA] : 0;
 	uint32 r = 0;
@@ -1317,10 +1317,10 @@ void ppc_opc_lswi()
  *	lswx		Load String Word Indexed
  *	.550
  */
-void ppc_opc_lswx()
+void ppc_opc_lswx(uint32 opc)
 {
 	int rA, rD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rD, rA, rB);
 	int NB = XER_n(gCPU.xer);
 	uint32 ea = gCPU.gpr[rB] + (rA ? gCPU.gpr[rA] : 0);
 
@@ -1351,10 +1351,10 @@ void ppc_opc_lswx()
  *	lwarx		Load Word and Reserve Indexed
  *	.553
  */
-void ppc_opc_lwarx()
+void ppc_opc_lwarx(uint32 opc)
 {
 	int rA, rD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rD, rA, rB);
 	uint32 r;
 	int ret = ppc_read_effective_word((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], r);
 	if (ret == PPC_MMU_OK) {
@@ -1367,10 +1367,10 @@ void ppc_opc_lwarx()
  *	lwbrx		Load Word Byte-Reverse Indexed
  *	.556
  */
-void ppc_opc_lwbrx()
+void ppc_opc_lwbrx(uint32 opc)
 {
 	int rA, rD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rD, rA, rB);
 	uint32 r;
 	int ret = ppc_read_effective_word((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], r);
 	if (ret == PPC_MMU_OK) {
@@ -1381,11 +1381,11 @@ void ppc_opc_lwbrx()
  *	lwz		Load Word and Zero
  *	.557
  */
-void ppc_opc_lwz()
+void ppc_opc_lwz(uint32 opc)
 {
 	int rA, rD;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rD, rA, imm);
 	uint32 r;
 	int ret = ppc_read_effective_word((rA?gCPU.gpr[rA]:0)+imm, r);
 	if (ret == PPC_MMU_OK) {
@@ -1396,11 +1396,11 @@ void ppc_opc_lwz()
  *	lbzu		Load Word and Zero with Update
  *	.558
  */
-void ppc_opc_lwzu()
+void ppc_opc_lwzu(uint32 opc)
 {
 	int rA, rD;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rD, rA, imm);
 	// FIXME: check rA!=0 && rA!=rD
 	uint32 r;
 	int ret = ppc_read_effective_word(gCPU.gpr[rA]+imm, r);
@@ -1413,10 +1413,10 @@ void ppc_opc_lwzu()
  *	lwzux		Load Word and Zero with Update Indexed
  *	.559
  */
-void ppc_opc_lwzux()
+void ppc_opc_lwzux(uint32 opc)
 {
 	int rA, rD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rD, rA, rB);
 	// FIXME: check rA!=0 && rA!=rD
 	uint32 r;
 	int ret = ppc_read_effective_word(gCPU.gpr[rA]+gCPU.gpr[rB], r);
@@ -1429,10 +1429,10 @@ void ppc_opc_lwzux()
  *	lwzx		Load Word and Zero Indexed
  *	.560
  */
-void ppc_opc_lwzx()
+void ppc_opc_lwzx(uint32 opc)
 {
 	int rA, rD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rD, rA, rB);
 	uint32 r;
 	int ret = ppc_read_effective_word((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], r);
 	if (ret == PPC_MMU_OK) {
@@ -1443,7 +1443,7 @@ void ppc_opc_lwzx()
 /*      lvx	     Load Vector Indexed
  *      v.127
  */
-void ppc_opc_lvx()
+void ppc_opc_lvx(uint32 opc)
 {
 #ifndef __VEC_EXC_OFF__
 	if ((gCPU.msr & MSR_VEC) == 0) {
@@ -1453,7 +1453,7 @@ void ppc_opc_lvx()
 #endif
 	VECTOR_DEBUG;
 	int rA, vrD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, vrD, rA, rB);
 	Vector_t r;
 
 	int ea = ((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB]);
@@ -1467,9 +1467,9 @@ void ppc_opc_lvx()
 /*      lvxl	    Load Vector Index LRU
  *      v.128
  */
-void ppc_opc_lvxl()
+void ppc_opc_lvxl(uint32 opc)
 {
-	ppc_opc_lvx();
+	ppc_opc_lvx(opc);
 	/* This instruction should hint to the cache that the value won't be
 	 *   needed again in memory anytime soon.  We don't emulate the cache,
 	 *   so this is effectively exactly the same as lvx.
@@ -1479,7 +1479,7 @@ void ppc_opc_lvxl()
 /*      lvebx	   Load Vector Element Byte Indexed
  *      v.119
  */
-void ppc_opc_lvebx()
+void ppc_opc_lvebx(uint32 opc)
 {
 #ifndef __VEC_EXC_OFF__
 	if ((gCPU.msr & MSR_VEC) == 0) {
@@ -1489,7 +1489,7 @@ void ppc_opc_lvebx()
 #endif
 	VECTOR_DEBUG;
 	int rA, vrD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, vrD, rA, rB);
 	uint32 ea;
 	uint8 r;
 	ea = (rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB];
@@ -1502,7 +1502,7 @@ void ppc_opc_lvebx()
 /*      lvehx	   Load Vector Element Half Word Indexed
  *      v.121
  */
-void ppc_opc_lvehx()
+void ppc_opc_lvehx(uint32 opc)
 {
 #ifndef __VEC_EXC_OFF__
 	if ((gCPU.msr & MSR_VEC) == 0) {
@@ -1512,7 +1512,7 @@ void ppc_opc_lvehx()
 #endif
 	VECTOR_DEBUG;
 	int rA, vrD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, vrD, rA, rB);
 	uint32 ea;
 	uint16 r;
 	ea = ((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB]) & ~1;
@@ -1525,7 +1525,7 @@ void ppc_opc_lvehx()
 /*      lvewx	   Load Vector Element Word Indexed
  *      v.122
  */
-void ppc_opc_lvewx()
+void ppc_opc_lvewx(uint32 opc)
 {
 #ifndef __VEC_EXC_OFF__
 	if ((gCPU.msr & MSR_VEC) == 0) {
@@ -1535,7 +1535,7 @@ void ppc_opc_lvewx()
 #endif
 	VECTOR_DEBUG;
 	int rA, vrD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, vrD, rA, rB);
 	uint32 ea;
 	uint32 r;
 	ea = ((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB]) & ~3;
@@ -1567,7 +1567,7 @@ static byte lvsl_helper[] = {
  *      lvsl	    Load Vector for Shift Left
  *      v.123
  */
-void ppc_opc_lvsl()
+void ppc_opc_lvsl(uint32 opc)
 {
 #ifndef __VEC_EXC_OFF__
 	if ((gCPU.msr & MSR_VEC) == 0) {
@@ -1577,7 +1577,7 @@ void ppc_opc_lvsl()
 #endif
 	VECTOR_DEBUG;
 	int rA, vrD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, vrD, rA, rB);
 	uint32 ea;
 	ea = ((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB]);
 #if HOST_ENDIANESS == HOST_ENDIANESS_LE
@@ -1593,7 +1593,7 @@ void ppc_opc_lvsl()
  *      lvsr	    Load Vector for Shift Right
  *      v.125
  */
-void ppc_opc_lvsr()
+void ppc_opc_lvsr(uint32 opc)
 {
 #ifndef __VEC_EXC_OFF__
 	if ((gCPU.msr & MSR_VEC) == 0) {
@@ -1603,7 +1603,7 @@ void ppc_opc_lvsr()
 #endif
 	VECTOR_DEBUG;
 	int rA, vrD, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, rA, rB);
+	PPC_OPC_TEMPL_X(opc, vrD, rA, rB);
 	uint32 ea;
 	ea = ((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB]);
 #if HOST_ENDIANESS == HOST_ENDIANESS_LE
@@ -1619,7 +1619,7 @@ void ppc_opc_lvsr()
  *      dst	     Data Stream Touch
  *      v.115
  */
-void ppc_opc_dst()
+void ppc_opc_dst(uint32 opc)
 {
 	VECTOR_DEBUG;
 	/* Since we are not emulating the cache, this is a nop */
@@ -1629,22 +1629,22 @@ void ppc_opc_dst()
  *	stb		Store Byte
  *	.632
  */
-void ppc_opc_stb()
+void ppc_opc_stb(uint32 opc)
 {
 	int rA, rS;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rS, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rS, rA, imm);
 	ppc_write_effective_byte((rA?gCPU.gpr[rA]:0)+imm, (uint8)gCPU.gpr[rS]) != PPC_MMU_FATAL;
 }
 /*
  *	stbu		Store Byte with Update
  *	.633
  */
-void ppc_opc_stbu()
+void ppc_opc_stbu(uint32 opc)
 {
 	int rA, rS;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rS, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rS, rA, imm);
 	// FIXME: check rA!=0
 	int ret = ppc_write_effective_byte(gCPU.gpr[rA]+imm, (uint8)gCPU.gpr[rS]);
 	if (ret == PPC_MMU_OK) {
@@ -1655,10 +1655,10 @@ void ppc_opc_stbu()
  *	stbux		Store Byte with Update Indexed
  *	.634
  */
-void ppc_opc_stbux()
+void ppc_opc_stbux(uint32 opc)
 {
 	int rA, rS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	// FIXME: check rA!=0
 	int ret = ppc_write_effective_byte(gCPU.gpr[rA]+gCPU.gpr[rB], (uint8)gCPU.gpr[rS]);
 	if (ret == PPC_MMU_OK) {
@@ -1669,17 +1669,17 @@ void ppc_opc_stbux()
  *	stbx		Store Byte Indexed
  *	.635
  */
-void ppc_opc_stbx()
+void ppc_opc_stbx(uint32 opc)
 {
 	int rA, rS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	ppc_write_effective_byte((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], (uint8)gCPU.gpr[rS]) != PPC_MMU_FATAL;
 }
 /*
  *	stfd		Store Floating-Point Double
  *	.642
  */
-void ppc_opc_stfd()
+void ppc_opc_stfd(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
@@ -1687,14 +1687,14 @@ void ppc_opc_stfd()
 	}
 	int rA, frS;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, frS, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, frS, rA, imm);
 	ppc_write_effective_dword((rA?gCPU.gpr[rA]:0)+imm, gCPU.fpr[frS]) != PPC_MMU_FATAL;
 }
 /*
  *	stfdu		Store Floating-Point Double with Update
  *	.643
  */
-void ppc_opc_stfdu()
+void ppc_opc_stfdu(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
@@ -1702,7 +1702,7 @@ void ppc_opc_stfdu()
 	}
 	int rA, frS;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, frS, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, frS, rA, imm);
 	// FIXME: check rA!=0
 	int ret = ppc_write_effective_dword(gCPU.gpr[rA]+imm, gCPU.fpr[frS]);
 	if (ret == PPC_MMU_OK) {
@@ -1713,14 +1713,14 @@ void ppc_opc_stfdu()
  *	stfd		Store Floating-Point Double with Update Indexed
  *	.644
  */
-void ppc_opc_stfdux()
+void ppc_opc_stfdux(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
 		return;
 	}
 	int rA, frS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, frS, rA, rB);
 	// FIXME: check rA!=0
 	int ret = ppc_write_effective_dword(gCPU.gpr[rA]+gCPU.gpr[rB], gCPU.fpr[frS]);
 	if (ret == PPC_MMU_OK) {
@@ -1731,35 +1731,35 @@ void ppc_opc_stfdux()
  *	stfdx		Store Floating-Point Double Indexed
  *	.645
  */
-void ppc_opc_stfdx()
+void ppc_opc_stfdx(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
 		return;
 	}
 	int rA, frS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, frS, rA, rB);
 	ppc_write_effective_dword((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], gCPU.fpr[frS]) != PPC_MMU_FATAL;
 }
 /*
  *	stfiwx		Store Floating-Point as Integer Word Indexed
  *	.646
  */
-void ppc_opc_stfiwx()
+void ppc_opc_stfiwx(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
 		return;
 	}
 	int rA, frS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, frS, rA, rB);
 	ppc_write_effective_word((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], (uint32)gCPU.fpr[frS]) != PPC_MMU_FATAL;
 }
 /*
  *	stfs		Store Floating-Point Single
  *	.647
  */
-void ppc_opc_stfs()
+void ppc_opc_stfs(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
@@ -1767,7 +1767,7 @@ void ppc_opc_stfs()
 	}
 	int rA, frS;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, frS, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, frS, rA, imm);
 	uint32 s;
 	ppc_double d;
 	ppc_fpu_unpack_double(d, gCPU.fpr[frS]);
@@ -1778,7 +1778,7 @@ void ppc_opc_stfs()
  *	stfsu		Store Floating-Point Single with Update
  *	.648
  */
-void ppc_opc_stfsu()
+void ppc_opc_stfsu(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
@@ -1786,7 +1786,7 @@ void ppc_opc_stfsu()
 	}
 	int rA, frS;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, frS, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, frS, rA, imm);
 	// FIXME: check rA!=0
 	uint32 s;
 	ppc_double d;
@@ -1801,14 +1801,14 @@ void ppc_opc_stfsu()
  *	stfsux		Store Floating-Point Single with Update Indexed
  *	.649
  */
-void ppc_opc_stfsux()
+void ppc_opc_stfsux(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
 		return;
 	}
 	int rA, frS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, frS, rA, rB);
 	// FIXME: check rA!=0
 	uint32 s;
 	ppc_double d;
@@ -1823,14 +1823,14 @@ void ppc_opc_stfsux()
  *	stfsx		Store Floating-Point Single Indexed
  *	.650
  */
-void ppc_opc_stfsx()
+void ppc_opc_stfsx(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
 		return;
 	}
 	int rA, frS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, frS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, frS, rA, rB);
 	uint32 s;
 	ppc_double d;
 	ppc_fpu_unpack_double(d, gCPU.fpr[frS]);
@@ -1841,32 +1841,32 @@ void ppc_opc_stfsx()
  *	sth		Store Half Word
  *	.651
  */
-void ppc_opc_sth()
+void ppc_opc_sth(uint32 opc)
 {
 	int rA, rS;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rS, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rS, rA, imm);
 	ppc_write_effective_half((rA?gCPU.gpr[rA]:0)+imm, (uint16)gCPU.gpr[rS]) != PPC_MMU_FATAL;
 }
 /*
  *	sthbrx		Store Half Word Byte-Reverse Indexed
  *	.652
  */
-void ppc_opc_sthbrx()
+void ppc_opc_sthbrx(uint32 opc)
 {
 	int rA, rS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	ppc_write_effective_half((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], ppc_bswap_half(gCPU.gpr[rS])) != PPC_MMU_FATAL;
 }
 /*
  *	sthu		Store Half Word with Update
  *	.653
  */
-void ppc_opc_sthu()
+void ppc_opc_sthu(uint32 opc)
 {
 	int rA, rS;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rS, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rS, rA, imm);
 	// FIXME: check rA!=0
 	int ret = ppc_write_effective_half(gCPU.gpr[rA]+imm, (uint16)gCPU.gpr[rS]);
 	if (ret == PPC_MMU_OK) {
@@ -1877,10 +1877,10 @@ void ppc_opc_sthu()
  *	sthux		Store Half Word with Update Indexed
  *	.654
  */
-void ppc_opc_sthux()
+void ppc_opc_sthux(uint32 opc)
 {
 	int rA, rS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	// FIXME: check rA!=0
 	int ret = ppc_write_effective_half(gCPU.gpr[rA]+gCPU.gpr[rB], (uint16)gCPU.gpr[rS]);
 	if (ret == PPC_MMU_OK) {
@@ -1891,21 +1891,21 @@ void ppc_opc_sthux()
  *	sthx		Store Half Word Indexed
  *	.655
  */
-void ppc_opc_sthx()
+void ppc_opc_sthx(uint32 opc)
 {
 	int rA, rS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	ppc_write_effective_half((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], (uint16)gCPU.gpr[rS]) != PPC_MMU_FATAL;
 }
 /*
  *	stmw		Store Multiple Word
  *	.656
  */
-void ppc_opc_stmw()
+void ppc_opc_stmw(uint32 opc)
 {
 	int rS, rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rS, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rS, rA, imm);
 	uint32 ea = (rA ? gCPU.gpr[rA] : 0) + imm;
 	while (rS <= 31) {
 		if (ppc_write_effective_word(ea, gCPU.gpr[rS])) {
@@ -1919,10 +1919,10 @@ void ppc_opc_stmw()
  *	stswi		Store String Word Immediate
  *	.657
  */
-void ppc_opc_stswi()
+void ppc_opc_stswi(uint32 opc)
 {
 	int rA, rS, NB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, NB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, NB);
 	if (NB==0) NB=32;
 	uint32 ea = rA ? gCPU.gpr[rA] : 0;
 	uint32 r = 0;
@@ -1948,10 +1948,10 @@ void ppc_opc_stswi()
  *	stswx		Store String Word Indexed
  *	.658
  */
-void ppc_opc_stswx()
+void ppc_opc_stswx(uint32 opc)
 {
 	int rA, rS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	int NB = XER_n(gCPU.xer);
 	uint32 ea = gCPU.gpr[rB] + (rA ? gCPU.gpr[rA] : 0);
 	uint32 r = 0;
@@ -1977,21 +1977,21 @@ void ppc_opc_stswx()
  *	stw		Store Word
  *	.659
  */
-void ppc_opc_stw()
+void ppc_opc_stw(uint32 opc)
 {
 	int rA, rS;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rS, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rS, rA, imm);
 	ppc_write_effective_word((rA?gCPU.gpr[rA]:0)+imm, gCPU.gpr[rS]) != PPC_MMU_FATAL;
 }
 /*
  *	stwbrx		Store Word Byte-Reverse Indexed
  *	.660
  */
-void ppc_opc_stwbrx()
+void ppc_opc_stwbrx(uint32 opc)
 {
 	int rA, rS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	// FIXME: doppelt gemoppelt
 	ppc_write_effective_word((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], ppc_bswap_word(gCPU.gpr[rS])) != PPC_MMU_FATAL;
 }
@@ -1999,10 +1999,10 @@ void ppc_opc_stwbrx()
  *	stwcx.		Store Word Conditional Indexed
  *	.661
  */
-void ppc_opc_stwcx_()
+void ppc_opc_stwcx_(uint32 opc)
 {
 	int rA, rS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	gCPU.cr &= 0x0fffffff;
 	if (gCPU.have_reservation) {
 		gCPU.have_reservation = false;
@@ -2025,11 +2025,11 @@ void ppc_opc_stwcx_()
  *	stwu		Store Word with Update
  *	.663
  */
-void ppc_opc_stwu()
+void ppc_opc_stwu(uint32 opc)
 {
 	int rA, rS;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rS, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rS, rA, imm);
 	// FIXME: check rA!=0
 	int ret = ppc_write_effective_word(gCPU.gpr[rA]+imm, gCPU.gpr[rS]);
 	if (ret == PPC_MMU_OK) {
@@ -2040,10 +2040,10 @@ void ppc_opc_stwu()
  *	stwux		Store Word with Update Indexed
  *	.664
  */
-void ppc_opc_stwux()
+void ppc_opc_stwux(uint32 opc)
 {
 	int rA, rS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	// FIXME: check rA!=0
 	int ret = ppc_write_effective_word(gCPU.gpr[rA]+gCPU.gpr[rB], gCPU.gpr[rS]);
 	if (ret == PPC_MMU_OK) {
@@ -2054,17 +2054,17 @@ void ppc_opc_stwux()
  *	stwx		Store Word Indexed
  *	.665
  */
-void ppc_opc_stwx()
+void ppc_opc_stwx(uint32 opc)
 {
 	int rA, rS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	ppc_write_effective_word((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], gCPU.gpr[rS]) != PPC_MMU_FATAL;
 }
 
 /*      stvx	    Store Vector Indexed
  *      v.134
  */
-void ppc_opc_stvx()
+void ppc_opc_stvx(uint32 opc)
 {
 #ifndef __VEC_EXC_OFF__
 	if ((gCPU.msr & MSR_VEC) == 0) {
@@ -2074,7 +2074,7 @@ void ppc_opc_stvx()
 #endif
 	VECTOR_DEBUG;
 	int rA, vrS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, vrS, rA, rB);
 
 	int ea = ((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB]);
 
@@ -2084,9 +2084,9 @@ void ppc_opc_stvx()
 /*      stvxl	   Store Vector Indexed LRU
  *      v.135
  */
-void ppc_opc_stvxl()
+void ppc_opc_stvxl(uint32 opc)
 {
-	ppc_opc_stvx();
+	ppc_opc_stvx(opc);
 	/* This instruction should hint to the cache that the value won't be
 	 *   needed again in memory anytime soon.  We don't emulate the cache,
 	 *   so this is effectively exactly the same as lvx.
@@ -2096,7 +2096,7 @@ void ppc_opc_stvxl()
 /*      stvebx	  Store Vector Element Byte Indexed
  *      v.131
  */
-void ppc_opc_stvebx()
+void ppc_opc_stvebx(uint32 opc)
 {
 #ifndef __VEC_EXC_OFF__
 	if ((gCPU.msr & MSR_VEC) == 0) {
@@ -2106,7 +2106,7 @@ void ppc_opc_stvebx()
 #endif
 	VECTOR_DEBUG;
 	int rA, vrS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, vrS, rA, rB);
 	uint32 ea;
 	ea = (rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB];
 	ppc_write_effective_byte(ea, VECT_B(gCPU.vr[vrS], ea & 0xf));
@@ -2115,7 +2115,7 @@ void ppc_opc_stvebx()
 /*      stvehx	  Store Vector Element Half Word Indexed
  *      v.132
  */
-void ppc_opc_stvehx()
+void ppc_opc_stvehx(uint32 opc)
 {
 #ifndef __VEC_EXC_OFF__
 	if ((gCPU.msr & MSR_VEC) == 0) {
@@ -2125,7 +2125,7 @@ void ppc_opc_stvehx()
 #endif
 	VECTOR_DEBUG;
 	int rA, vrS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, vrS, rA, rB);
 	uint32 ea;
 	ea = ((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB]) & ~1;
 	ppc_write_effective_half(ea, VECT_H(gCPU.vr[vrS], (ea & 0xf) >> 1));
@@ -2134,7 +2134,7 @@ void ppc_opc_stvehx()
 /*      stvewx	  Store Vector Element Word Indexed
  *      v.133
  */
-void ppc_opc_stvewx()
+void ppc_opc_stvewx(uint32 opc)
 {
 #ifndef __VEC_EXC_OFF__
 	if ((gCPU.msr & MSR_VEC) == 0) {
@@ -2144,7 +2144,7 @@ void ppc_opc_stvewx()
 #endif
 	VECTOR_DEBUG;
 	int rA, vrS, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, vrS, rA, rB);
 	uint32 ea;
 	ea = ((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB]) & ~3;
 	ppc_write_effective_word(ea, VECT_W(gCPU.vr[vrS], (ea & 0xf) >> 2));
@@ -2153,7 +2153,7 @@ void ppc_opc_stvewx()
 /*      dstst	   Data Stream Touch for Store
  *      v.117
  */
-void ppc_opc_dstst()
+void ppc_opc_dstst(uint32 opc)
 {
 	VECTOR_DEBUG;
 	/* Since we are not emulating the cache, this is a nop */
@@ -2162,7 +2162,7 @@ void ppc_opc_dstst()
 /*      dss	     Data Stream Stop
  *      v.114
  */
-void ppc_opc_dss()
+void ppc_opc_dss(uint32 opc)
 {
 	VECTOR_DEBUG;
 	/* Since we are not emulating the cache, this is a nop */

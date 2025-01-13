@@ -36,13 +36,13 @@
 
 #include "io/prom/promosi.h"
 
-static void ppc_opc_invalid()
+static void ppc_opc_invalid(uint32 opc)
 {
-	if (gCPU.pc == gPromOSIEntry && gCPU.current_opc == PROM_MAGIC_OPCODE) {
+	if (gCPU.pc == gPromOSIEntry && opc == PROM_MAGIC_OPCODE) {
 		call_prom_osi();
 		return;
 	}
-	if (gCPU.current_opc == 0x00333301) {
+	if (opc == 0x00333301) {
 		// memset(r3, r4, r5)
 		uint32 dest = gCPU.gpr[3];
 		uint32 c = gCPU.gpr[4];
@@ -70,7 +70,7 @@ static void ppc_opc_invalid()
 		gCPU.pc = gCPU.npc;
 		return;
 	}
-	if (gCPU.current_opc == 0x00333302) {
+	if (opc == 0x00333302) {
 		// memcpy
 		uint32 dest = gCPU.gpr[3];
 		uint32 src = gCPU.gpr[4];
@@ -88,48 +88,48 @@ static void ppc_opc_invalid()
 		return;
 	}
 	fprintf(stderr, "[PPC/DEC] Bad opcode: %08x (%u:%u)\n",
-		gCPU.current_opc, PPC_OPC_MAIN(gCPU.current_opc),
-		PPC_OPC_EXT(gCPU.current_opc));
+		opc, PPC_OPC_MAIN(opc),
+		PPC_OPC_EXT(opc));
 
 	SINGLESTEP("unknown instruction\n");
 }
 
 // main opcode 19
-static void ppc_opc_group_1()
+static void ppc_opc_group_1(uint32 opc)
 {
-	uint32 ext = PPC_OPC_EXT(gCPU.current_opc);
+	uint32 ext = PPC_OPC_EXT(opc);
 	if (ext & 1) {
 		// crxxx
 		if (ext <= 225) {
 			switch (ext) {
-				case 33: ppc_opc_crnor(); return;
-				case 129: ppc_opc_crandc(); return;
-				case 193: ppc_opc_crxor(); return;
-				case 225: ppc_opc_crnand(); return;
+				case 33: ppc_opc_crnor(opc); return;
+				case 129: ppc_opc_crandc(opc); return;
+				case 193: ppc_opc_crxor(opc); return;
+				case 225: ppc_opc_crnand(opc); return;
 			}
 		} else {
 			switch (ext) {
-				case 257: ppc_opc_crand(); return;
-				case 289: ppc_opc_creqv(); return;
-				case 417: ppc_opc_crorc(); return;
-				case 449: ppc_opc_cror(); return;
+				case 257: ppc_opc_crand(opc); return;
+				case 289: ppc_opc_creqv(opc); return;
+				case 417: ppc_opc_crorc(opc); return;
+				case 449: ppc_opc_cror(opc); return;
 			}
 		}
 	} else if (ext & (1<<9)) {
 		// bcctrx
 		if (ext == 528) {
-			ppc_opc_bcctrx(); 
+			ppc_opc_bcctrx(opc); 
 			return;
 		}
 	} else {
 		switch (ext) {
-			case 16: ppc_opc_bclrx(); return;
-			case 0: ppc_opc_mcrf(); return;
-			case 50: ppc_opc_rfi(); return;
-			case 150: ppc_opc_isync(); return;
+			case 16: ppc_opc_bclrx(opc); return;
+			case 0: ppc_opc_mcrf(opc); return;
+			case 50: ppc_opc_rfi(opc); return;
+			case 150: ppc_opc_isync(opc); return;
 		}
 	}
-	ppc_opc_invalid();
+	ppc_opc_invalid(opc);
 }
 
 ppc_opc_function ppc_opc_table_group2[1015];
@@ -256,81 +256,81 @@ static void ppc_opc_init_group2()
 }
 
 // main opcode 31
-inline static void ppc_opc_group_2()
+inline static void ppc_opc_group_2(uint32 opc)
 {
-	uint32 ext = PPC_OPC_EXT(gCPU.current_opc);
+	uint32 ext = PPC_OPC_EXT(opc);
 	if (ext >= (sizeof ppc_opc_table_group2 / sizeof ppc_opc_table_group2[0])) {
-		ppc_opc_invalid();
+		ppc_opc_invalid(opc);
 	}
-	ppc_opc_table_group2[ext]();
+	ppc_opc_table_group2[ext](opc);
 }
 
 // main opcode 59
-static void ppc_opc_group_f1()
+static void ppc_opc_group_f1(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
 		return;
 	}
-	uint32 ext = PPC_OPC_EXT(gCPU.current_opc);
+	uint32 ext = PPC_OPC_EXT(opc);
 	switch (ext & 0x1f) {
-		case 18: ppc_opc_fdivsx(); return;
-		case 20: ppc_opc_fsubsx(); return;
-		case 21: ppc_opc_faddsx(); return;
-		case 22: ppc_opc_fsqrtsx(); return;
-		case 24: ppc_opc_fresx(); return;
-		case 25: ppc_opc_fmulsx(); return;
-		case 28: ppc_opc_fmsubsx(); return;
-		case 29: ppc_opc_fmaddsx(); return;
-		case 30: ppc_opc_fnmsubsx(); return;
-		case 31: ppc_opc_fnmaddsx(); return;
+		case 18: ppc_opc_fdivsx(opc); return;
+		case 20: ppc_opc_fsubsx(opc); return;
+		case 21: ppc_opc_faddsx(opc); return;
+		case 22: ppc_opc_fsqrtsx(opc); return;
+		case 24: ppc_opc_fresx(opc); return;
+		case 25: ppc_opc_fmulsx(opc); return;
+		case 28: ppc_opc_fmsubsx(opc); return;
+		case 29: ppc_opc_fmaddsx(opc); return;
+		case 30: ppc_opc_fnmsubsx(opc); return;
+		case 31: ppc_opc_fnmaddsx(opc); return;
 	}
-	ppc_opc_invalid();
+	ppc_opc_invalid(opc);
 }
 
 // main opcode 63
-static void ppc_opc_group_f2()
+static void ppc_opc_group_f2(uint32 opc)
 {
 	if ((gCPU.msr & MSR_FP) == 0) {
 		ppc_exception(PPC_EXC_NO_FPU);
 		return;
 	}
-	uint32 ext = PPC_OPC_EXT(gCPU.current_opc);
+	uint32 ext = PPC_OPC_EXT(opc);
 	if (ext & 16) {
 		switch (ext & 0x1f) {
-		case 18: ppc_opc_fdivx(); return;
-		case 20: ppc_opc_fsubx(); return;
-		case 21: ppc_opc_faddx(); return;
-		case 22: ppc_opc_fsqrtx(); return;
-		case 23: ppc_opc_fselx(); return;
-		case 25: ppc_opc_fmulx(); return;
-		case 26: ppc_opc_frsqrtex(); return;
-		case 28: ppc_opc_fmsubx(); return;
-		case 29: ppc_opc_fmaddx(); return;
-		case 30: ppc_opc_fnmsubx(); return;
-		case 31: ppc_opc_fnmaddx(); return;
+		case 18: ppc_opc_fdivx(opc); return;
+		case 20: ppc_opc_fsubx(opc); return;
+		case 21: ppc_opc_faddx(opc); return;
+		case 22: ppc_opc_fsqrtx(opc); return;
+		case 23: ppc_opc_fselx(opc); return;
+		case 25: ppc_opc_fmulx(opc); return;
+		case 26: ppc_opc_frsqrtex(opc); return;
+		case 28: ppc_opc_fmsubx(opc); return;
+		case 29: ppc_opc_fmaddx(opc); return;
+		case 30: ppc_opc_fnmsubx(opc); return;
+		case 31: ppc_opc_fnmaddx(opc); return;
 		}
 	} else {
 		switch (ext) {
-		case 0: ppc_opc_fcmpu(); return;
-		case 12: ppc_opc_frspx(); return;
-		case 14: ppc_opc_fctiwx(); return;
-		case 15: ppc_opc_fctiwzx(); return;
+		case 0: ppc_opc_fcmpu(opc); return;
+		case 12: ppc_opc_frspx(opc); return;
+		case 14: ppc_opc_fctiwx(opc); return;
+		case 15: ppc_opc_fctiwzx(opc); return;
 		//--
-		case 32: ppc_opc_fcmpo(); return;
-		case 38: ppc_opc_mtfsb1x(); return;
-		case 40: ppc_opc_fnegx(); return;
-		case 64: ppc_opc_mcrfs(); return;
-		case 70: ppc_opc_mtfsb0x(); return;
-		case 72: ppc_opc_fmrx(); return;
-		case 134: ppc_opc_mtfsfix(); return;
-		case 136: ppc_opc_fnabsx(); return;
-		case 264: ppc_opc_fabsx(); return;
-		case 583: ppc_opc_mffsx(); return;
-		case 711: ppc_opc_mtfsfx(); return;
+		case 32: ppc_opc_fcmpo(opc); return;
+		case 38: ppc_opc_mtfsb1x(opc); return;
+		case 40: ppc_opc_fnegx(opc); return;
+		case 64: ppc_opc_mcrfs(opc); return;
+		case 70: ppc_opc_mtfsb0x(opc); return;
+		case 72: ppc_opc_fmrx(opc); return;
+		case 134: ppc_opc_mtfsfix(opc); return;
+		case 136: ppc_opc_fnabsx(opc); return;
+		case 264: ppc_opc_fabsx(opc); return;
+		case 583: ppc_opc_mffsx(opc); return;
+		case 711: ppc_opc_mtfsfx(opc); return;
 		}
 	}
-	ppc_opc_invalid();
+	ppc_opc_invalid(opc);
 }
 
 ppc_opc_function ppc_opc_table_groupv[965];
@@ -460,9 +460,9 @@ static void ppc_opc_init_groupv()
 }
 
 // main opcode 04
-static void ppc_opc_group_v()
+static void ppc_opc_group_v(uint32 opc)
 {
-	uint32 ext = PPC_OPC_EXT(gCPU.current_opc);
+	uint32 ext = PPC_OPC_EXT(opc);
 #ifndef  __VEC_EXC_OFF__
 	if ((gCPU.msr & MSR_VEC) == 0) {
 		ppc_exception(PPC_EXC_NO_VEC);
@@ -471,59 +471,59 @@ static void ppc_opc_group_v()
 #endif
 	switch(ext & 0x1f) {
 		case 16:
-			if (gCPU.current_opc & PPC_OPC_Rc)
-				return ppc_opc_vmhraddshs();
+			if (opc & PPC_OPC_Rc)
+				return ppc_opc_vmhraddshs(opc);
 			else
-				return ppc_opc_vmhaddshs();
-		case 17:	return ppc_opc_vmladduhm();
+				return ppc_opc_vmhaddshs(opc);
+		case 17:	return ppc_opc_vmladduhm(opc);
 		case 18:
-			if (gCPU.current_opc & PPC_OPC_Rc)
-				return ppc_opc_vmsummbm();
+			if (opc & PPC_OPC_Rc)
+				return ppc_opc_vmsummbm(opc);
 			else
-				return ppc_opc_vmsumubm();
+				return ppc_opc_vmsumubm(opc);
 		case 19:
-			if (gCPU.current_opc & PPC_OPC_Rc)
-				return ppc_opc_vmsumuhs();
+			if (opc & PPC_OPC_Rc)
+				return ppc_opc_vmsumuhs(opc);
 			else
-				return ppc_opc_vmsumuhm();
+				return ppc_opc_vmsumuhm(opc);
 		case 20:
-			if (gCPU.current_opc & PPC_OPC_Rc)
-				return ppc_opc_vmsumshs();
+			if (opc & PPC_OPC_Rc)
+				return ppc_opc_vmsumshs(opc);
 			else
-				return ppc_opc_vmsumshm();
+				return ppc_opc_vmsumshm(opc);
 		case 21:
-			if (gCPU.current_opc & PPC_OPC_Rc)
-				return ppc_opc_vperm();
+			if (opc & PPC_OPC_Rc)
+				return ppc_opc_vperm(opc);
 			else
-				return ppc_opc_vsel();
-		case 22:	return ppc_opc_vsldoi();
+				return ppc_opc_vsel(opc);
+		case 22:	return ppc_opc_vsldoi(opc);
 		case 23:
-			if (gCPU.current_opc & PPC_OPC_Rc)
-				return ppc_opc_vnmsubfp();
+			if (opc & PPC_OPC_Rc)
+				return ppc_opc_vnmsubfp(opc);
 			else
-				return ppc_opc_vmaddfp();
+				return ppc_opc_vmaddfp(opc);
 	}
 	switch(ext & 0x1ff)
 	{
-		case 3: return ppc_opc_vcmpequbx();
-		case 35: return ppc_opc_vcmpequhx();
-		case 67: return ppc_opc_vcmpequwx();
-		case 99: return ppc_opc_vcmpeqfpx();
-		case 227: return ppc_opc_vcmpgefpx();
-		case 259: return ppc_opc_vcmpgtubx();
-		case 291: return ppc_opc_vcmpgtuhx();
-		case 323: return ppc_opc_vcmpgtuwx();
-		case 355: return ppc_opc_vcmpgtfpx();
-		case 387: return ppc_opc_vcmpgtsbx();
-		case 419: return ppc_opc_vcmpgtshx();
-		case 451: return ppc_opc_vcmpgtswx();
-		case 483: return ppc_opc_vcmpbfpx();
+		case 3: return ppc_opc_vcmpequbx(opc);
+		case 35: return ppc_opc_vcmpequhx(opc);
+		case 67: return ppc_opc_vcmpequwx(opc);
+		case 99: return ppc_opc_vcmpeqfpx(opc);
+		case 227: return ppc_opc_vcmpgefpx(opc);
+		case 259: return ppc_opc_vcmpgtubx(opc);
+		case 291: return ppc_opc_vcmpgtuhx(opc);
+		case 323: return ppc_opc_vcmpgtuwx(opc);
+		case 355: return ppc_opc_vcmpgtfpx(opc);
+		case 387: return ppc_opc_vcmpgtsbx(opc);
+		case 419: return ppc_opc_vcmpgtshx(opc);
+		case 451: return ppc_opc_vcmpgtswx(opc);
+		case 483: return ppc_opc_vcmpbfpx(opc);
 	}
 
 	if (ext >= (sizeof ppc_opc_table_groupv / sizeof ppc_opc_table_groupv[0])) {
-		return ppc_opc_invalid();
+		return ppc_opc_invalid(opc);
 	}
-	return ppc_opc_table_groupv[ext]();
+	return ppc_opc_table_groupv[ext](opc);
 }
 
 static ppc_opc_function ppc_opc_table_main[64] = {
@@ -593,10 +593,10 @@ static ppc_opc_function ppc_opc_table_main[64] = {
 	&ppc_opc_group_f2,	// 63
 };
 
-void FASTCALL ppc_exec_opc()
+void FASTCALL ppc_exec_opc(uint32 opc)
 {
-	uint32 mainopc = PPC_OPC_MAIN(gCPU.current_opc);
-	ppc_opc_table_main[mainopc]();
+	uint32 mainopc = PPC_OPC_MAIN(opc);
+	ppc_opc_table_main[mainopc](opc);
 }
 
 void ppc_dec_init()

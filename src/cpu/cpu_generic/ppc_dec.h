@@ -23,10 +23,10 @@
 
 #include "system/types.h"
 
-void FASTCALL ppc_exec_opc();
+void FASTCALL ppc_exec_opc(uint32 opc);
 void ppc_dec_init();
 
-typedef void (*ppc_opc_function)();
+typedef void (*ppc_opc_function)(uint32 opc);
 
 #define PPC_OPC_ASSERT(v)
 

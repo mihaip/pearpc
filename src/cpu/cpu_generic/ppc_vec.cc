@@ -172,13 +172,13 @@ static inline sint32 SATURATE_SW(sint64 val)
 /*	vperm		Vector Permutation
  *	v.218
  */
-void ppc_opc_vperm()
+void ppc_opc_vperm(uint32 opc)
 {
 	VECTOR_DEBUG_COMMON;
 	int vrD, vrA, vrB, vrC;
 	int sel;
 	Vector_t r;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, vrD, vrA, vrB, vrC);
+	PPC_OPC_TEMPL_A(opc, vrD, vrA, vrB, vrC);
 	for (int i=0; i<16; i++) {
 		sel = gCPU.vr[vrC].b[i];
 		if (sel & 0x10)
@@ -193,12 +193,12 @@ void ppc_opc_vperm()
 /*	vsel		Vector Select
  *	v.238
  */
-void ppc_opc_vsel()
+void ppc_opc_vsel(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, vrC;
 	uint64 mask, val;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, vrD, vrA, vrB, vrC);
+	PPC_OPC_TEMPL_A(opc, vrD, vrA, vrB, vrC);
 
 	mask = gCPU.vr[vrC].d[0];
 	val = gCPU.vr[vrB].d[0] & mask;
@@ -214,11 +214,11 @@ void ppc_opc_vsel()
 /*	vsrb		Vector Shift Right Byte
  *	v.256
  */
-void ppc_opc_vsrb()
+void ppc_opc_vsrb(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	for (int i=0; i<16; i++) {
 		gCPU.vr[vrD].b[i] = gCPU.vr[vrA].b[i] >> (gCPU.vr[vrB].b[i] & 0x7);
 	}
@@ -227,11 +227,11 @@ void ppc_opc_vsrb()
 /*	vsrh		Vector Shift Right Half Word
  *	v.257
  */
-void ppc_opc_vsrh()
+void ppc_opc_vsrh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	for (int i=0; i<8; i++) {
 		gCPU.vr[vrD].h[i] = gCPU.vr[vrA].h[i] >> (gCPU.vr[vrB].h[i] & 0xf);
 	}
@@ -240,11 +240,11 @@ void ppc_opc_vsrh()
 /*	vsrw		Vector Shift Right Word
  *	v.259
  */
-void ppc_opc_vsrw()
+void ppc_opc_vsrw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	for (int i=0; i<4; i++) {
 		gCPU.vr[vrD].w[i] = gCPU.vr[vrA].w[i] >> (gCPU.vr[vrB].w[i] & 0x1f);
 	}
@@ -253,11 +253,11 @@ void ppc_opc_vsrw()
 /*	vsrab		Vector Shift Right Arithmetic Byte
  *	v.253
  */
-void ppc_opc_vsrab()
+void ppc_opc_vsrab(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	for (int i=0; i<16; i++) {
 		gCPU.vr[vrD].sb[i] = gCPU.vr[vrA].sb[i] >> (gCPU.vr[vrB].b[i] & 0x7);
 	}
@@ -266,11 +266,11 @@ void ppc_opc_vsrab()
 /*	vsrah		Vector Shift Right Arithmetic Half Word
  *	v.254
  */
-void ppc_opc_vsrah()
+void ppc_opc_vsrah(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	for (int i=0; i<8; i++) {
 		gCPU.vr[vrD].sh[i] = gCPU.vr[vrA].sh[i] >> (gCPU.vr[vrB].h[i] & 0xf);
 	}
@@ -279,11 +279,11 @@ void ppc_opc_vsrah()
 /*	vsraw		Vector Shift Right Arithmetic Word
  *	v.255
  */
-void ppc_opc_vsraw()
+void ppc_opc_vsraw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	for (int i=0; i<4; i++) {
 		gCPU.vr[vrD].sw[i] = gCPU.vr[vrA].sw[i] >> (gCPU.vr[vrB].w[i] & 0x1f);
 	}
@@ -292,11 +292,11 @@ void ppc_opc_vsraw()
 /*	vslb		Vector Shift Left Byte
  *	v.240
  */
-void ppc_opc_vslb()
+void ppc_opc_vslb(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	for (int i=0; i<16; i++) {
 		gCPU.vr[vrD].b[i] = gCPU.vr[vrA].b[i] << (gCPU.vr[vrB].b[i] & 0x7);
 	}
@@ -305,11 +305,11 @@ void ppc_opc_vslb()
 /*	vslh		Vector Shift Left Half Word
  *	v.242
  */
-void ppc_opc_vslh()
+void ppc_opc_vslh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	for (int i=0; i<8; i++) {
 		gCPU.vr[vrD].h[i] = gCPU.vr[vrA].h[i] << (gCPU.vr[vrB].h[i] & 0xf);
 	}
@@ -318,11 +318,11 @@ void ppc_opc_vslh()
 /*	vslw		Vector Shift Left Word
  *	v.244
  */
-void ppc_opc_vslw()
+void ppc_opc_vslw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	for (int i=0; i<4; i++) {
 		gCPU.vr[vrD].w[i] = gCPU.vr[vrA].w[i] << (gCPU.vr[vrB].w[i] & 0x1f);
 	}
@@ -331,13 +331,13 @@ void ppc_opc_vslw()
 /*	vsr		Vector Shift Right
  *	v.251
  */
-void ppc_opc_vsr()
+void ppc_opc_vsr(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
 	int shift;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	/* Specs say that the low-order 3 bits of all byte elements in vB
 	 *   must be the same, or the result is undefined.  So we can just
@@ -356,13 +356,13 @@ void ppc_opc_vsr()
 /*	vsro		Vector Shift Right Octet
  *	v.258
  */
-void ppc_opc_vsro()
+void ppc_opc_vsro(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
 	int shift, i;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	shift = (gCPU.vr[vrB].w[0] >> 3) & 0xf;
 #if HOST_ENDIANESS == HOST_ENDIANESS_LE
@@ -391,13 +391,13 @@ void ppc_opc_vsro()
 /*	vsl		Vector Shift Left
  *	v.239
  */
-void ppc_opc_vsl()
+void ppc_opc_vsl(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
 	int shift;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	/* Specs say that the low-order 3 bits of all byte elements in vB
 	 *   must be the same, or the result is undefined.  So we can just
@@ -416,13 +416,13 @@ void ppc_opc_vsl()
 /*	vslo		Vector Shift Left Octet
  *	v.243
  */
-void ppc_opc_vslo()
+void ppc_opc_vslo(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
 	int shift, i;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	shift = (gCPU.vr[vrB].w[0] >> 3) & 0xf;
 #if HOST_ENDIANESS == HOST_ENDIANESS_LE
@@ -451,13 +451,13 @@ void ppc_opc_vslo()
 /*	vsldoi		Vector Shift Left Double by Octet Immediate
  *	v.241
  */
-void ppc_opc_vsldoi()
+void ppc_opc_vsldoi(uint32 opc)
 {
 	VECTOR_DEBUG_COMMON;
 	int vrD, vrA, vrB, shift, ashift;
 	int i;
 	Vector_t r;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, vrD, vrA, vrB, shift);
+	PPC_OPC_TEMPL_A(opc, vrD, vrA, vrB, shift);
 
 	shift &= 0xf;
 	ashift = 16 - shift;
@@ -488,12 +488,12 @@ void ppc_opc_vsldoi()
 /*	vrlb		Vector Rotate Left Byte
  *	v.234
  */
-void ppc_opc_vrlb()
+void ppc_opc_vrlb(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, shift;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		shift = (gCPU.vr[vrB].b[i] & 0x7);
@@ -508,12 +508,12 @@ void ppc_opc_vrlb()
 /*	vrlh		Vector Rotate Left Half Word
  *	v.235
  */
-void ppc_opc_vrlh()
+void ppc_opc_vrlh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, shift;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		shift = (gCPU.vr[vrB].h[i] & 0xf);
@@ -528,12 +528,12 @@ void ppc_opc_vrlh()
 /*	vrlw		Vector Rotate Left Word
  *	v.236
  */
-void ppc_opc_vrlw()
+void ppc_opc_vrlw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, shift;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		shift = (gCPU.vr[vrB].w[i] & 0x1F);
@@ -553,12 +553,12 @@ void ppc_opc_vrlw()
 /*	vmrghb		Vector Merge High Byte
  *	v.195
  */
-void ppc_opc_vmrghb()
+void ppc_opc_vmrghb(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_B(r, 0) = VECT_B(gCPU.vr[vrA], 0);
 	VECT_B(r, 1) = VECT_B(gCPU.vr[vrB], 0);
@@ -583,12 +583,12 @@ void ppc_opc_vmrghb()
 /*	vmrghh		Vector Merge High Half Word
  *	v.196
  */
-void ppc_opc_vmrghh()
+void ppc_opc_vmrghh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_H(r, 0) = VECT_H(gCPU.vr[vrA], 0);
 	VECT_H(r, 1) = VECT_H(gCPU.vr[vrB], 0);
@@ -605,12 +605,12 @@ void ppc_opc_vmrghh()
 /*	vmrghw		Vector Merge High Word
  *	v.197
  */
-void ppc_opc_vmrghw()
+void ppc_opc_vmrghw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_W(r, 0) = VECT_W(gCPU.vr[vrA], 0);
 	VECT_W(r, 1) = VECT_W(gCPU.vr[vrB], 0);
@@ -623,12 +623,12 @@ void ppc_opc_vmrghw()
 /*	vmrglb		Vector Merge Low Byte
  *	v.198
  */
-void ppc_opc_vmrglb()
+void ppc_opc_vmrglb(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_B(r, 0) = VECT_B(gCPU.vr[vrA], 8);
 	VECT_B(r, 1) = VECT_B(gCPU.vr[vrB], 8);
@@ -653,12 +653,12 @@ void ppc_opc_vmrglb()
 /*	vmrglh		Vector Merge Low Half Word
  *	v.199
  */
-void ppc_opc_vmrglh()
+void ppc_opc_vmrglh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_H(r, 0) = VECT_H(gCPU.vr[vrA], 4);
 	VECT_H(r, 1) = VECT_H(gCPU.vr[vrB], 4);
@@ -675,12 +675,12 @@ void ppc_opc_vmrglh()
 /*	vmrglw		Vector Merge Low Word
  *	v.200
  */
-void ppc_opc_vmrglw()
+void ppc_opc_vmrglw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_W(r, 0) = VECT_W(gCPU.vr[vrA], 2);
 	VECT_W(r, 1) = VECT_W(gCPU.vr[vrB], 2);
@@ -693,13 +693,13 @@ void ppc_opc_vmrglw()
 /*	vspltb		Vector Splat Byte
  *	v.245
  */
-void ppc_opc_vspltb()
+void ppc_opc_vspltb(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrB;
 	uint32 uimm;
 	uint64 val;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, uimm, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, uimm, vrB);
 
 	/* The documentation doesn't stipulate what a value higher than 0xf
 	 *   will do.  Thus, this is by default an undefined value.  We
@@ -717,13 +717,13 @@ void ppc_opc_vspltb()
 /*	vsplth		Vector Splat Half Word
  *	v.246
  */
-void ppc_opc_vsplth()
+void ppc_opc_vsplth(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrB;
 	uint32 uimm;
 	uint64 val;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, uimm, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, uimm, vrB);
 
 	/* The documentation doesn't stipulate what a value higher than 0x7
 	 *   will do.  Thus, this is by default an undefined value.  We
@@ -740,13 +740,13 @@ void ppc_opc_vsplth()
 /*	vspltw		Vector Splat Word
  *	v.250
  */
-void ppc_opc_vspltw()
+void ppc_opc_vspltw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrB;
 	uint32 uimm;
 	uint64 val;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, uimm, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, uimm, vrB);
 
 	/* The documentation doesn't stipulate what a value higher than 0x3
 	 *   will do.  Thus, this is by default an undefined value.  We
@@ -762,13 +762,13 @@ void ppc_opc_vspltw()
 /*	vspltisb	Vector Splat Immediate Signed Byte
  *	v.247
  */
-void ppc_opc_vspltisb()
+void ppc_opc_vspltisb(uint32 opc)
 {
 	VECTOR_DEBUG_COMMON;
 	int vrD, vrB;
 	uint32 simm;
 	uint64 val;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, simm, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, simm, vrB);
 	PPC_OPC_ASSERT(vrB==0);
 
 	val = (simm & 0x10) ? (simm | 0xE0) : simm;
@@ -783,13 +783,13 @@ void ppc_opc_vspltisb()
 /*	vspltish	Vector Splat Immediate Signed Half Word
  *	v.248
  */
-void ppc_opc_vspltish()
+void ppc_opc_vspltish(uint32 opc)
 {
 	VECTOR_DEBUG_COMMON;
 	int vrD, vrB;
 	uint32 simm;
 	uint64 val;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, simm, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, simm, vrB);
 	PPC_OPC_ASSERT(vrB==0);
 
 	val = (simm & 0x10) ? (simm | 0xFFE0) : simm;
@@ -803,13 +803,13 @@ void ppc_opc_vspltish()
 /*	vspltisw	Vector Splat Immediate Signed Word
  *	v.249
  */
-void ppc_opc_vspltisw()
+void ppc_opc_vspltisw(uint32 opc)
 {
 	VECTOR_DEBUG_COMMON;
 	int vrD, vrB;
 	uint32 simm;
 	uint64 val;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, simm, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, simm, vrB);
 	PPC_OPC_ASSERT(vrB==0);
 
 	val = (simm & 0x10) ? (simm | 0xFFFFFFE0) : simm;
@@ -822,11 +822,11 @@ void ppc_opc_vspltisw()
 /*	mfvscr		Move from Vector Status and Control Register
  *	v.129
  */
-void ppc_opc_mfvscr()
+void ppc_opc_mfvscr(uint32 opc)
 {
 	VECTOR_DEBUG_COMMON;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 	PPC_OPC_ASSERT(vrB==0);
 
@@ -838,11 +838,11 @@ void ppc_opc_mfvscr()
 /*	mtvscr		Move to Vector Status and Control Register
  *	v.130
  */
-void ppc_opc_mtvscr()
+void ppc_opc_mtvscr(uint32 opc)
 {
 	VECTOR_DEBUG_COMMON;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 	PPC_OPC_ASSERT(vrD==0);
 
@@ -852,12 +852,12 @@ void ppc_opc_mtvscr()
 /*	vpkuhum		Vector Pack Unsigned Half Word Unsigned Modulo
  *	v.224
  */
-void ppc_opc_vpkuhum()
+void ppc_opc_vpkuhum(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_B(r, 0) = VECT_B(gCPU.vr[vrA], 1);
 	VECT_B(r, 1) = VECT_B(gCPU.vr[vrA], 3);
@@ -883,12 +883,12 @@ void ppc_opc_vpkuhum()
 /*	vpkuwum		Vector Pack Unsigned Word Unsigned Modulo
  *	v.226
  */
-void ppc_opc_vpkuwum()
+void ppc_opc_vpkuwum(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_H(r, 0) = VECT_H(gCPU.vr[vrA], 1);
 	VECT_H(r, 1) = VECT_H(gCPU.vr[vrA], 3);
@@ -906,12 +906,12 @@ void ppc_opc_vpkuwum()
 /*	vpkpx		Vector Pack Pixel32
  *	v.219
  */
-void ppc_opc_vpkpx()
+void ppc_opc_vpkpx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_H(r, 0) = PACK_PIXEL(VECT_W(gCPU.vr[vrA], 0));
 	VECT_H(r, 1) = PACK_PIXEL(VECT_W(gCPU.vr[vrA], 1));
@@ -930,12 +930,12 @@ void ppc_opc_vpkpx()
 /*	vpkuhus		Vector Pack Unsigned Half Word Unsigned Saturate
  *	v.225
  */
-void ppc_opc_vpkuhus()
+void ppc_opc_vpkuhus(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_B(r, 0) = SATURATE_UB(VECT_H(gCPU.vr[vrA], 0));
 	VECT_B(r, 1) = SATURATE_UB(VECT_H(gCPU.vr[vrA], 1));
@@ -961,12 +961,12 @@ void ppc_opc_vpkuhus()
 /*	vpkshss		Vector Pack Signed Half Word Signed Saturate
  *	v.220
  */
-void ppc_opc_vpkshss()
+void ppc_opc_vpkshss(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_B(r, 0) = SATURATE_SB(VECT_H(gCPU.vr[vrA], 0));
 	VECT_B(r, 1) = SATURATE_SB(VECT_H(gCPU.vr[vrA], 1));
@@ -992,12 +992,12 @@ void ppc_opc_vpkshss()
 /*	vpkuwus		Vector Pack Unsigned Word Unsigned Saturate
  *	v.227
  */
-void ppc_opc_vpkuwus()
+void ppc_opc_vpkuwus(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_H(r, 0) = SATURATE_UH(VECT_W(gCPU.vr[vrA], 0));
 	VECT_H(r, 1) = SATURATE_UH(VECT_W(gCPU.vr[vrA], 1));
@@ -1015,12 +1015,12 @@ void ppc_opc_vpkuwus()
 /*	vpkswss		Vector Pack Signed Word Signed Saturate
  *	v.222
  */
-void ppc_opc_vpkswss()
+void ppc_opc_vpkswss(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_H(r, 0) = SATURATE_SH(VECT_W(gCPU.vr[vrA], 0));
 	VECT_H(r, 1) = SATURATE_SH(VECT_W(gCPU.vr[vrA], 1));
@@ -1038,12 +1038,12 @@ void ppc_opc_vpkswss()
 /*	vpkshus		Vector Pack Signed Half Word Unsigned Saturate
  *	v.221
  */
-void ppc_opc_vpkshus()
+void ppc_opc_vpkshus(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_B(r, 0) = SATURATE_USB(VECT_H(gCPU.vr[vrA], 0));
 	VECT_B(r, 1) = SATURATE_USB(VECT_H(gCPU.vr[vrA], 1));
@@ -1069,12 +1069,12 @@ void ppc_opc_vpkshus()
 /*	vpkswus		Vector Pack Signed Word Unsigned Saturate
  *	v.223
  */
-void ppc_opc_vpkswus()
+void ppc_opc_vpkswus(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	VECT_H(r, 0) = SATURATE_USH(VECT_W(gCPU.vr[vrA], 0));
 	VECT_H(r, 1) = SATURATE_USH(VECT_W(gCPU.vr[vrA], 1));
@@ -1092,12 +1092,12 @@ void ppc_opc_vpkswus()
 /*	vupkhsb		Vector Unpack High Signed Byte
  *	v.277
  */
-void ppc_opc_vupkhsb()
+void ppc_opc_vupkhsb(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 
 	VECT_SH(r, 0) = VECT_SB(gCPU.vr[vrB], 0);
@@ -1115,12 +1115,12 @@ void ppc_opc_vupkhsb()
 /*	vupkhpx		Vector Unpack High Pixel32
  *	v.279
  */
-void ppc_opc_vupkhpx()
+void ppc_opc_vupkhpx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 
 	VECT_W(r, 0) = UNPACK_PIXEL(VECT_H(gCPU.vr[vrB], 0));
@@ -1134,12 +1134,12 @@ void ppc_opc_vupkhpx()
 /*	vupkhsh		Vector Unpack High Signed Half Word
  *	v.278
  */
-void ppc_opc_vupkhsh()
+void ppc_opc_vupkhsh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 
 	VECT_SW(r, 0) = VECT_SH(gCPU.vr[vrB], 0);
@@ -1153,12 +1153,12 @@ void ppc_opc_vupkhsh()
 /*	vupklsb		Vector Unpack Low Signed Byte
  *	v.280
  */
-void ppc_opc_vupklsb()
+void ppc_opc_vupklsb(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 
 	VECT_SH(r, 0) = VECT_SB(gCPU.vr[vrB], 8);
@@ -1176,12 +1176,12 @@ void ppc_opc_vupklsb()
 /*	vupklpx		Vector Unpack Low Pixel32
  *	v.279
  */
-void ppc_opc_vupklpx()
+void ppc_opc_vupklpx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 
 	VECT_W(r, 0) = UNPACK_PIXEL(VECT_H(gCPU.vr[vrB], 4));
@@ -1195,12 +1195,12 @@ void ppc_opc_vupklpx()
 /*	vupklsh		Vector Unpack Low Signed Half Word
  *	v.281
  */
-void ppc_opc_vupklsh()
+void ppc_opc_vupklsh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	Vector_t r;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 
 	VECT_SW(r, 0) = VECT_SH(gCPU.vr[vrB], 4);
@@ -1214,12 +1214,12 @@ void ppc_opc_vupklsh()
 /*	vaddubm		Vector Add Unsigned Byte Modulo
  *	v.141
  */
-void ppc_opc_vaddubm()
+void ppc_opc_vaddubm(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint8 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		res = gCPU.vr[vrA].b[i] + gCPU.vr[vrB].b[i];
@@ -1230,12 +1230,12 @@ void ppc_opc_vaddubm()
 /*	vadduhm		Vector Add Unsigned Half Word Modulo
  *	v.143
  */
-void ppc_opc_vadduhm()
+void ppc_opc_vadduhm(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = gCPU.vr[vrA].h[i] + gCPU.vr[vrB].h[i];
@@ -1246,12 +1246,12 @@ void ppc_opc_vadduhm()
 /*	vadduwm		Vector Add Unsigned Word Modulo
  *	v.145
  */
-void ppc_opc_vadduwm()
+void ppc_opc_vadduwm(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = gCPU.vr[vrA].w[i] + gCPU.vr[vrB].w[i];
@@ -1262,12 +1262,12 @@ void ppc_opc_vadduwm()
 /*	vaddfp		Vector Add Float Point
  *	v.137
  */
-void ppc_opc_vaddfp()
+void ppc_opc_vaddfp(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	float res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
 		res = gCPU.vr[vrA].f[i] + gCPU.vr[vrB].f[i];
@@ -1278,12 +1278,12 @@ void ppc_opc_vaddfp()
 /*	vaddcuw		Vector Add Carryout Unsigned Word
  *	v.136
  */
-void ppc_opc_vaddcuw()
+void ppc_opc_vaddcuw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = gCPU.vr[vrA].w[i] + gCPU.vr[vrB].w[i];
@@ -1294,12 +1294,12 @@ void ppc_opc_vaddcuw()
 /*	vaddubs		Vector Add Unsigned Byte Saturate
  *	v.142
  */
-void ppc_opc_vaddubs()
+void ppc_opc_vaddubs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		res = (uint16)gCPU.vr[vrA].b[i] + (uint16)gCPU.vr[vrB].b[i];
@@ -1310,12 +1310,12 @@ void ppc_opc_vaddubs()
 /*	vaddsbs		Vector Add Signed Byte Saturate
  *	v.138
  */
-void ppc_opc_vaddsbs()
+void ppc_opc_vaddsbs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		res = (sint16)gCPU.vr[vrA].sb[i] + (sint16)gCPU.vr[vrB].sb[i];
@@ -1326,12 +1326,12 @@ void ppc_opc_vaddsbs()
 /*	vadduhs		Vector Add Unsigned Half Word Saturate
  *	v.144
  */
-void ppc_opc_vadduhs()
+void ppc_opc_vadduhs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = (uint32)gCPU.vr[vrA].h[i] + (uint32)gCPU.vr[vrB].h[i];
@@ -1342,12 +1342,12 @@ void ppc_opc_vadduhs()
 /*	vaddshs		Vector Add Signed Half Word Saturate
  *	v.139
  */
-void ppc_opc_vaddshs()
+void ppc_opc_vaddshs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = (sint32)gCPU.vr[vrA].sh[i] + (sint32)gCPU.vr[vrB].sh[i];
@@ -1358,12 +1358,12 @@ void ppc_opc_vaddshs()
 /*	vadduws		Vector Add Unsigned Word Saturate
  *	v.146
  */
-void ppc_opc_vadduws()
+void ppc_opc_vadduws(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = gCPU.vr[vrA].w[i] + gCPU.vr[vrB].w[i];
@@ -1387,12 +1387,12 @@ void ppc_opc_vadduws()
 /*	vaddsws		Vector Add Signed Word Saturate
  *	v.140
  */
-void ppc_opc_vaddsws()
+void ppc_opc_vaddsws(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = gCPU.vr[vrA].w[i] + gCPU.vr[vrB].w[i];
@@ -1425,12 +1425,12 @@ void ppc_opc_vaddsws()
 /*	vsububm		Vector Subtract Unsigned Byte Modulo
  *	v.265
  */
-void ppc_opc_vsububm()
+void ppc_opc_vsububm(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint8 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		res = gCPU.vr[vrA].b[i] - gCPU.vr[vrB].b[i];
@@ -1441,12 +1441,12 @@ void ppc_opc_vsububm()
 /*	vsubuhm		Vector Subtract Unsigned Half Word Modulo
  *	v.267
  */
-void ppc_opc_vsubuhm()
+void ppc_opc_vsubuhm(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = gCPU.vr[vrA].h[i] - gCPU.vr[vrB].h[i];
@@ -1457,12 +1457,12 @@ void ppc_opc_vsubuhm()
 /*	vsubuwm		Vector Subtract Unsigned Word Modulo
  *	v.269
  */
-void ppc_opc_vsubuwm()
+void ppc_opc_vsubuwm(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = gCPU.vr[vrA].w[i] - gCPU.vr[vrB].w[i];
@@ -1473,12 +1473,12 @@ void ppc_opc_vsubuwm()
 /*	vsubfp		Vector Subtract Float Point
  *	v.261
  */
-void ppc_opc_vsubfp()
+void ppc_opc_vsubfp(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	float res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
 		res = gCPU.vr[vrA].f[i] - gCPU.vr[vrB].f[i];
@@ -1489,12 +1489,12 @@ void ppc_opc_vsubfp()
 /*	vsubcuw		Vector Subtract Carryout Unsigned Word
  *	v.260
  */
-void ppc_opc_vsubcuw()
+void ppc_opc_vsubcuw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = gCPU.vr[vrA].w[i] - gCPU.vr[vrB].w[i];
@@ -1505,12 +1505,12 @@ void ppc_opc_vsubcuw()
 /*	vsububs		Vector Subtract Unsigned Byte Saturate
  *	v.266
  */
-void ppc_opc_vsububs()
+void ppc_opc_vsububs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		res = (uint16)gCPU.vr[vrA].b[i] - (uint16)gCPU.vr[vrB].b[i];
@@ -1522,12 +1522,12 @@ void ppc_opc_vsububs()
 /*	vsubsbs		Vector Subtract Signed Byte Saturate
  *	v.262
  */
-void ppc_opc_vsubsbs()
+void ppc_opc_vsubsbs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		res = (sint16)gCPU.vr[vrA].sb[i] - (sint16)gCPU.vr[vrB].sb[i];
@@ -1539,12 +1539,12 @@ void ppc_opc_vsubsbs()
 /*	vsubuhs		Vector Subtract Unsigned Half Word Saturate
  *	v.268
  */
-void ppc_opc_vsubuhs()
+void ppc_opc_vsubuhs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = (uint32)gCPU.vr[vrA].h[i] - (uint32)gCPU.vr[vrB].h[i];
@@ -1556,12 +1556,12 @@ void ppc_opc_vsubuhs()
 /*	vsubshs		Vector Subtract Signed Half Word Saturate
  *	v.263
  */
-void ppc_opc_vsubshs()
+void ppc_opc_vsubshs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = (sint32)gCPU.vr[vrA].sh[i] - (sint32)gCPU.vr[vrB].sh[i];
@@ -1573,12 +1573,12 @@ void ppc_opc_vsubshs()
 /*	vsubuws		Vector Subtract Unsigned Word Saturate
  *	v.270
  */
-void ppc_opc_vsubuws()
+void ppc_opc_vsubuws(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = gCPU.vr[vrA].w[i] - gCPU.vr[vrB].w[i];
@@ -1602,12 +1602,12 @@ void ppc_opc_vsubuws()
 /*	vsubsws		Vector Subtract Signed Word Saturate
  *	v.264
  */
-void ppc_opc_vsubsws()
+void ppc_opc_vsubsws(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res, tmp;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		tmp = -gCPU.vr[vrB].w[i];
@@ -1641,12 +1641,12 @@ void ppc_opc_vsubsws()
 /*	vmuleub		Vector Multiply Even Unsigned Byte
  *	v.209
  */
-void ppc_opc_vmuleub()
+void ppc_opc_vmuleub(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = (uint16)gCPU.vr[vrA].b[VECT_EVEN(i)] *
@@ -1659,12 +1659,12 @@ void ppc_opc_vmuleub()
 /*	vmulesb		Vector Multiply Even Signed Byte
  *	v.207
  */
-void ppc_opc_vmulesb()
+void ppc_opc_vmulesb(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = (sint16)gCPU.vr[vrA].sb[VECT_EVEN(i)] *
@@ -1677,12 +1677,12 @@ void ppc_opc_vmulesb()
 /*	vmuleuh		Vector Multiply Even Unsigned Half Word
  *	v.210
  */
-void ppc_opc_vmuleuh()
+void ppc_opc_vmuleuh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = (uint32)gCPU.vr[vrA].h[VECT_EVEN(i)] *
@@ -1695,12 +1695,12 @@ void ppc_opc_vmuleuh()
 /*	vmulesh		Vector Multiply Even Signed Half Word
  *	v.208
  */
-void ppc_opc_vmulesh()
+void ppc_opc_vmulesh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = (sint32)gCPU.vr[vrA].sh[VECT_EVEN(i)] *
@@ -1713,12 +1713,12 @@ void ppc_opc_vmulesh()
 /*	vmuloub		Vector Multiply Odd Unsigned Byte
  *	v.213
  */
-void ppc_opc_vmuloub()
+void ppc_opc_vmuloub(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = (uint16)gCPU.vr[vrA].b[VECT_ODD(i)] *
@@ -1731,12 +1731,12 @@ void ppc_opc_vmuloub()
 /*	vmulosb		Vector Multiply Odd Signed Byte
  *	v.211
  */
-void ppc_opc_vmulosb()
+void ppc_opc_vmulosb(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = (sint16)gCPU.vr[vrA].sb[VECT_ODD(i)] *
@@ -1749,12 +1749,12 @@ void ppc_opc_vmulosb()
 /*	vmulouh		Vector Multiply Odd Unsigned Half Word
  *	v.214
  */
-void ppc_opc_vmulouh()
+void ppc_opc_vmulouh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = (uint32)gCPU.vr[vrA].h[VECT_ODD(i)] *
@@ -1767,12 +1767,12 @@ void ppc_opc_vmulouh()
 /*	vmulosh		Vector Multiply Odd Signed Half Word
  *	v.212
  */
-void ppc_opc_vmulosh()
+void ppc_opc_vmulosh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = (sint32)gCPU.vr[vrA].sh[VECT_ODD(i)] *
@@ -1785,12 +1785,12 @@ void ppc_opc_vmulosh()
 /*	vmaddfp		Vector Multiply Add Floating Point
  *	v.177
  */
-void ppc_opc_vmaddfp()
+void ppc_opc_vmaddfp(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, vrC;
 	double res;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, vrD, vrA, vrB, vrC);
+	PPC_OPC_TEMPL_A(opc, vrD, vrA, vrB, vrC);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
 		res = (double)gCPU.vr[vrA].f[i] * (double)gCPU.vr[vrC].f[i];
@@ -1804,12 +1804,12 @@ void ppc_opc_vmaddfp()
 /*	vmhaddshs	Vector Multiply High and Add Signed Half Word Saturate
  *	v.185
  */
-void ppc_opc_vmhaddshs()
+void ppc_opc_vmhaddshs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, vrC;
 	sint32 prod;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, vrD, vrA, vrB, vrC);
+	PPC_OPC_TEMPL_A(opc, vrD, vrA, vrB, vrC);
 
 	for (int i=0; i<8; i++) {
 		prod = (sint32)gCPU.vr[vrA].sh[i] * (sint32)gCPU.vr[vrB].sh[i];
@@ -1823,12 +1823,12 @@ void ppc_opc_vmhaddshs()
 /*	vmladduhm	Vector Multiply Low and Add Unsigned Half Word Modulo
  *	v.194
  */
-void ppc_opc_vmladduhm()
+void ppc_opc_vmladduhm(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, vrC;
 	uint32 prod;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, vrD, vrA, vrB, vrC);
+	PPC_OPC_TEMPL_A(opc, vrD, vrA, vrB, vrC);
 
 	for (int i=0; i<8; i++) {
 		prod = (uint32)gCPU.vr[vrA].h[i] * (uint32)gCPU.vr[vrB].h[i];
@@ -1842,12 +1842,12 @@ void ppc_opc_vmladduhm()
 /*	vmhraddshs	Vector Multiply High Round and Add Signed Half Word Saturate
  *	v.186
  */
-void ppc_opc_vmhraddshs()
+void ppc_opc_vmhraddshs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, vrC;
 	sint32 prod;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, vrD, vrA, vrB, vrC);
+	PPC_OPC_TEMPL_A(opc, vrD, vrA, vrB, vrC);
 
 	for (int i=0; i<8; i++) {
 		prod = (sint32)gCPU.vr[vrA].sh[i] * (sint32)gCPU.vr[vrB].sh[i];
@@ -1862,12 +1862,12 @@ void ppc_opc_vmhraddshs()
 /*	vmsumubm	Vector Multiply Sum Unsigned Byte Modulo
  *	v.204
  */
-void ppc_opc_vmsumubm()
+void ppc_opc_vmsumubm(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, vrC;
 	uint32 temp;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, vrD, vrA, vrB, vrC);
+	PPC_OPC_TEMPL_A(opc, vrD, vrA, vrB, vrC);
 
 	for (int i=0; i<4; i++) {
 		temp = gCPU.vr[vrC].w[i];
@@ -1891,12 +1891,12 @@ void ppc_opc_vmsumubm()
 /*	vmsumuhm	Vector Multiply Sum Unsigned Half Word Modulo
  *	v.205
  */
-void ppc_opc_vmsumuhm()
+void ppc_opc_vmsumuhm(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, vrC;
 	uint32 temp;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, vrD, vrA, vrB, vrC);
+	PPC_OPC_TEMPL_A(opc, vrD, vrA, vrB, vrC);
 
 	for (int i=0; i<4; i++) {
 		temp = gCPU.vr[vrC].w[i];
@@ -1913,12 +1913,12 @@ void ppc_opc_vmsumuhm()
 /*	vmsummbm	Vector Multiply Sum Mixed-Sign Byte Modulo
  *	v.201
  */
-void ppc_opc_vmsummbm()
+void ppc_opc_vmsummbm(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, vrC;
 	sint32 temp;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, vrD, vrA, vrB, vrC);
+	PPC_OPC_TEMPL_A(opc, vrD, vrA, vrB, vrC);
 
 	for (int i=0; i<4; i++) {
 		temp = gCPU.vr[vrC].sw[i];
@@ -1939,12 +1939,12 @@ void ppc_opc_vmsummbm()
 /*	vmsumshm	Vector Multiply Sum Signed Half Word Modulo
  *	v.202
  */
-void ppc_opc_vmsumshm()
+void ppc_opc_vmsumshm(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, vrC;
 	sint32 temp;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, vrD, vrA, vrB, vrC);
+	PPC_OPC_TEMPL_A(opc, vrD, vrA, vrB, vrC);
 
 	for (int i=0; i<4; i++) {
 		temp = gCPU.vr[vrC].sw[i];
@@ -1961,12 +1961,12 @@ void ppc_opc_vmsumshm()
 /*	vmsumuhs	Vector Multiply Sum Unsigned Half Word Saturate
  *	v.206
  */
-void ppc_opc_vmsumuhs()
+void ppc_opc_vmsumuhs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, vrC;
 	uint64 temp;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, vrD, vrA, vrB, vrC);
+	PPC_OPC_TEMPL_A(opc, vrD, vrA, vrB, vrC);
 
 	/* For this, there's no way to get around 64-bit math.  If we use
 	 *   the hacks used before, then we have to do it so often, that
@@ -1988,12 +1988,12 @@ void ppc_opc_vmsumuhs()
 /*	vmsumshs	Vector Multiply Sum Signed Half Word Saturate
  *	v.203
  */
-void ppc_opc_vmsumshs()
+void ppc_opc_vmsumshs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, vrC;
 	sint64 temp;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, vrD, vrA, vrB, vrC);
+	PPC_OPC_TEMPL_A(opc, vrD, vrA, vrB, vrC);
 
 	/* For this, there's no way to get around 64-bit math.  If we use
 	 *   the hacks used before, then we have to do it so often, that
@@ -2015,12 +2015,12 @@ void ppc_opc_vmsumshs()
 /*	vsum4ubs	Vector Sum Across Partial (1/4) Unsigned Byte Saturate
  *	v.275
  */
-void ppc_opc_vsum4ubs()
+void ppc_opc_vsum4ubs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint64 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	/* For this, there's no way to get around 64-bit math.  If we use
 	 *   the hacks used before, then we have to do it so often, that
@@ -2042,12 +2042,12 @@ void ppc_opc_vsum4ubs()
 /*	vsum4sbs	Vector Sum Across Partial (1/4) Signed Byte Saturate
  *	v.273
  */
-void ppc_opc_vsum4sbs()
+void ppc_opc_vsum4sbs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint64 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = (sint64)gCPU.vr[vrB].sw[i];
@@ -2064,12 +2064,12 @@ void ppc_opc_vsum4sbs()
 /*	vsum4shs	Vector Sum Across Partial (1/4) Signed Half Word Saturate
  *	v.274
  */
-void ppc_opc_vsum4shs()
+void ppc_opc_vsum4shs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint64 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = (sint64)gCPU.vr[vrB].sw[i];
@@ -2084,12 +2084,12 @@ void ppc_opc_vsum4shs()
 /*	vsum2sws	Vector Sum Across Partial (1/2) Signed Word Saturate
  *	v.272
  */
-void ppc_opc_vsum2sws()
+void ppc_opc_vsum2sws(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint64 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	res = (sint64)gCPU.vr[vrA].sw[0] + (sint64)gCPU.vr[vrA].sw[1];
 	res += (sint64)gCPU.vr[vrB].sw[VECT_ODD(0)];
@@ -2107,12 +2107,12 @@ void ppc_opc_vsum2sws()
 /*	vsumsws		Vector Sum Across Signed Word Saturate
  *	v.271
  */
-void ppc_opc_vsumsws()
+void ppc_opc_vsumsws(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint64 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	res = (sint64)gCPU.vr[vrA].sw[0] + (sint64)gCPU.vr[vrA].sw[1];
 	res += (sint64)gCPU.vr[vrA].sw[2] + (sint64)gCPU.vr[vrA].sw[3];
@@ -2128,12 +2128,12 @@ void ppc_opc_vsumsws()
 /*	vnmsubfp	Vector Negative Multiply-Subtract Floating Point
  *	v.215
  */
-void ppc_opc_vnmsubfp()
+void ppc_opc_vnmsubfp(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB, vrC;
 	double res;
-	PPC_OPC_TEMPL_A(gCPU.current_opc, vrD, vrA, vrB, vrC);
+	PPC_OPC_TEMPL_A(opc, vrD, vrA, vrB, vrC);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
 		res = (double)gCPU.vr[vrA].f[i] * (double)gCPU.vr[vrC].f[i];
@@ -2147,12 +2147,12 @@ void ppc_opc_vnmsubfp()
 /*	vavgub		Vector Average Unsigned Byte
  *	v.152
  */
-void ppc_opc_vavgub()
+void ppc_opc_vavgub(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		res = (uint16)gCPU.vr[vrA].b[i] +
@@ -2165,12 +2165,12 @@ void ppc_opc_vavgub()
 /*	vavguh		Vector Average Unsigned Half Word
  *	v.153
  */
-void ppc_opc_vavguh()
+void ppc_opc_vavguh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = (uint32)gCPU.vr[vrA].h[i] +
@@ -2183,12 +2183,12 @@ void ppc_opc_vavguh()
 /*	vavguw		Vector Average Unsigned Word
  *	v.154
  */
-void ppc_opc_vavguw()
+void ppc_opc_vavguw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint64 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = (uint64)gCPU.vr[vrA].w[i] +
@@ -2201,12 +2201,12 @@ void ppc_opc_vavguw()
 /*	vavgsb		Vector Average Signed Byte
  *	v.149
  */
-void ppc_opc_vavgsb()
+void ppc_opc_vavgsb(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		res = (sint16)gCPU.vr[vrA].sb[i] +
@@ -2219,12 +2219,12 @@ void ppc_opc_vavgsb()
 /*	vavgsh		Vector Average Signed Half Word
  *	v.150
  */
-void ppc_opc_vavgsh()
+void ppc_opc_vavgsh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = (sint32)gCPU.vr[vrA].sh[i] +
@@ -2237,12 +2237,12 @@ void ppc_opc_vavgsh()
 /*	vavgsw		Vector Average Signed Word
  *	v.151
  */
-void ppc_opc_vavgsw()
+void ppc_opc_vavgsw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint64 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = (sint64)gCPU.vr[vrA].sw[i] +
@@ -2255,12 +2255,12 @@ void ppc_opc_vavgsw()
 /*	vmaxub		Vector Maximum Unsigned Byte
  *	v.182
  */
-void ppc_opc_vmaxub()
+void ppc_opc_vmaxub(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint8 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		res = gCPU.vr[vrA].b[i];
@@ -2275,12 +2275,12 @@ void ppc_opc_vmaxub()
 /*	vmaxuh		Vector Maximum Unsigned Half Word
  *	v.183
  */
-void ppc_opc_vmaxuh()
+void ppc_opc_vmaxuh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = gCPU.vr[vrA].h[i];
@@ -2295,12 +2295,12 @@ void ppc_opc_vmaxuh()
 /*	vmaxuw		Vector Maximum Unsigned Word
  *	v.184
  */
-void ppc_opc_vmaxuw()
+void ppc_opc_vmaxuw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = gCPU.vr[vrA].w[i];
@@ -2315,12 +2315,12 @@ void ppc_opc_vmaxuw()
 /*	vmaxsb		Vector Maximum Signed Byte
  *	v.179
  */
-void ppc_opc_vmaxsb()
+void ppc_opc_vmaxsb(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint8 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		res = gCPU.vr[vrA].sb[i];
@@ -2335,12 +2335,12 @@ void ppc_opc_vmaxsb()
 /*	vmaxsh		Vector Maximum Signed Half Word
  *	v.180
  */
-void ppc_opc_vmaxsh()
+void ppc_opc_vmaxsh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = gCPU.vr[vrA].sh[i];
@@ -2355,12 +2355,12 @@ void ppc_opc_vmaxsh()
 /*	vmaxsw		Vector Maximum Signed Word
  *	v.181
  */
-void ppc_opc_vmaxsw()
+void ppc_opc_vmaxsw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = gCPU.vr[vrA].sw[i];
@@ -2375,12 +2375,12 @@ void ppc_opc_vmaxsw()
 /*	vmaxfp		Vector Maximum Floating Point
  *	v.178
  */
-void ppc_opc_vmaxfp()
+void ppc_opc_vmaxfp(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	float res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
 		res = gCPU.vr[vrA].f[i];
@@ -2395,12 +2395,12 @@ void ppc_opc_vmaxfp()
 /*	vminub		Vector Minimum Unsigned Byte
  *	v.191
  */
-void ppc_opc_vminub()
+void ppc_opc_vminub(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint8 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		res = gCPU.vr[vrA].b[i];
@@ -2415,12 +2415,12 @@ void ppc_opc_vminub()
 /*	vminuh		Vector Minimum Unsigned Half Word
  *	v.192
  */
-void ppc_opc_vminuh()
+void ppc_opc_vminuh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = gCPU.vr[vrA].h[i];
@@ -2435,12 +2435,12 @@ void ppc_opc_vminuh()
 /*	vminuw		Vector Minimum Unsigned Word
  *	v.193
  */
-void ppc_opc_vminuw()
+void ppc_opc_vminuw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	uint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = gCPU.vr[vrA].w[i];
@@ -2455,12 +2455,12 @@ void ppc_opc_vminuw()
 /*	vminsb		Vector Minimum Signed Byte
  *	v.188
  */
-void ppc_opc_vminsb()
+void ppc_opc_vminsb(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint8 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		res = gCPU.vr[vrA].sb[i];
@@ -2475,12 +2475,12 @@ void ppc_opc_vminsb()
 /*	vminsh		Vector Minimum Signed Half Word
  *	v.189
  */
-void ppc_opc_vminsh()
+void ppc_opc_vminsh(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint16 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		res = gCPU.vr[vrA].sh[i];
@@ -2495,12 +2495,12 @@ void ppc_opc_vminsh()
 /*	vminsw		Vector Minimum Signed Word
  *	v.190
  */
-void ppc_opc_vminsw()
+void ppc_opc_vminsw(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	sint32 res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		res = gCPU.vr[vrA].sw[i];
@@ -2515,12 +2515,12 @@ void ppc_opc_vminsw()
 /*	vminfp		Vector Minimum Floating Point
  *	v.187
  */
-void ppc_opc_vminfp()
+void ppc_opc_vminfp(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	float res;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
 		res = gCPU.vr[vrA].f[i];
@@ -2535,11 +2535,11 @@ void ppc_opc_vminfp()
 /*	vrfin		Vector Round to Floating-Point Integer Nearest
  *	v.231
  */
-void ppc_opc_vrfin()
+void ppc_opc_vrfin(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 
 	/* Documentation doesn't dictate how this instruction should
@@ -2556,11 +2556,11 @@ void ppc_opc_vrfin()
 /*	vrfip		Vector Round to Floating-Point Integer toward Plus Infinity
  *	v.232
  */
-void ppc_opc_vrfip()
+void ppc_opc_vrfip(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
@@ -2571,11 +2571,11 @@ void ppc_opc_vrfip()
 /*	vrfim		Vector Round to Floating-Point Integer toward Minus Infinity
  *	v.230
  */
-void ppc_opc_vrfim()
+void ppc_opc_vrfim(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
@@ -2586,11 +2586,11 @@ void ppc_opc_vrfim()
 /*	vrfiz	Vector Round to Floating-Point Integer toward Zero
  *	v.233
  */
-void ppc_opc_vrfiz()
+void ppc_opc_vrfiz(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
@@ -2601,11 +2601,11 @@ void ppc_opc_vrfiz()
 /*	vrefp		Vector Reciprocal Estimate Floating Point
  *	v.228
  */
-void ppc_opc_vrefp()
+void ppc_opc_vrefp(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 
 	/* This emulation generates an exact value, instead of an estimate.
@@ -2622,11 +2622,11 @@ void ppc_opc_vrefp()
 /*	vrsqrtefp	Vector Reciprocal Square Root Estimate Floating Point
  *	v.237
  */
-void ppc_opc_vrsqrtefp()
+void ppc_opc_vrsqrtefp(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 
 	/* This emulation generates an exact value, instead of an estimate.
@@ -2643,11 +2643,11 @@ void ppc_opc_vrsqrtefp()
 /*	vlogefp		Vector Log2 Estimate Floating Point
  *	v.175
  */
-void ppc_opc_vlogefp()
+void ppc_opc_vlogefp(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 
 	/* This emulation generates an exact value, instead of an estimate.
@@ -2664,11 +2664,11 @@ void ppc_opc_vlogefp()
 /*	vexptefp	Vector 2 Raised to the Exponent Estimate Floating Point
  *	v.173
  */
-void ppc_opc_vexptefp()
+void ppc_opc_vexptefp(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 	PPC_OPC_ASSERT(vrA==0);
 
 	/* This emulation generates an exact value, instead of an estimate.
@@ -2685,12 +2685,12 @@ void ppc_opc_vexptefp()
 /*	vcfux		Vector Convert from Unsigned Fixed-Point Word
  *	v.156
  */
-void ppc_opc_vcfux()
+void ppc_opc_vcfux(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrB;
 	uint32 uimm;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, uimm, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, uimm, vrB);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
 		gCPU.vr[vrD].f[i] = ((float)gCPU.vr[vrB].w[i]) / (1 << uimm);
@@ -2700,12 +2700,12 @@ void ppc_opc_vcfux()
 /*	vcfsx		Vector Convert from Signed Fixed-Point Word
  *	v.155
  */
-void ppc_opc_vcfsx()
+void ppc_opc_vcfsx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrB;
 	uint32 uimm;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, uimm, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, uimm, vrB);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
 		gCPU.vr[vrD].f[i] = ((float)gCPU.vr[vrB].sw[i]) / (1 << uimm);
@@ -2715,14 +2715,14 @@ void ppc_opc_vcfsx()
 /*	vctsxs		Vector Convert To Signed Fixed-Point Word Saturate
  *	v.171
  */
-void ppc_opc_vctsxs()
+void ppc_opc_vctsxs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrB;
 	uint32 uimm;
 	float ftmp;
 	sint32 tmp;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, uimm, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, uimm, vrB);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
 		ftmp = gCPU.vr[vrB].f[i] * (float)(1 << uimm);
@@ -2745,13 +2745,13 @@ void ppc_opc_vctsxs()
 /*	vctuxs		Vector Convert to Unsigned Fixed-Point Word Saturate
  *	v.172
  */
-void ppc_opc_vctuxs()
+void ppc_opc_vctuxs(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrB;
 	uint32 tmp, uimm;
 	float ftmp;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, uimm, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, uimm, vrB);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
 		ftmp = gCPU.vr[vrB].f[i] * (float)(1 << uimm);
@@ -2774,11 +2774,11 @@ void ppc_opc_vctuxs()
 /*	vand		Vector Logical AND
  *	v.147
  */
-void ppc_opc_vand()
+void ppc_opc_vand(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	gCPU.vr[vrD].d[0] = gCPU.vr[vrA].d[0] & gCPU.vr[vrB].d[0];
 	gCPU.vr[vrD].d[1] = gCPU.vr[vrA].d[1] & gCPU.vr[vrB].d[1];
@@ -2787,11 +2787,11 @@ void ppc_opc_vand()
 /*	vandc		Vector Logical AND with Complement
  *	v.148
  */
-void ppc_opc_vandc()
+void ppc_opc_vandc(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	gCPU.vr[vrD].d[0] = gCPU.vr[vrA].d[0] & ~gCPU.vr[vrB].d[0];
 	gCPU.vr[vrD].d[1] = gCPU.vr[vrA].d[1] & ~gCPU.vr[vrB].d[1];
@@ -2800,11 +2800,11 @@ void ppc_opc_vandc()
 /*	vor		Vector Logical OR
  *	v.217
  */
-void ppc_opc_vor()
+void ppc_opc_vor(uint32 opc)
 {
 	VECTOR_DEBUG_COMMON;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	gCPU.vr[vrD].d[0] = gCPU.vr[vrA].d[0] | gCPU.vr[vrB].d[0];
 	gCPU.vr[vrD].d[1] = gCPU.vr[vrA].d[1] | gCPU.vr[vrB].d[1];
@@ -2813,11 +2813,11 @@ void ppc_opc_vor()
 /*	vnor		Vector Logical NOR
  *	v.216
  */
-void ppc_opc_vnor()
+void ppc_opc_vnor(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	gCPU.vr[vrD].d[0] = ~(gCPU.vr[vrA].d[0] | gCPU.vr[vrB].d[0]);
 	gCPU.vr[vrD].d[1] = ~(gCPU.vr[vrA].d[1] | gCPU.vr[vrB].d[1]);
@@ -2826,11 +2826,11 @@ void ppc_opc_vnor()
 /*	vxor		Vector Logical XOR
  *	v.282
  */
-void ppc_opc_vxor()
+void ppc_opc_vxor(uint32 opc)
 {
 	VECTOR_DEBUG_COMMON;
 	int vrD, vrA, vrB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	gCPU.vr[vrD].d[0] = gCPU.vr[vrA].d[0] ^ gCPU.vr[vrB].d[0];
 	gCPU.vr[vrD].d[1] = gCPU.vr[vrA].d[1] ^ gCPU.vr[vrB].d[1];
@@ -2845,12 +2845,12 @@ void ppc_opc_vxor()
 /*	vcmpequbx	Vector Compare Equal-to Unsigned Byte
  *	v.160
  */
-void ppc_opc_vcmpequbx()
+void ppc_opc_vcmpequbx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	int tf=CR_CR6_EQ | CR_CR6_NE;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		if (gCPU.vr[vrA].b[i] == gCPU.vr[vrB].b[i]) {
@@ -2864,7 +2864,7 @@ void ppc_opc_vcmpequbx()
 		}
 	}
 
-	if (PPC_OPC_VRc & gCPU.current_opc) {
+	if (PPC_OPC_VRc & opc) {
 		gCPU.cr &= ~CR_CR6;
 		gCPU.cr |= tf;
 	}
@@ -2873,12 +2873,12 @@ void ppc_opc_vcmpequbx()
 /*	vcmpequhx	Vector Compare Equal-to Unsigned Half Word
  *	v.161
  */
-void ppc_opc_vcmpequhx()
+void ppc_opc_vcmpequhx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	int tf=CR_CR6_EQ | CR_CR6_NE;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		if (gCPU.vr[vrA].h[i] == gCPU.vr[vrB].h[i]) {
@@ -2892,7 +2892,7 @@ void ppc_opc_vcmpequhx()
 		}
 	}
 
-	if (PPC_OPC_VRc & gCPU.current_opc) {
+	if (PPC_OPC_VRc & opc) {
 		gCPU.cr &= ~CR_CR6;
 		gCPU.cr |= tf;
 	}
@@ -2901,12 +2901,12 @@ void ppc_opc_vcmpequhx()
 /*	vcmpequwx	Vector Compare Equal-to Unsigned Word
  *	v.162
  */
-void ppc_opc_vcmpequwx()
+void ppc_opc_vcmpequwx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	int tf=CR_CR6_EQ | CR_CR6_NE;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		if (gCPU.vr[vrA].w[i] == gCPU.vr[vrB].w[i]) {
@@ -2920,7 +2920,7 @@ void ppc_opc_vcmpequwx()
 		}
 	}
 
-	if (PPC_OPC_VRc & gCPU.current_opc) {
+	if (PPC_OPC_VRc & opc) {
 		gCPU.cr &= ~CR_CR6;
 		gCPU.cr |= tf;
 	}
@@ -2929,12 +2929,12 @@ void ppc_opc_vcmpequwx()
 /*	vcmpeqfpx	Vector Compare Equal-to-Floating Point
  *	v.159
  */
-void ppc_opc_vcmpeqfpx()
+void ppc_opc_vcmpeqfpx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	int tf=CR_CR6_EQ | CR_CR6_NE;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
 		if (gCPU.vr[vrA].f[i] == gCPU.vr[vrB].f[i]) {
@@ -2948,7 +2948,7 @@ void ppc_opc_vcmpeqfpx()
 		}
 	}
 
-	if (PPC_OPC_VRc & gCPU.current_opc) {
+	if (PPC_OPC_VRc & opc) {
 		gCPU.cr &= ~CR_CR6;
 		gCPU.cr |= tf;
 	}
@@ -2957,12 +2957,12 @@ void ppc_opc_vcmpeqfpx()
 /*	vcmpgtubx	Vector Compare Greater-Than Unsigned Byte
  *	v.168
  */
-void ppc_opc_vcmpgtubx()
+void ppc_opc_vcmpgtubx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	int tf=CR_CR6_EQ | CR_CR6_NE;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		if (gCPU.vr[vrA].b[i] > gCPU.vr[vrB].b[i]) {
@@ -2976,7 +2976,7 @@ void ppc_opc_vcmpgtubx()
 		}
 	}
 
-	if (PPC_OPC_VRc & gCPU.current_opc) {
+	if (PPC_OPC_VRc & opc) {
 		gCPU.cr &= ~CR_CR6;
 		gCPU.cr |= tf;
 	}
@@ -2985,12 +2985,12 @@ void ppc_opc_vcmpgtubx()
 /*	vcmpgtsbx	Vector Compare Greater-Than Signed Byte
  *	v.165
  */
-void ppc_opc_vcmpgtsbx()
+void ppc_opc_vcmpgtsbx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	int tf=CR_CR6_EQ | CR_CR6_NE;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<16; i++) {
 		if (gCPU.vr[vrA].sb[i] > gCPU.vr[vrB].sb[i]) {
@@ -3004,7 +3004,7 @@ void ppc_opc_vcmpgtsbx()
 		}
 	}
 
-	if (PPC_OPC_VRc & gCPU.current_opc) {
+	if (PPC_OPC_VRc & opc) {
 		gCPU.cr &= ~CR_CR6;
 		gCPU.cr |= tf;
 	}
@@ -3013,12 +3013,12 @@ void ppc_opc_vcmpgtsbx()
 /*	vcmpgtuhx	Vector Compare Greater-Than Unsigned Half Word
  *	v.169
  */
-void ppc_opc_vcmpgtuhx()
+void ppc_opc_vcmpgtuhx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	int tf=CR_CR6_EQ | CR_CR6_NE;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		if (gCPU.vr[vrA].h[i] > gCPU.vr[vrB].h[i]) {
@@ -3032,7 +3032,7 @@ void ppc_opc_vcmpgtuhx()
 		}
 	}
 
-	if (PPC_OPC_VRc & gCPU.current_opc) {
+	if (PPC_OPC_VRc & opc) {
 		gCPU.cr &= ~CR_CR6;
 		gCPU.cr |= tf;
 	}
@@ -3041,12 +3041,12 @@ void ppc_opc_vcmpgtuhx()
 /*	vcmpgtshx	Vector Compare Greater-Than Signed Half Word
  *	v.166
  */
-void ppc_opc_vcmpgtshx()
+void ppc_opc_vcmpgtshx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	int tf=CR_CR6_EQ | CR_CR6_NE;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<8; i++) {
 		if (gCPU.vr[vrA].sh[i] > gCPU.vr[vrB].sh[i]) {
@@ -3060,7 +3060,7 @@ void ppc_opc_vcmpgtshx()
 		}
 	}
 
-	if (PPC_OPC_VRc & gCPU.current_opc) {
+	if (PPC_OPC_VRc & opc) {
 		gCPU.cr &= ~CR_CR6;
 		gCPU.cr |= tf;
 	}
@@ -3069,12 +3069,12 @@ void ppc_opc_vcmpgtshx()
 /*	vcmpgtuwx	Vector Compare Greater-Than Unsigned Word
  *	v.170
  */
-void ppc_opc_vcmpgtuwx()
+void ppc_opc_vcmpgtuwx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	int tf=CR_CR6_EQ | CR_CR6_NE;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		if (gCPU.vr[vrA].w[i] > gCPU.vr[vrB].w[i]) {
@@ -3088,7 +3088,7 @@ void ppc_opc_vcmpgtuwx()
 		}
 	}
 
-	if (PPC_OPC_VRc & gCPU.current_opc) {
+	if (PPC_OPC_VRc & opc) {
 		gCPU.cr &= ~CR_CR6;
 		gCPU.cr |= tf;
 	}
@@ -3097,12 +3097,12 @@ void ppc_opc_vcmpgtuwx()
 /*	vcmpgtswx	Vector Compare Greater-Than Signed Word
  *	v.167
  */
-void ppc_opc_vcmpgtswx()
+void ppc_opc_vcmpgtswx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	int tf=CR_CR6_EQ | CR_CR6_NE;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) {
 		if (gCPU.vr[vrA].sw[i] > gCPU.vr[vrB].sw[i]) {
@@ -3116,7 +3116,7 @@ void ppc_opc_vcmpgtswx()
 		}
 	}
 
-	if (PPC_OPC_VRc & gCPU.current_opc) {
+	if (PPC_OPC_VRc & opc) {
 		gCPU.cr &= ~CR_CR6;
 		gCPU.cr |= tf;
 	}
@@ -3125,12 +3125,12 @@ void ppc_opc_vcmpgtswx()
 /*	vcmpgtfpx	Vector Compare Greater-Than Floating-Point
  *	v.164
  */
-void ppc_opc_vcmpgtfpx()
+void ppc_opc_vcmpgtfpx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	int tf=CR_CR6_EQ | CR_CR6_NE;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
 		if (gCPU.vr[vrA].f[i] > gCPU.vr[vrB].f[i]) {
@@ -3144,7 +3144,7 @@ void ppc_opc_vcmpgtfpx()
 		}
 	}
 
-	if (PPC_OPC_VRc & gCPU.current_opc) {
+	if (PPC_OPC_VRc & opc) {
 		gCPU.cr &= ~CR_CR6;
 		gCPU.cr |= tf;
 	}
@@ -3153,12 +3153,12 @@ void ppc_opc_vcmpgtfpx()
 /*	vcmpgefpx	Vector Compare Greater-Than-or-Equal-to Floating Point
  *	v.163
  */
-void ppc_opc_vcmpgefpx()
+void ppc_opc_vcmpgefpx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	int tf=CR_CR6_EQ | CR_CR6_NE;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
 		if (gCPU.vr[vrA].f[i] >= gCPU.vr[vrB].f[i]) {
@@ -3172,7 +3172,7 @@ void ppc_opc_vcmpgefpx()
 		}
 	}
 
-	if (PPC_OPC_VRc & gCPU.current_opc) {
+	if (PPC_OPC_VRc & opc) {
 		gCPU.cr &= ~CR_CR6;
 		gCPU.cr |= tf;
 	}
@@ -3181,13 +3181,13 @@ void ppc_opc_vcmpgefpx()
 /*	vcmpbfpx	Vector Compare Bounds Floating Point
  *	v.157
  */
-void ppc_opc_vcmpbfpx()
+void ppc_opc_vcmpbfpx(uint32 opc)
 {
 	VECTOR_DEBUG;
 	int vrD, vrA, vrB;
 	int le, ge;
 	int ib=CR_CR6_NE;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, vrD, vrA, vrB);
+	PPC_OPC_TEMPL_X(opc, vrD, vrA, vrB);
 
 	for (int i=0; i<4; i++) { //FIXME: This might not comply with Java FP
 		le = (gCPU.vr[vrA].f[i] <= gCPU.vr[vrB].f[i]) ? 0 : 0x80000000;
@@ -3199,7 +3199,7 @@ void ppc_opc_vcmpbfpx()
  		}
 	}
 
-	if (PPC_OPC_VRc & gCPU.current_opc) {
+	if (PPC_OPC_VRc & opc) {
 		gCPU.cr &= ~CR_CR6;
 		gCPU.cr |= ib;
 	}

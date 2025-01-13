@@ -46,12 +46,12 @@ static inline uint32 ppc_mask(int MB, int ME)
  *	addx		Add
  *	.422
  */
-void ppc_opc_addx()
+void ppc_opc_addx(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	gCPU.gpr[rD] = gCPU.gpr[rA] + gCPU.gpr[rB];
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -60,12 +60,12 @@ void ppc_opc_addx()
  *	addox		Add with Overflow
  *	.422
  */
-void ppc_opc_addox()
+void ppc_opc_addox(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	gCPU.gpr[rD] = gCPU.gpr[rA] + gCPU.gpr[rB];
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -76,10 +76,10 @@ void ppc_opc_addox()
  *	addcx		Add Carrying
  *	.423
  */
-void ppc_opc_addcx()
+void ppc_opc_addcx(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	uint32 a = gCPU.gpr[rA];
 	gCPU.gpr[rD] = a + gCPU.gpr[rB];
 	// update xer
@@ -88,7 +88,7 @@ void ppc_opc_addcx()
 	} else {
 		gCPU.xer &= ~XER_CA;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -97,10 +97,10 @@ void ppc_opc_addcx()
  *	addcox		Add Carrying with Overflow
  *	.423
  */
-void ppc_opc_addcox()
+void ppc_opc_addcox(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	uint32 a = gCPU.gpr[rA];
 	gCPU.gpr[rD] = a + gCPU.gpr[rB];
 	// update xer
@@ -109,7 +109,7 @@ void ppc_opc_addcox()
 	} else {
 		gCPU.xer &= ~XER_CA;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -120,10 +120,10 @@ void ppc_opc_addcox()
  *	addex		Add Extended
  *	.424
  */
-void ppc_opc_addex()
+void ppc_opc_addex(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	uint32 a = gCPU.gpr[rA];
 	uint32 b = gCPU.gpr[rB];
 	uint32 ca = ((gCPU.xer&XER_CA)?1:0);
@@ -134,7 +134,7 @@ void ppc_opc_addex()
 	} else {
 		gCPU.xer &= ~XER_CA;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -143,10 +143,10 @@ void ppc_opc_addex()
  *	addeox		Add Extended with Overflow
  *	.424
  */
-void ppc_opc_addeox()
+void ppc_opc_addeox(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	uint32 a = gCPU.gpr[rA];
 	uint32 b = gCPU.gpr[rB];
 	uint32 ca = ((gCPU.xer&XER_CA)?1:0);
@@ -157,7 +157,7 @@ void ppc_opc_addeox()
 	} else {
 		gCPU.xer &= ~XER_CA;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -168,22 +168,22 @@ void ppc_opc_addeox()
  *	addi		Add Immediate
  *	.425
  */
-void ppc_opc_addi()
+void ppc_opc_addi(uint32 opc)
 {
 	int rD, rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rD, rA, imm);
 	gCPU.gpr[rD] = (rA ? gCPU.gpr[rA] : 0) + imm;
 }
 /*
  *	addic		Add Immediate Carrying
  *	.426
  */
-void ppc_opc_addic()
+void ppc_opc_addic(uint32 opc)
 {
 	int rD, rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rD, rA, imm);
 	uint32 a = gCPU.gpr[rA];
 	gCPU.gpr[rD] = a + imm;	
 	// update XER
@@ -197,11 +197,11 @@ void ppc_opc_addic()
  *	addic.		Add Immediate Carrying and Record
  *	.427
  */
-void ppc_opc_addic_()
+void ppc_opc_addic_(uint32 opc)
 {
 	int rD, rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rD, rA, imm);
 	uint32 a = gCPU.gpr[rA];
 	gCPU.gpr[rD] = a + imm;
 	// update XER
@@ -217,21 +217,21 @@ void ppc_opc_addic_()
  *	addis		Add Immediate Shifted
  *	.428
  */
-void ppc_opc_addis()
+void ppc_opc_addis(uint32 opc)
 {
 	int rD, rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_Shift16(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_Shift16(opc, rD, rA, imm);
 	gCPU.gpr[rD] = (rA ? gCPU.gpr[rA] : 0) + imm;
 }
 /*
  *	addmex		Add to Minus One Extended
  *	.429
  */
-void ppc_opc_addmex()
+void ppc_opc_addmex(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	PPC_OPC_ASSERT(rB == 0);
 	uint32 a = gCPU.gpr[rA];
 	uint32 ca = ((gCPU.xer&XER_CA)?1:0);
@@ -241,7 +241,7 @@ void ppc_opc_addmex()
 	} else {
 		gCPU.xer &= ~XER_CA;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -250,10 +250,10 @@ void ppc_opc_addmex()
  *	addmeox		Add to Minus One Extended with Overflow
  *	.429
  */
-void ppc_opc_addmeox()
+void ppc_opc_addmeox(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	PPC_OPC_ASSERT(rB == 0);
 	uint32 a = gCPU.gpr[rA];
 	uint32 ca = ((gCPU.xer&XER_CA)?1:0);
@@ -263,7 +263,7 @@ void ppc_opc_addmeox()
 	} else {
 		gCPU.xer &= ~XER_CA;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -274,10 +274,10 @@ void ppc_opc_addmeox()
  *	addzex		Add to Zero Extended
  *	.430
  */
-void ppc_opc_addzex()
+void ppc_opc_addzex(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	PPC_OPC_ASSERT(rB == 0);
 	uint32 a = gCPU.gpr[rA];
 	uint32 ca = ((gCPU.xer&XER_CA)?1:0);
@@ -288,7 +288,7 @@ void ppc_opc_addzex()
 		gCPU.xer &= ~XER_CA;
 	}
 	// update xer
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -297,10 +297,10 @@ void ppc_opc_addzex()
  *	addzeox		Add to Zero Extended with Overflow
  *	.430
  */
-void ppc_opc_addzeox()
+void ppc_opc_addzeox(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	PPC_OPC_ASSERT(rB == 0);
 	uint32 a = gCPU.gpr[rA];
 	uint32 ca = ((gCPU.xer&XER_CA)?1:0);
@@ -311,7 +311,7 @@ void ppc_opc_addzeox()
 		gCPU.xer &= ~XER_CA;
 	}
 	// update xer
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -323,12 +323,12 @@ void ppc_opc_addzeox()
  *	andx		AND
  *	.431
  */
-void ppc_opc_andx()
+void ppc_opc_andx(uint32 opc)
 {
 	int rS, rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	gCPU.gpr[rA] = gCPU.gpr[rS] & gCPU.gpr[rB];
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -337,12 +337,12 @@ void ppc_opc_andx()
  *	andcx		AND with Complement
  *	.432
  */
-void ppc_opc_andcx()
+void ppc_opc_andcx(uint32 opc)
 {
 	int rS, rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	gCPU.gpr[rA] = gCPU.gpr[rS] & ~gCPU.gpr[rB];
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -351,11 +351,11 @@ void ppc_opc_andcx()
  *	andi.		AND Immediate
  *	.433
  */
-void ppc_opc_andi_()
+void ppc_opc_andi_(uint32 opc)
 {
 	int rS, rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_UImm(gCPU.current_opc, rS, rA, imm);
+	PPC_OPC_TEMPL_D_UImm(opc, rS, rA, imm);
 	gCPU.gpr[rA] = gCPU.gpr[rS] & imm;
 	// update cr0 flags
 	ppc_update_cr0(gCPU.gpr[rA]);
@@ -364,11 +364,11 @@ void ppc_opc_andi_()
  *	andis.		AND Immediate Shifted
  *	.434
  */
-void ppc_opc_andis_()
+void ppc_opc_andis_(uint32 opc)
 {
 	int rS, rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_Shift16(gCPU.current_opc, rS, rA, imm);
+	PPC_OPC_TEMPL_D_Shift16(opc, rS, rA, imm);
 	gCPU.gpr[rA] = gCPU.gpr[rS] & imm;
 	// update cr0 flags
 	ppc_update_cr0(gCPU.gpr[rA]);
@@ -389,11 +389,11 @@ static uint32 ppc_cmp_and_mask[8] = {
 	0x0fffffff,
 };
 
-void ppc_opc_cmp()
+void ppc_opc_cmp(uint32 opc)
 {
 	uint32 cr;
 	int rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, cr, rA, rB);
+	PPC_OPC_TEMPL_X(opc, cr, rA, rB);
 	cr >>= 2;
 	sint32 a = gCPU.gpr[rA];
 	sint32 b = gCPU.gpr[rB];
@@ -414,12 +414,12 @@ void ppc_opc_cmp()
  *	cmpi		Compare Immediate
  *	.443
  */
-void ppc_opc_cmpi()
+void ppc_opc_cmpi(uint32 opc)
 {
 	uint32 cr;
 	int rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, cr, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, cr, rA, imm);
 	cr >>= 2;
 	sint32 a = gCPU.gpr[rA];
 	sint32 b = imm;
@@ -444,11 +444,11 @@ void ppc_opc_cmpi()
  *	cmpl		Compare Logical
  *	.444
  */
-void ppc_opc_cmpl()
+void ppc_opc_cmpl(uint32 opc)
 {
 	uint32 cr;
 	int rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, cr, rA, rB);
+	PPC_OPC_TEMPL_X(opc, cr, rA, rB);
 	cr >>= 2;
 	uint32 a = gCPU.gpr[rA];
 	uint32 b = gCPU.gpr[rB];
@@ -469,12 +469,12 @@ void ppc_opc_cmpl()
  *	cmpli		Compare Logical Immediate
  *	.445
  */
-void ppc_opc_cmpli()
+void ppc_opc_cmpli(uint32 opc)
 {
 	uint32 cr;
 	int rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_UImm(gCPU.current_opc, cr, rA, imm);
+	PPC_OPC_TEMPL_D_UImm(opc, cr, rA, imm);
 	cr >>= 2;
 	uint32 a = gCPU.gpr[rA];
 	uint32 b = imm;
@@ -496,10 +496,10 @@ void ppc_opc_cmpli()
  *	cntlzwx		Count Leading Zeros Word
  *	.447
  */
-void ppc_opc_cntlzwx()
+void ppc_opc_cntlzwx(uint32 opc)
 {
 	int rS, rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	PPC_OPC_ASSERT(rB==0);
 	uint32 n=0;
 	uint32 x=0x80000000;
@@ -510,7 +510,7 @@ void ppc_opc_cntlzwx()
 		x>>=1;
 	}
 	gCPU.gpr[rA] = n;
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -520,10 +520,10 @@ void ppc_opc_cntlzwx()
  *	crand		Condition Register AND
  *	.448
  */
-void ppc_opc_crand()
+void ppc_opc_crand(uint32 opc)
 {
 	int crD, crA, crB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, crD, crA, crB);
+	PPC_OPC_TEMPL_X(opc, crD, crA, crB);
 	if ((gCPU.cr & (1<<(31-crA))) && (gCPU.cr & (1<<(31-crB)))) {
 		gCPU.cr |= (1<<(31-crD));
 	} else {
@@ -534,10 +534,10 @@ void ppc_opc_crand()
  *	crandc		Condition Register AND with Complement
  *	.449
  */
-void ppc_opc_crandc()
+void ppc_opc_crandc(uint32 opc)
 {
 	int crD, crA, crB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, crD, crA, crB);
+	PPC_OPC_TEMPL_X(opc, crD, crA, crB);
 	if ((gCPU.cr & (1<<(31-crA))) && !(gCPU.cr & (1<<(31-crB)))) {
 		gCPU.cr |= (1<<(31-crD));
 	} else {
@@ -548,10 +548,10 @@ void ppc_opc_crandc()
  *	creqv		Condition Register Equivalent
  *	.450
  */
-void ppc_opc_creqv()
+void ppc_opc_creqv(uint32 opc)
 {
 	int crD, crA, crB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, crD, crA, crB);
+	PPC_OPC_TEMPL_X(opc, crD, crA, crB);
 	if (((gCPU.cr & (1<<(31-crA))) && (gCPU.cr & (1<<(31-crB))))
 	  || (!(gCPU.cr & (1<<(31-crA))) && !(gCPU.cr & (1<<(31-crB))))) {
 		gCPU.cr |= (1<<(31-crD));
@@ -563,10 +563,10 @@ void ppc_opc_creqv()
  *	crnand		Condition Register NAND
  *	.451
  */
-void ppc_opc_crnand()
+void ppc_opc_crnand(uint32 opc)
 {
 	int crD, crA, crB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, crD, crA, crB);
+	PPC_OPC_TEMPL_X(opc, crD, crA, crB);
 	if (!((gCPU.cr & (1<<(31-crA))) && (gCPU.cr & (1<<(31-crB))))) {
 		gCPU.cr |= (1<<(31-crD));
 	} else {
@@ -577,10 +577,10 @@ void ppc_opc_crnand()
  *	crnor		Condition Register NOR
  *	.452
  */
-void ppc_opc_crnor()
+void ppc_opc_crnor(uint32 opc)
 {
 	int crD, crA, crB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, crD, crA, crB);
+	PPC_OPC_TEMPL_X(opc, crD, crA, crB);
 	uint32 t = (1<<(31-crA)) | (1<<(31-crB));
 	if (!(gCPU.cr & t)) {
 		gCPU.cr |= (1<<(31-crD));
@@ -592,10 +592,10 @@ void ppc_opc_crnor()
  *	cror		Condition Register OR
  *	.453
  */
-void ppc_opc_cror()
+void ppc_opc_cror(uint32 opc)
 {
 	int crD, crA, crB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, crD, crA, crB);
+	PPC_OPC_TEMPL_X(opc, crD, crA, crB);
 	uint32 t = (1<<(31-crA)) | (1<<(31-crB));
 	if (gCPU.cr & t) {
 		gCPU.cr |= (1<<(31-crD));
@@ -607,10 +607,10 @@ void ppc_opc_cror()
  *	crorc		Condition Register OR with Complement
  *	.454
  */
-void ppc_opc_crorc()
+void ppc_opc_crorc(uint32 opc)
 {
 	int crD, crA, crB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, crD, crA, crB);
+	PPC_OPC_TEMPL_X(opc, crD, crA, crB);
 	if ((gCPU.cr & (1<<(31-crA))) || !(gCPU.cr & (1<<(31-crB)))) {
 		gCPU.cr |= (1<<(31-crD));
 	} else {
@@ -621,10 +621,10 @@ void ppc_opc_crorc()
  *	crxor		Condition Register XOR
  *	.448
  */
-void ppc_opc_crxor()
+void ppc_opc_crxor(uint32 opc)
 {
 	int crD, crA, crB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, crD, crA, crB);
+	PPC_OPC_TEMPL_X(opc, crD, crA, crB);
 	if ((!(gCPU.cr & (1<<(31-crA))) && (gCPU.cr & (1<<(31-crB))))
 	  || ((gCPU.cr & (1<<(31-crA))) && !(gCPU.cr & (1<<(31-crB))))) {
 		gCPU.cr |= (1<<(31-crD));
@@ -637,10 +637,10 @@ void ppc_opc_crxor()
  *	divwx		Divide Word
  *	.470
  */
-void ppc_opc_divwx()
+void ppc_opc_divwx(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	if (!gCPU.gpr[rB]) {
 		PPC_ALU_WARN("division by zero @%08x\n", gCPU.pc);
 		SINGLESTEP("");
@@ -648,7 +648,7 @@ void ppc_opc_divwx()
 	sint32 a = gCPU.gpr[rA];
 	sint32 b = gCPU.gpr[rB];
 	gCPU.gpr[rD] = a / b;
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -657,17 +657,17 @@ void ppc_opc_divwx()
  *	divwox		Divide Word with Overflow
  *	.470
  */
-void ppc_opc_divwox()
+void ppc_opc_divwox(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	if (!gCPU.gpr[rB]) {
 		PPC_ALU_ERR("division by zero\n");
 	}
 	sint32 a = gCPU.gpr[rA];
 	sint32 b = gCPU.gpr[rB];
 	gCPU.gpr[rD] = a / b;
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -678,16 +678,16 @@ void ppc_opc_divwox()
  *	divwux		Divide Word Unsigned
  *	.472
  */
-void ppc_opc_divwux()
+void ppc_opc_divwux(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	if (!gCPU.gpr[rB]) {
 		PPC_ALU_WARN("division by zero @%08x\n", gCPU.pc);
 		SINGLESTEP("");
 	}
 	gCPU.gpr[rD] = gCPU.gpr[rA] / gCPU.gpr[rB];
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -696,15 +696,15 @@ void ppc_opc_divwux()
  *	divwuox		Divide Word Unsigned with Overflow
  *	.472
  */
-void ppc_opc_divwuox()
+void ppc_opc_divwuox(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	if (!gCPU.gpr[rB]) {
 //		PPC_ALU_ERR("division by zero\n");
 	}
 	gCPU.gpr[rD] = gCPU.gpr[rA] / gCPU.gpr[rB];
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -716,12 +716,12 @@ void ppc_opc_divwuox()
  *	eqvx		Equivalent
  *	.480
  */
-void ppc_opc_eqvx()
+void ppc_opc_eqvx(uint32 opc)
 {
 	int rS, rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	gCPU.gpr[rA] = ~(gCPU.gpr[rS] ^ gCPU.gpr[rB]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -731,10 +731,10 @@ void ppc_opc_eqvx()
  *	extsbx		Extend Sign Byte
  *	.481
  */
-void ppc_opc_extsbx()
+void ppc_opc_extsbx(uint32 opc)
 {
 	int rS, rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	PPC_OPC_ASSERT(rB==0);
 	gCPU.gpr[rA] = gCPU.gpr[rS];
 	if (gCPU.gpr[rA] & 0x80) {
@@ -742,7 +742,7 @@ void ppc_opc_extsbx()
 	} else {
 		gCPU.gpr[rA] &= ~0xffffff00;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -751,10 +751,10 @@ void ppc_opc_extsbx()
  *	extshx		Extend Sign Half Word
  *	.482
  */
-void ppc_opc_extshx()
+void ppc_opc_extshx(uint32 opc)
 {
 	int rS, rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	PPC_OPC_ASSERT(rB==0);
 	gCPU.gpr[rA] = gCPU.gpr[rS];
 	if (gCPU.gpr[rA] & 0x8000) {
@@ -762,7 +762,7 @@ void ppc_opc_extshx()
 	} else {
 		gCPU.gpr[rA] &= ~0xffff0000;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -772,15 +772,15 @@ void ppc_opc_extshx()
  *	mulhwx		Multiply High Word
  *	.595
  */
-void ppc_opc_mulhwx()
+void ppc_opc_mulhwx(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	sint64 a = (sint32)gCPU.gpr[rA];
 	sint64 b = (sint32)gCPU.gpr[rB];
 	sint64 c = a*b;
 	gCPU.gpr[rD] = ((uint64)c)>>32;
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 //		PPC_ALU_WARN("mulhw. correct?\n");
@@ -790,15 +790,15 @@ void ppc_opc_mulhwx()
  *	mulhwux		Multiply High Word Unsigned
  *	.596
  */
-void ppc_opc_mulhwux()
+void ppc_opc_mulhwux(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	uint64 a = gCPU.gpr[rA];
 	uint64 b = gCPU.gpr[rB];
 	uint64 c = a*b;
 	gCPU.gpr[rD] = c>>32;
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -807,11 +807,11 @@ void ppc_opc_mulhwux()
  *	mulli		Multiply Low Immediate
  *	.598
  */
-void ppc_opc_mulli()
+void ppc_opc_mulli(uint32 opc)
 {
 	int rD, rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rD, rA, imm);
 	// FIXME: signed / unsigned correct?
 	gCPU.gpr[rD] = gCPU.gpr[rA] * imm;
 }
@@ -819,16 +819,16 @@ void ppc_opc_mulli()
  *	mullwx		Multiply Low Word
  *	.599
  */
-void ppc_opc_mullwx()
+void ppc_opc_mullwx(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	gCPU.gpr[rD] = gCPU.gpr[rA] * gCPU.gpr[rB];
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
-	if (gCPU.current_opc & PPC_OPC_OE) {
+	if (opc & PPC_OPC_OE) {
 		// update XER flags
 		PPC_ALU_ERR("mullwx unimplemented\n");
 	}
@@ -838,12 +838,12 @@ void ppc_opc_mullwx()
  *	nandx		NAND
  *	.600
  */
-void ppc_opc_nandx()
+void ppc_opc_nandx(uint32 opc)
 {
 	int rS, rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	gCPU.gpr[rA] = ~(gCPU.gpr[rS] & gCPU.gpr[rB]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -853,13 +853,13 @@ void ppc_opc_nandx()
  *	negx		Negate
  *	.601
  */
-void ppc_opc_negx()
+void ppc_opc_negx(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	PPC_OPC_ASSERT(rB == 0);
 	gCPU.gpr[rD] = -gCPU.gpr[rA];
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -868,13 +868,13 @@ void ppc_opc_negx()
  *	negox		Negate with Overflow
  *	.601
  */
-void ppc_opc_negox()
+void ppc_opc_negox(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	PPC_OPC_ASSERT(rB == 0);
 	gCPU.gpr[rD] = -gCPU.gpr[rA];
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -885,12 +885,12 @@ void ppc_opc_negox()
  *	norx		NOR
  *	.602
  */
-void ppc_opc_norx()
+void ppc_opc_norx(uint32 opc)
 {
 	int rS, rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	gCPU.gpr[rA] = ~(gCPU.gpr[rS] | gCPU.gpr[rB]);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -900,12 +900,12 @@ void ppc_opc_norx()
  *	orx		OR
  *	.603
  */
-void ppc_opc_orx()
+void ppc_opc_orx(uint32 opc)
 {
 	int rS, rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	gCPU.gpr[rA] = gCPU.gpr[rS] | gCPU.gpr[rB];
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -914,12 +914,12 @@ void ppc_opc_orx()
  *	orcx		OR with Complement
  *	.604
  */
-void ppc_opc_orcx()
+void ppc_opc_orcx(uint32 opc)
 {
 	int rS, rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	gCPU.gpr[rA] = gCPU.gpr[rS] | ~gCPU.gpr[rB];
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -928,22 +928,22 @@ void ppc_opc_orcx()
  *	ori		OR Immediate
  *	.605
  */
-void ppc_opc_ori()
+void ppc_opc_ori(uint32 opc)
 {
 	int rS, rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_UImm(gCPU.current_opc, rS, rA, imm);
+	PPC_OPC_TEMPL_D_UImm(opc, rS, rA, imm);
 	gCPU.gpr[rA] = gCPU.gpr[rS] | imm;
 }
 /*
  *	oris		OR Immediate Shifted
  *	.606
  */
-void ppc_opc_oris()
+void ppc_opc_oris(uint32 opc)
 {
 	int rS, rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_Shift16(gCPU.current_opc, rS, rA, imm);
+	PPC_OPC_TEMPL_D_Shift16(opc, rS, rA, imm);
 	gCPU.gpr[rA] = gCPU.gpr[rS] | imm;
 }
 
@@ -951,14 +951,14 @@ void ppc_opc_oris()
  *	rlwimix		Rotate Left Word Immediate then Mask Insert
  *	.617
  */
-void ppc_opc_rlwimix()
+void ppc_opc_rlwimix(uint32 opc)
 {
 	int rS, rA, SH, MB, ME;
-	PPC_OPC_TEMPL_M(gCPU.current_opc, rS, rA, SH, MB, ME);
+	PPC_OPC_TEMPL_M(opc, rS, rA, SH, MB, ME);
 	uint32 v = ppc_word_rotl(gCPU.gpr[rS], SH);
 	uint32 mask = ppc_mask(MB, ME);
 	gCPU.gpr[rA] = (v & mask) | (gCPU.gpr[rA] & ~mask);
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -968,14 +968,14 @@ void ppc_opc_rlwimix()
  *	rlwinmx		Rotate Left Word Immediate then AND with Mask
  *	.618
  */
-void ppc_opc_rlwinmx()
+void ppc_opc_rlwinmx(uint32 opc)
 {
 	int rS, rA, SH, MB, ME;
-	PPC_OPC_TEMPL_M(gCPU.current_opc, rS, rA, SH, MB, ME);
+	PPC_OPC_TEMPL_M(opc, rS, rA, SH, MB, ME);
 	uint32 v = ppc_word_rotl(gCPU.gpr[rS], SH);
 	uint32 mask = ppc_mask(MB, ME);
 	gCPU.gpr[rA] = v & mask;
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -984,14 +984,14 @@ void ppc_opc_rlwinmx()
  *	rlwnmx		Rotate Left Word then AND with Mask
  *	.620
  */
-void ppc_opc_rlwnmx()
+void ppc_opc_rlwnmx(uint32 opc)
 {
 	int rS, rA, rB, MB, ME;
-	PPC_OPC_TEMPL_M(gCPU.current_opc, rS, rA, rB, MB, ME);
+	PPC_OPC_TEMPL_M(opc, rS, rA, rB, MB, ME);
 	uint32 v = ppc_word_rotl(gCPU.gpr[rS], gCPU.gpr[rB]);
 	uint32 mask = ppc_mask(MB, ME);
 	gCPU.gpr[rA] = v & mask;
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -1001,17 +1001,17 @@ void ppc_opc_rlwnmx()
  *	slwx		Shift Left Word
  *	.625
  */
-void ppc_opc_slwx()
+void ppc_opc_slwx(uint32 opc)
 {
 	int rS, rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	uint32 s = gCPU.gpr[rB] & 0x3f;
 	if (s > 31) {
 		gCPU.gpr[rA] = 0;
 	} else {
 		gCPU.gpr[rA] = gCPU.gpr[rS] << s;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -1020,10 +1020,10 @@ void ppc_opc_slwx()
  *	srawx		Shift Right Algebraic Word
  *	.628
  */
-void ppc_opc_srawx()
+void ppc_opc_srawx(uint32 opc)
 {
 	int rS, rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	uint32 SH = gCPU.gpr[rB] & 0x3f;
 	gCPU.gpr[rA] = gCPU.gpr[rS];
 	gCPU.xer &= ~XER_CA;
@@ -1042,7 +1042,7 @@ void ppc_opc_srawx()
 			gCPU.gpr[rA] >>= SH;
 		}
 	}     
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -1051,11 +1051,11 @@ void ppc_opc_srawx()
  *	srawix		Shift Right Algebraic Word Immediate
  *	.629
  */
-void ppc_opc_srawix()
+void ppc_opc_srawix(uint32 opc)
 {
 	int rS, rA;
 	uint32 SH;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, SH);
+	PPC_OPC_TEMPL_X(opc, rS, rA, SH);
 	gCPU.gpr[rA] = gCPU.gpr[rS];
 	gCPU.xer &= ~XER_CA;
 	if (gCPU.gpr[rA] & 0x80000000) {
@@ -1073,7 +1073,7 @@ void ppc_opc_srawix()
 			gCPU.gpr[rA] >>= SH;
 		}
 	}     
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -1082,17 +1082,17 @@ void ppc_opc_srawix()
  *	srwx		Shift Right Word
  *	.631
  */
-void ppc_opc_srwx()
+void ppc_opc_srwx(uint32 opc)
 {
 	int rS, rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	uint32 v = gCPU.gpr[rB] & 0x3f;
 	if (v > 31) {
 		gCPU.gpr[rA] = 0;
 	} else {
 		gCPU.gpr[rA] = gCPU.gpr[rS] >> v;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -1102,12 +1102,12 @@ void ppc_opc_srwx()
  *	subfx		Subtract From
  *	.666
  */
-void ppc_opc_subfx()
+void ppc_opc_subfx(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	gCPU.gpr[rD] = ~gCPU.gpr[rA] + gCPU.gpr[rB] + 1;
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -1116,12 +1116,12 @@ void ppc_opc_subfx()
  *	subfox		Subtract From with Overflow
  *	.666
  */
-void ppc_opc_subfox()
+void ppc_opc_subfox(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	gCPU.gpr[rD] = ~gCPU.gpr[rA] + gCPU.gpr[rB] + 1;
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -1132,10 +1132,10 @@ void ppc_opc_subfox()
  *	subfcx		Subtract From Carrying
  *	.667
  */
-void ppc_opc_subfcx()
+void ppc_opc_subfcx(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	uint32 a = gCPU.gpr[rA];
 	uint32 b = gCPU.gpr[rB];
 	gCPU.gpr[rD] = ~a + b + 1;
@@ -1145,7 +1145,7 @@ void ppc_opc_subfcx()
 	} else {
 		gCPU.xer &= ~XER_CA;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -1154,10 +1154,10 @@ void ppc_opc_subfcx()
  *	subfcox		Subtract From Carrying with Overflow
  *	.667
  */
-void ppc_opc_subfcox()
+void ppc_opc_subfcox(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	uint32 a = gCPU.gpr[rA];
 	uint32 b = gCPU.gpr[rB];
 	gCPU.gpr[rD] = ~a + b + 1;
@@ -1167,7 +1167,7 @@ void ppc_opc_subfcox()
 	} else {
 		gCPU.xer &= ~XER_CA;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -1178,10 +1178,10 @@ void ppc_opc_subfcox()
  *	subfex		Subtract From Extended
  *	.668
  */
-void ppc_opc_subfex()
+void ppc_opc_subfex(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	uint32 a = gCPU.gpr[rA];
 	uint32 b = gCPU.gpr[rB];
 	uint32 ca = ((gCPU.xer&XER_CA)?1:0);
@@ -1192,7 +1192,7 @@ void ppc_opc_subfex()
 	} else {
 		gCPU.xer &= ~XER_CA;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -1201,10 +1201,10 @@ void ppc_opc_subfex()
  *	subfeox		Subtract From Extended with Overflow
  *	.668
  */
-void ppc_opc_subfeox()
+void ppc_opc_subfeox(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	uint32 a = gCPU.gpr[rA];
 	uint32 b = gCPU.gpr[rB];
 	uint32 ca = ((gCPU.xer&XER_CA)?1:0);
@@ -1215,7 +1215,7 @@ void ppc_opc_subfeox()
 	} else {
 		gCPU.xer &= ~XER_CA;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -1226,11 +1226,11 @@ void ppc_opc_subfeox()
  *	subfic		Subtract From Immediate Carrying
  *	.669
  */
-void ppc_opc_subfic()
+void ppc_opc_subfic(uint32 opc)
 {
 	int rD, rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_SImm(gCPU.current_opc, rD, rA, imm);
+	PPC_OPC_TEMPL_D_SImm(opc, rD, rA, imm);
 	uint32 a = gCPU.gpr[rA];
 	gCPU.gpr[rD] = ~a + imm + 1;
 	// update XER
@@ -1244,10 +1244,10 @@ void ppc_opc_subfic()
  *	subfmex		Subtract From Minus One Extended
  *	.670
  */
-void ppc_opc_subfmex()
+void ppc_opc_subfmex(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	PPC_OPC_ASSERT(rB == 0);
 	uint32 a = gCPU.gpr[rA];
 	uint32 ca = ((gCPU.xer&XER_CA)?1:0);
@@ -1258,7 +1258,7 @@ void ppc_opc_subfmex()
 	} else {
 		gCPU.xer &= ~XER_CA;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -1267,10 +1267,10 @@ void ppc_opc_subfmex()
  *	subfmeox	Subtract From Minus One Extended with Overflow
  *	.670
  */
-void ppc_opc_subfmeox()
+void ppc_opc_subfmeox(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	PPC_OPC_ASSERT(rB == 0);
 	uint32 a = gCPU.gpr[rA];
 	uint32 ca = ((gCPU.xer&XER_CA)?1:0);
@@ -1281,7 +1281,7 @@ void ppc_opc_subfmeox()
 	} else {
 		gCPU.xer &= ~XER_CA;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -1292,10 +1292,10 @@ void ppc_opc_subfmeox()
  *	subfzex		Subtract From Zero Extended
  *	.671
  */
-void ppc_opc_subfzex()
+void ppc_opc_subfzex(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	PPC_OPC_ASSERT(rB == 0);
 	uint32 a = gCPU.gpr[rA];
 	uint32 ca = ((gCPU.xer&XER_CA)?1:0);
@@ -1305,7 +1305,7 @@ void ppc_opc_subfzex()
 	} else {
 		gCPU.xer &= ~XER_CA;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -1314,10 +1314,10 @@ void ppc_opc_subfzex()
  *	subfzeox	Subtract From Zero Extended with Overflow
  *	.671
  */
-void ppc_opc_subfzeox()
+void ppc_opc_subfzeox(uint32 opc)
 {
 	int rD, rA, rB;
-	PPC_OPC_TEMPL_XO(gCPU.current_opc, rD, rA, rB);
+	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	PPC_OPC_ASSERT(rB == 0);
 	uint32 a = gCPU.gpr[rA];
 	uint32 ca = ((gCPU.xer&XER_CA)?1:0);
@@ -1327,7 +1327,7 @@ void ppc_opc_subfzeox()
 	} else {
 		gCPU.xer &= ~XER_CA;
 	}
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
 	}
@@ -1339,12 +1339,12 @@ void ppc_opc_subfzeox()
  *	xorx		XOR
  *	.680
  */
-void ppc_opc_xorx()
+void ppc_opc_xorx(uint32 opc)
 {
 	int rS, rA, rB;
-	PPC_OPC_TEMPL_X(gCPU.current_opc, rS, rA, rB);
+	PPC_OPC_TEMPL_X(opc, rS, rA, rB);
 	gCPU.gpr[rA] = gCPU.gpr[rS] ^ gCPU.gpr[rB];
-	if (gCPU.current_opc & PPC_OPC_Rc) {
+	if (opc & PPC_OPC_Rc) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rA]);
 	}
@@ -1353,22 +1353,22 @@ void ppc_opc_xorx()
  *	xori		XOR Immediate
  *	.681
  */
-void ppc_opc_xori()
+void ppc_opc_xori(uint32 opc)
 {
 	int rS, rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_UImm(gCPU.current_opc, rS, rA, imm);
+	PPC_OPC_TEMPL_D_UImm(opc, rS, rA, imm);
 	gCPU.gpr[rA] = gCPU.gpr[rS] ^ imm;
 }
 /*
  *	xoris		XOR Immediate Shifted
  *	.682
  */
-void ppc_opc_xoris()
+void ppc_opc_xoris(uint32 opc)
 {
 	int rS, rA;
 	uint32 imm;
-	PPC_OPC_TEMPL_D_Shift16(gCPU.current_opc, rS, rA, imm);
+	PPC_OPC_TEMPL_D_Shift16(opc, rS, rA, imm);
 	gCPU.gpr[rA] = gCPU.gpr[rS] ^ imm;
 }
 

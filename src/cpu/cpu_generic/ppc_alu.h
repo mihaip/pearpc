@@ -21,79 +21,79 @@
 #ifndef __PPC_ALU_H__
 #define __PPC_ALU_H__
 
-void ppc_opc_addx();
-void ppc_opc_addcx();
-void ppc_opc_addex();
-void ppc_opc_addi();
-void ppc_opc_addic();
-void ppc_opc_addic_();
-void ppc_opc_addis();
-void ppc_opc_addmex();
-void ppc_opc_addzex();
+void ppc_opc_addx(uint32 opc);
+void ppc_opc_addcx(uint32 opc);
+void ppc_opc_addex(uint32 opc);
+void ppc_opc_addi(uint32 opc);
+void ppc_opc_addic(uint32 opc);
+void ppc_opc_addic_(uint32 opc);
+void ppc_opc_addis(uint32 opc);
+void ppc_opc_addmex(uint32 opc);
+void ppc_opc_addzex(uint32 opc);
 
-void ppc_opc_andx();
-void ppc_opc_andcx();
-void ppc_opc_andi_();
-void ppc_opc_andis_();
+void ppc_opc_andx(uint32 opc);
+void ppc_opc_andcx(uint32 opc);
+void ppc_opc_andi_(uint32 opc);
+void ppc_opc_andis_(uint32 opc);
 
-void ppc_opc_cmp();
-void ppc_opc_cmpi();
-void ppc_opc_cmpl();
-void ppc_opc_cmpli();
+void ppc_opc_cmp(uint32 opc);
+void ppc_opc_cmpi(uint32 opc);
+void ppc_opc_cmpl(uint32 opc);
+void ppc_opc_cmpli(uint32 opc);
 
-void ppc_opc_cntlzwx();
+void ppc_opc_cntlzwx(uint32 opc);
 
-void ppc_opc_crand();
-void ppc_opc_crandc();
-void ppc_opc_creqv();
-void ppc_opc_crnand();
-void ppc_opc_crnor();
-void ppc_opc_cror();
-void ppc_opc_crorc();
-void ppc_opc_crxor();
+void ppc_opc_crand(uint32 opc);
+void ppc_opc_crandc(uint32 opc);
+void ppc_opc_creqv(uint32 opc);
+void ppc_opc_crnand(uint32 opc);
+void ppc_opc_crnor(uint32 opc);
+void ppc_opc_cror(uint32 opc);
+void ppc_opc_crorc(uint32 opc);
+void ppc_opc_crxor(uint32 opc);
 
-void ppc_opc_divwx();
-void ppc_opc_divwux();
+void ppc_opc_divwx(uint32 opc);
+void ppc_opc_divwux(uint32 opc);
 
-void ppc_opc_eqvx();
+void ppc_opc_eqvx(uint32 opc);
 
-void ppc_opc_extsbx();
-void ppc_opc_extshx();
+void ppc_opc_extsbx(uint32 opc);
+void ppc_opc_extshx(uint32 opc);
 
-void ppc_opc_mulhwx();
-void ppc_opc_mulhwux();
-void ppc_opc_mulli();
-void ppc_opc_mullwx();
+void ppc_opc_mulhwx(uint32 opc);
+void ppc_opc_mulhwux(uint32 opc);
+void ppc_opc_mulli(uint32 opc);
+void ppc_opc_mullwx(uint32 opc);
 
-void ppc_opc_nandx();
+void ppc_opc_nandx(uint32 opc);
 
-void ppc_opc_negx();
-void ppc_opc_norx();
+void ppc_opc_negx(uint32 opc);
+void ppc_opc_norx(uint32 opc);
 
-void ppc_opc_orx();
-void ppc_opc_orcx();
-void ppc_opc_ori();
-void ppc_opc_oris();
+void ppc_opc_orx(uint32 opc);
+void ppc_opc_orcx(uint32 opc);
+void ppc_opc_ori(uint32 opc);
+void ppc_opc_oris(uint32 opc);
 
-void ppc_opc_rlwimix();
-void ppc_opc_rlwinmx();
-void ppc_opc_rlwnmx();
+void ppc_opc_rlwimix(uint32 opc);
+void ppc_opc_rlwinmx(uint32 opc);
+void ppc_opc_rlwnmx(uint32 opc);
 
-void ppc_opc_slwx();
-void ppc_opc_srawx();
-void ppc_opc_srawix();
-void ppc_opc_srwx();
+void ppc_opc_slwx(uint32 opc);
+void ppc_opc_srawx(uint32 opc);
+void ppc_opc_srawix(uint32 opc);
+void ppc_opc_srwx(uint32 opc);
 
-void ppc_opc_subfx();
-void ppc_opc_subfcx();
-void ppc_opc_subfex();
-void ppc_opc_subfic();
-void ppc_opc_subfmex();
-void ppc_opc_subfzex();
+void ppc_opc_subfx(uint32 opc);
+void ppc_opc_subfcx(uint32 opc);
+void ppc_opc_subfex(uint32 opc);
+void ppc_opc_subfic(uint32 opc);
+void ppc_opc_subfmex(uint32 opc);
+void ppc_opc_subfzex(uint32 opc);
 
-void ppc_opc_xorx();
-void ppc_opc_xori();
-void ppc_opc_xoris();
+void ppc_opc_xorx(uint32 opc);
+void ppc_opc_xori(uint32 opc);
+void ppc_opc_xoris(uint32 opc);
 
 #endif
- 
+

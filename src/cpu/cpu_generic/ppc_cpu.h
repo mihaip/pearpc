@@ -79,7 +79,6 @@ struct PPC_CPU_State {
 	
 	uint32 pc;
 	uint32 npc;
-	uint32 current_opc;
 	bool   exception_pending;
 	bool   dec_exception;
 	bool   ext_exception;

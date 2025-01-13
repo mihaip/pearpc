@@ -108,13 +108,14 @@ void ppc_cpu_run()
 //	gDebugger->mAlwaysShowRegs = true;
 	PPC_CPU_TRACE("execution started at %08x\n", gCPU.pc);
 	uint ops=0;
+	uint32 opc;
 	gCPU.effective_code_page = 0xffffffff;
 //	ppc_fpu_test();
 //	return;
 	while (true) {
 		gCPU.npc = gCPU.pc+4;
 		if ((gCPU.pc & ~0xfff) == gCPU.effective_code_page) {
-			gCPU.current_opc = ppc_word_from_BE(*((uint32*)(&gCPU.physical_code_page[gCPU.pc & 0xfff])));
+			opc = ppc_word_from_BE(*((uint32*)(&gCPU.physical_code_page[gCPU.pc & 0xfff])));
 			//ppc_debug_hook();
 		} else {
 			int ret;
@@ -129,7 +130,7 @@ void ppc_cpu_run()
 			gCPU.effective_code_page = gCPU.pc & ~0xfff;
 			continue;
 		}
-		ppc_exec_opc();
+		ppc_exec_opc(opc);
 		ops++;
 		gCPU.ptb++;
 		if (gCPU.pdec == 0) {
