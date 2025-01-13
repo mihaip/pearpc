@@ -845,7 +845,7 @@ static bool doProcessCudaEvent(const SystemEvent &ev)
 {
 	switch (ev.type) {
 	case sysevKey: {
-		IO_CUDA_TRACE("keyboard event: keycode=%s pressed=%s\n", ev.key.keycode, ev.key.pressed ? "true" : "false");
+		IO_CUDA_TRACE("keyboard event: keycode=%d pressed=%s\n", ev.key.keycode, ev.key.pressed ? "true" : "false");
 		uint8 k = ev.key.keycode;
 		if (!ev.key.pressed) {
 			k |= 0x80;
