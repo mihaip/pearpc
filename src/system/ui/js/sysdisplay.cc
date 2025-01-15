@@ -2,6 +2,7 @@
 #include <emscripten.h>
 #include <memory>
 
+#include "configparser.h"
 #include "sysjs.h"
 
 JSSystemDisplay::JSSystemDisplay(
@@ -18,6 +19,10 @@ JSSystemDisplay::JSSystemDisplay(
 
     damageFrameBufferAll();
     setMouseGrab(true);
+
+    String machargs;
+    gConfig->getConfigString("prom_env_machargs", machargs);
+    vt100DisplayEnabled = machargs.findFirstString("-v") != -1;
 
     EM_ASM_({ workerApi.didOpenVideo($0, $1); }, mClientChar.width, mClientChar.height);
 }
@@ -54,13 +59,13 @@ void JSSystemDisplay::blit() {
             jsFrameBuffer[dst + 3] = 0xff;
         }
     } else {
-        // Offset by 1 to go from ARGB to RGBA and ensure that the alpha is set, 
-        // the Mac defaults to it being 0, which the browser renders as 
+        // Offset by 1 to go from ARGB to RGBA and ensure that the alpha is set,
+        // the Mac defaults to it being 0, which the browser renders as
         // transparent.
         uint32 *jsFrameBuffer32 = reinterpret_cast<uint32 *>(jsFrameBuffer);
         byte *jsFrameBufferAlpha = jsFrameBuffer + 3;
         uint32 *frameBuffer32 = reinterpret_cast<uint32 *>(gFrameBuffer + 1);
-        uint32 frameBufferSize32 = frameBufferSize / 4;        
+        uint32 frameBufferSize32 = frameBufferSize / 4;
         for (int i = 0; i < frameBufferSize32; i++) {
             *jsFrameBuffer32++ = *frameBuffer32++;
             *jsFrameBufferAlpha = 0xFF;
@@ -111,6 +116,24 @@ void JSSystemDisplay::setMouseGrab(bool enable) {
     // Mouse is always grabbed as far as PearPC is concerned, we just don't sent
     // events if it's not.
     SystemDisplay::setMouseGrab(true);
+}
+
+void JSSystemDisplay::drawChar(int x, int y, vcp color, byte chr) {
+    if (vt100DisplayEnabled) {
+        SystemDisplay::drawChar(x, y, color, chr);
+    }
+}
+
+void JSSystemDisplay::fillVT(int x, int y, int w, int h, vcp color, byte chr) {
+    if (vt100DisplayEnabled) {
+        SystemDisplay::fillVT(x, y, w, h, color, chr);
+    }
+}
+
+void JSSystemDisplay::fillAllVT(vcp color, byte chr) {
+    if (vt100DisplayEnabled) {
+        SystemDisplay::fillAllVT(color, chr);
+    }
 }
 
 SystemDisplay *allocSystemDisplay(const char *title, const DisplayCharacteristics &chr, int redraw_ms) {

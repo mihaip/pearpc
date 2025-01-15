@@ -386,8 +386,13 @@ int main(int argc, char *argv[])
 		}
 
 		initMenu();
-		drawLogo();
-
+	
+		String machargs;
+		gConfig->getConfigString("prom_env_machargs", machargs);
+		if (machargs.findFirstString("-v") != -1) {
+			drawLogo();
+		}
+	
 		// now gDisplay->printf works
 		gDisplay->printf("CPU: PVR=%08x\n", ppc_cpu_get_pvr(0));
 		gDisplay->printf("%d MiB RAM\n", ppc_get_memory_size() / (1024*1024));

@@ -18,9 +18,17 @@ public:
 	virtual	bool changeResolution(const DisplayCharacteristics &aCharacteristics);
 	virtual	void getHostCharacteristics(Container &modes);
 	virtual void setMouseGrab(bool enable);
+
+	// Override VT100 functions to allow disabling them when not doing a verbose
+	// boot.
+	virtual void drawChar(int x, int y, vcp color, byte chr);
+	virtual void fillVT(int x, int y, int w, int h, vcp color, byte chr);
+	virtual void fillAllVT(vcp color, byte chr);
+
 private:
     std::unique_ptr<byte[]> jsFrameBuffer;
     int jsFrameBufferSize;
+	bool vt100DisplayEnabled;
 };
 
 class SystemKeyboard;
