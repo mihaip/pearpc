@@ -27,7 +27,8 @@ ppc_LDFLAGS	= @PPC_LDFLAGS@
 
 ppc_SOURCES	= main.cc info.h ppc_img.c ppc_img.h \
 ppc_font.c ppc_font.h ppc_button_changecd.c ppc_button_changecd.h \
-configparser.cc configparser.h
+configparser.cc configparser.h \
+ppc_bench.cc ppc_bench.h
 
 dist2: distdir
 	$(AMTAR) chof - $(distdir) | BZIP2=$(BZIP2_ENV) bzip2 -c >$(distdir).tar.bz2

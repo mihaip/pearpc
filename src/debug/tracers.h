@@ -25,7 +25,7 @@
 #include "tools/snprintf.h"
 
 
-#define PPC_CPU_TRACE(msg...) ht_printf("[CPU/CPU] " msg)
+//#define PPC_CPU_TRACE(msg...) ht_printf("[CPU/CPU] " msg)
 #define PPC_ALU_TRACE(msg...) ht_printf("[CPU/ALU] " msg)
 #define PPC_FPU_TRACE(msg...) ht_printf("[CPU/FPU] " msg)
 #define PPC_DEC_TRACE(msg...) ht_printf("[CPU/DEC] " msg)

@@ -18,6 +18,7 @@ depcomp
 install-sh
 missing
 ylwrap
+*.o
 
 # Emscripten autoconf output
 a.wasm

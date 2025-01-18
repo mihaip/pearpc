@@ -49,6 +49,7 @@
 #include "system/gif.h"
 #include "system/ui/gui.h"
 
+#include "ppc_bench.h"
 #include "ppc_font.h"
 #include "ppc_img.h"
 #include "ppc_button_changecd.h"
@@ -235,6 +236,10 @@ int main(int argc, char *argv[])
 	if (!initAtom()) return 3;
 	if (!initData()) return 4;
 	if (!initOSAPI()) return 5;
+
+	if (strncmp(argv[1], "bench", 5) == 0) {
+		return ppc_bench();
+	}
 	try {
 		gConfig = new ConfigParser();
 		gConfig->acceptConfigEntryStringDef("ppc_start_resolution", "800x600x15");

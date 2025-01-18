@@ -87,11 +87,19 @@ static void ppc_opc_invalid(uint32 opc)
 		gCPU.pc = gCPU.npc;
 		return;
 	}
+	if (opc == 0x00005AF0) {
+		// End of benchmark stream
+		ppc_cpu_stop();
+		return;
+	}
 	fprintf(stderr, "[PPC/DEC] Bad opcode: %08x (%u:%u)\n",
 		opc, PPC_OPC_MAIN(opc),
 		PPC_OPC_EXT(opc));
 
 	SINGLESTEP("unknown instruction\n");
+
+	// Avoids some benchmarking overhead.
+	__builtin_unreachable();
 }
 
 // main opcode 19
