@@ -213,6 +213,7 @@ void initUI(const char *title, const DisplayCharacteristics &aCharacteristics, i
 		ht_printf("SDL: Unable to init: %s\n", SDL_GetError());
 		exit(1);
 	}
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
 #ifdef __MACOSX__
 	disable_SDL2_macosx_menu_bar_keyboard_shortcuts();
 #endif

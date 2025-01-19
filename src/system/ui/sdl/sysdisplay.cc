@@ -246,11 +246,15 @@ bool SDLSystemDisplay::changeResolutionREAL(const DisplayCharacteristics &aChara
 	if (mTexture) SDL_DestroyTexture(mTexture);
 	if (mRenderer) SDL_DestroyRenderer(mRenderer);
 	if (mWindow) SDL_DestroyWindow(mWindow);
+	uint windowFlags = SDL_WINDOW_ALLOW_HIGHDPI;
+	if (mFullscreen) {
+		windowFlags |= SDL_WINDOW_FULLSCREEN;
+	}
 	mWindow = SDL_CreateWindow(APPNAME " " APPVERSION,
 							   SDL_WINDOWPOS_UNDEFINED,
 							   SDL_WINDOWPOS_UNDEFINED,
 							   aCharacteristics.width, aCharacteristics.height,
-							   mFullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+							   windowFlags);
 	if (!mWindow) {
 		// FIXME: this is really bad.
 		ht_printf("SDL: FATAL: can't switch mode?!\n");
