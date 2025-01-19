@@ -68,10 +68,11 @@ static int ppc_pte_protection[] = {
 	0, // r
 };
 
-inline int FASTCALL ppc_effective_to_physical(uint32 addr, int flags, uint32 &result)
+template <int flags>
+inline int FASTCALL ppc_effective_to_physical(uint32 addr, uint32 &result)
 {
-	if (flags & PPC_MMU_CODE) {
-		if (!(gCPU.msr & MSR_IR)) {
+	if constexpr (flags & PPC_MMU_CODE) {
+		if (!(gCPU.msr & MSR_IR)) { [[likely]]
 			result = addr;
 			return PPC_MMU_OK;
 		}
@@ -151,7 +152,7 @@ inline int FASTCALL ppc_effective_to_physical(uint32 addr, int flags, uint32 &re
 		// page address translation
 		if ((flags & PPC_MMU_CODE) && (sr & SR_N)) {
 			// segment isnt executable
-			if (!(flags & PPC_MMU_NO_EXC)) {
+			if constexpr (!(flags & PPC_MMU_NO_EXC)) {
 				ppc_exception(PPC_EXC_ISI, PPC_EXC_SRR1_GUARD);
 				return PPC_MMU_EXC;
 			}
@@ -173,12 +174,12 @@ inline int FASTCALL ppc_effective_to_physical(uint32 addr, int flags, uint32 &re
 			key = (sr & SR_Ks) ? 4 : 0;
 		}
 
-		uint32 pte_protection_offset = ((flags&PPC_MMU_WRITE) ? 8:0) + key;
+		uint32 pte_protection_offset = (flags&PPC_MMU_WRITE ? 8:0) + key;
 
 		for (int i=0; i<8; i++) {
 			uint32 pte;
 			if (ppc_read_physical_word(pteg_addr, pte)) {
-				if (!(flags & PPC_MMU_NO_EXC)) {
+				if constexpr (!(flags & PPC_MMU_NO_EXC)) {
 					PPC_MMU_ERR("read physical in address translate failed\n");
 					return PPC_MMU_EXC;
 				}
@@ -188,7 +189,7 @@ inline int FASTCALL ppc_effective_to_physical(uint32 addr, int flags, uint32 &re
 				if (VSID == PTE1_VSID(pte) && (api == PTE1_API(pte))) {
 					// page found
 					if (ppc_read_physical_word(pteg_addr+4, pte)) {
-						if (!(flags & PPC_MMU_NO_EXC)) {
+						if constexpr (!(flags & PPC_MMU_NO_EXC)) {
 							PPC_MMU_ERR("read physical in address translate failed\n");
 							return PPC_MMU_EXC;
 						}
@@ -196,13 +197,13 @@ inline int FASTCALL ppc_effective_to_physical(uint32 addr, int flags, uint32 &re
 					}
 					// check accessmode .346
 					if (!ppc_pte_protection[pte_protection_offset + PTE2_PP(pte)]) {
-						if (!(flags & PPC_MMU_NO_EXC)) {
-							if (flags & PPC_MMU_CODE) {
+						if constexpr (!(flags & PPC_MMU_NO_EXC)) {
+							if constexpr (flags & PPC_MMU_CODE) {
 								PPC_MMU_WARN("correct impl? code + read protection\n");
 								ppc_exception(PPC_EXC_ISI, PPC_EXC_SRR1_PROT, addr);
 								return PPC_MMU_EXC;
 							} else {
-								if (flags & PPC_MMU_WRITE) {
+								if constexpr (flags & PPC_MMU_WRITE) {
 									ppc_exception(PPC_EXC_DSI, PPC_EXC_DSISR_PROT | PPC_EXC_DSISR_STORE, addr);
 								} else {
 									ppc_exception(PPC_EXC_DSI, PPC_EXC_DSISR_PROT, addr);
@@ -223,7 +224,7 @@ inline int FASTCALL ppc_effective_to_physical(uint32 addr, int flags, uint32 &re
 //					ht_printf("TLB: STORE %d: %08x -> %08x\n", gCPU.tlb_last, addr, pap);
 #endif
 					// update access bits
-					if (flags & PPC_MMU_WRITE) {
+					if constexpr (flags & PPC_MMU_WRITE) {
 						pte |= PTE2_C | PTE2_R;
 					} else {
 						pte |= PTE2_R;
@@ -241,7 +242,7 @@ inline int FASTCALL ppc_effective_to_physical(uint32 addr, int flags, uint32 &re
 		for (int i=0; i<8; i++) {
 			uint32 pte;
 			if (ppc_read_physical_word(pteg_addr, pte)) {
-				if (!(flags & PPC_MMU_NO_EXC)) {
+				if constexpr (!(flags & PPC_MMU_NO_EXC)) {
 					PPC_MMU_ERR("read physical in address translate failed\n");
 					return PPC_MMU_EXC;
 				}
@@ -251,7 +252,7 @@ inline int FASTCALL ppc_effective_to_physical(uint32 addr, int flags, uint32 &re
 				if (VSID == PTE1_VSID(pte) && (api == PTE1_API(pte))) {
 					// page found
 					if (ppc_read_physical_word(pteg_addr+4, pte)) {
-						if (!(flags & PPC_MMU_NO_EXC)) {
+						if constexpr (!(flags & PPC_MMU_NO_EXC)) {
 							PPC_MMU_ERR("read physical in address translate failed\n");
 							return PPC_MMU_EXC;
 						}
@@ -264,14 +265,14 @@ inline int FASTCALL ppc_effective_to_physical(uint32 addr, int flags, uint32 &re
 					} else {
 						key = (sr & SR_Ks) ? 4 : 0;
 					}
-					if (!ppc_pte_protection[((flags&PPC_MMU_WRITE)?8:0) + key + PTE2_PP(pte)]) {
-						if (!(flags & PPC_MMU_NO_EXC)) {
-							if (flags & PPC_MMU_CODE) {
+					if (!ppc_pte_protection[(flags&PPC_MMU_WRITE?8:0) + key + PTE2_PP(pte)]) {
+						if constexpr (!(flags & PPC_MMU_NO_EXC)) {
+							if constexpr (flags & PPC_MMU_CODE) {
 								PPC_MMU_WARN("correct impl? code + read protection\n");
 								ppc_exception(PPC_EXC_ISI, PPC_EXC_SRR1_PROT, addr);
 								return PPC_MMU_EXC;
 							} else {
-								if (flags & PPC_MMU_WRITE) {
+								if constexpr (flags & PPC_MMU_WRITE) {
 									ppc_exception(PPC_EXC_DSI, PPC_EXC_DSISR_PROT | PPC_EXC_DSISR_STORE, addr);
 								} else {
 									ppc_exception(PPC_EXC_DSI, PPC_EXC_DSISR_PROT, addr);
@@ -285,7 +286,7 @@ inline int FASTCALL ppc_effective_to_physical(uint32 addr, int flags, uint32 &re
 					result = PTE2_RPN(pte) | offset;
 					
 					// update access bits
-					if (flags & PPC_MMU_WRITE) {
+					if constexpr (flags & PPC_MMU_WRITE) {
 						pte |= PTE2_C | PTE2_R;
 					} else {
 						pte |= PTE2_R;
@@ -300,11 +301,11 @@ inline int FASTCALL ppc_effective_to_physical(uint32 addr, int flags, uint32 &re
 		}
 	}
 	// page fault
-	if (!(flags & PPC_MMU_NO_EXC)) {
-		if (flags & PPC_MMU_CODE) {
+	if constexpr (!(flags & PPC_MMU_NO_EXC)) {
+		if constexpr (flags & PPC_MMU_CODE) {
 			ppc_exception(PPC_EXC_ISI, PPC_EXC_SRR1_PAGE);
 		} else {
-			if (flags & PPC_MMU_WRITE) {
+			if constexpr (flags & PPC_MMU_WRITE) {
 				ppc_exception(PPC_EXC_DSI, PPC_EXC_DSISR_PAGE | PPC_EXC_DSISR_STORE, addr);
 			} else {
 				ppc_exception(PPC_EXC_DSI, PPC_EXC_DSISR_PAGE, addr);
@@ -417,7 +418,7 @@ int FASTCALL ppc_direct_effective_memory_handle(uint32 addr, byte *&ptr)
 {
 	uint32 ea;
 	int r;
-	if (!((r = ppc_effective_to_physical(addr, PPC_MMU_READ, ea)))) {
+	if (!((r = ppc_effective_to_physical<PPC_MMU_READ>(addr, ea)))) {
 		return ppc_direct_physical_memory_handle(ea, ptr);
 	}
 	return r;
@@ -427,7 +428,7 @@ int FASTCALL ppc_direct_effective_memory_handle_code(uint32 addr, byte *&ptr)
 {
 	uint32 ea;
 	int r;
-	if (!((r = ppc_effective_to_physical(addr, PPC_MMU_READ | PPC_MMU_CODE, ea)))) {
+	if (!((r = ppc_effective_to_physical<PPC_MMU_READ | PPC_MMU_CODE>(addr, ea)))) {
 		return ppc_direct_physical_memory_handle(ea, ptr);
 	}
 	return r;
@@ -502,7 +503,7 @@ inline int FASTCALL ppc_read_effective_code(uint32 addr, uint32 &result)
 	}
 	uint32 p;
 	int r;
-	if (!((r=ppc_effective_to_physical(addr, PPC_MMU_READ | PPC_MMU_CODE, p)))) {
+	if (!((r=ppc_effective_to_physical<PPC_MMU_READ | PPC_MMU_CODE>(addr, p)))) {
 		return ppc_read_physical_word(p, result);
 	}
 	return r;
@@ -515,7 +516,7 @@ inline int FASTCALL ppc_read_effective_qword(uint32 addr, Vector_t &result)
 
 	addr &= ~0x0f;
 
-	if (!(r = ppc_effective_to_physical(addr, PPC_MMU_READ, p))) {
+	if (!(r = ppc_effective_to_physical<PPC_MMU_READ>(addr, p))) {
 		return ppc_read_physical_qword(p, result);
 	}
 
@@ -526,14 +527,14 @@ inline int FASTCALL ppc_read_effective_dword(uint32 addr, uint64 &result)
 {
 	uint32 p;
 	int r;
-	if (!(r = ppc_effective_to_physical(addr, PPC_MMU_READ, p))) {
+	if (!(r = ppc_effective_to_physical<PPC_MMU_READ>(addr, p))) {
 		if (EA_Offset(addr) > 4088) {
 			// read overlaps two pages.. tricky
 			byte *r1, *r2;
 			byte b[14];
-			ppc_effective_to_physical((addr & ~0xfff)+4089, PPC_MMU_READ, p);
+			ppc_effective_to_physical<PPC_MMU_READ>((addr & ~0xfff)+4089, p);
 			if ((r = ppc_direct_physical_memory_handle(p, r1))) return r;
-			if ((r = ppc_effective_to_physical((addr & ~0xfff)+4096, PPC_MMU_READ, p))) return r;
+			if ((r = ppc_effective_to_physical<PPC_MMU_READ>((addr & ~0xfff)+4096, p))) return r;
 			if ((r = ppc_direct_physical_memory_handle(p, r2))) return r;
 			memmove(&b[0], r1, 7);
 			memmove(&b[7], r2, 7);
@@ -551,14 +552,14 @@ inline int FASTCALL ppc_read_effective_word(uint32 addr, uint32 &result)
 {
 	uint32 p;
 	int r;
-	if (!(r = ppc_effective_to_physical(addr, PPC_MMU_READ, p))) {
+	if (!(r = ppc_effective_to_physical<PPC_MMU_READ>(addr, p))) {
 		if (EA_Offset(addr) > 4092) {
 			// read overlaps two pages.. tricky
 			byte *r1, *r2;
 			byte b[6];
-			ppc_effective_to_physical((addr & ~0xfff)+4093, PPC_MMU_READ, p);
+			ppc_effective_to_physical<PPC_MMU_READ>((addr & ~0xfff)+4093, p);
 			if ((r = ppc_direct_physical_memory_handle(p, r1))) return r;
-			if ((r = ppc_effective_to_physical((addr & ~0xfff)+4096, PPC_MMU_READ, p))) return r;
+			if ((r = ppc_effective_to_physical<PPC_MMU_READ>((addr & ~0xfff)+4096, p))) return r;
 			if ((r = ppc_direct_physical_memory_handle(p, r2))) return r;
 			memmove(&b[0], r1, 3);
 			memmove(&b[3], r2, 3);
@@ -576,13 +577,13 @@ inline int FASTCALL ppc_read_effective_half(uint32 addr, uint16 &result)
 {
 	uint32 p;
 	int r;
-	if (!((r = ppc_effective_to_physical(addr, PPC_MMU_READ, p)))) {
+	if (!((r = ppc_effective_to_physical<PPC_MMU_READ>(addr, p)))) {
 		if (EA_Offset(addr) > 4094) {
 			// read overlaps two pages.. tricky
 			byte b1, b2;
-			ppc_effective_to_physical((addr & ~0xfff)+4095, PPC_MMU_READ, p);
+			ppc_effective_to_physical<PPC_MMU_READ>((addr & ~0xfff)+4095, p);
 			if ((r = ppc_read_physical_byte(p, b1))) return r;
-			if ((r = ppc_effective_to_physical((addr & ~0xfff)+4096, PPC_MMU_READ, p))) return r;
+			if ((r = ppc_effective_to_physical<PPC_MMU_READ>((addr & ~0xfff)+4096, p))) return r;
 			if ((r = ppc_read_physical_byte(p, b2))) return r;
 			result = (b1<<8)|b2;
 			return PPC_MMU_OK;
@@ -597,7 +598,7 @@ inline int FASTCALL ppc_read_effective_byte(uint32 addr, uint8 &result)
 {
 	uint32 p;
 	int r;
-	if (!((r = ppc_effective_to_physical(addr, PPC_MMU_READ, p)))) {
+	if (!((r = ppc_effective_to_physical<PPC_MMU_READ>(addr, p)))) {
 		return ppc_read_physical_byte(p, result);
 	}
 	return r;
@@ -669,7 +670,7 @@ inline int FASTCALL ppc_write_effective_qword(uint32 addr, Vector_t data)
 
 	addr &= ~0x0f;
 
-	if (!((r=ppc_effective_to_physical(addr, PPC_MMU_WRITE, p)))) {
+	if (!((r=ppc_effective_to_physical<PPC_MMU_WRITE>(addr, p)))) {
 		return ppc_write_physical_qword(p, data);
 	}
 	return r;
@@ -679,14 +680,14 @@ inline int FASTCALL ppc_write_effective_dword(uint32 addr, uint64 data)
 {
 	uint32 p;
 	int r;
-	if (!((r=ppc_effective_to_physical(addr, PPC_MMU_WRITE, p)))) {
+	if (!((r=ppc_effective_to_physical<PPC_MMU_WRITE>(addr, p)))) {
 		if (EA_Offset(addr) > 4088) {
 			// write overlaps two pages.. tricky
 			byte *r1, *r2;
 			byte b[14];
-			ppc_effective_to_physical((addr & ~0xfff)+4089, PPC_MMU_WRITE, p);
+			ppc_effective_to_physical<PPC_MMU_WRITE>((addr & ~0xfff)+4089, p);
 			if ((r = ppc_direct_physical_memory_handle(p, r1))) return r;
-			if ((r = ppc_effective_to_physical((addr & ~0xfff)+4096, PPC_MMU_WRITE, p))) return r;
+			if ((r = ppc_effective_to_physical<PPC_MMU_WRITE>((addr & ~0xfff)+4096, p))) return r;
 			if ((r = ppc_direct_physical_memory_handle(p, r2))) return r;
 			data = ppc_dword_to_BE(data);
 			memmove(&b[0], r1, 7);
@@ -706,14 +707,14 @@ inline int FASTCALL ppc_write_effective_word(uint32 addr, uint32 data)
 {
 	uint32 p;
 	int r;
-	if (!((r=ppc_effective_to_physical(addr, PPC_MMU_WRITE, p)))) {
+	if (!((r=ppc_effective_to_physical<PPC_MMU_WRITE>(addr, p)))) {
 		if (EA_Offset(addr) > 4092) {
 			// write overlaps two pages.. tricky
 			byte *r1, *r2;
 			byte b[6];
-			ppc_effective_to_physical((addr & ~0xfff)+4093, PPC_MMU_WRITE, p);
+			ppc_effective_to_physical<PPC_MMU_WRITE>((addr & ~0xfff)+4093, p);
 			if ((r = ppc_direct_physical_memory_handle(p, r1))) return r;
-			if ((r = ppc_effective_to_physical((addr & ~0xfff)+4096, PPC_MMU_WRITE, p))) return r;
+			if ((r = ppc_effective_to_physical<PPC_MMU_WRITE>((addr & ~0xfff)+4096, p))) return r;
 			if ((r = ppc_direct_physical_memory_handle(p, r2))) return r;
 			data = ppc_word_to_BE(data);
 			memmove(&b[0], r1, 3);
@@ -733,12 +734,12 @@ inline int FASTCALL ppc_write_effective_half(uint32 addr, uint16 data)
 {
 	uint32 p;
 	int r;
-	if (!((r=ppc_effective_to_physical(addr, PPC_MMU_WRITE, p)))) {
+	if (!((r=ppc_effective_to_physical<PPC_MMU_WRITE>(addr, p)))) {
 		if (EA_Offset(addr) > 4094) {
 			// write overlaps two pages.. tricky
-			ppc_effective_to_physical((addr & ~0xfff)+4095, PPC_MMU_WRITE, p);
+			ppc_effective_to_physical<PPC_MMU_WRITE>((addr & ~0xfff)+4095, p);
 			if ((r = ppc_write_physical_byte(p, data>>8))) return r;
-			if ((r = ppc_effective_to_physical((addr & ~0xfff)+4096, PPC_MMU_WRITE, p))) return r;
+			if ((r = ppc_effective_to_physical<PPC_MMU_WRITE>((addr & ~0xfff)+4096, p))) return r;
 			if ((r = ppc_write_physical_byte(p, data))) return r;
 			return PPC_MMU_OK;
 		} else {
@@ -752,7 +753,7 @@ inline int FASTCALL ppc_write_effective_byte(uint32 addr, uint8 data)
 {
 	uint32 p;
 	int r;
-	if (!((r=ppc_effective_to_physical(addr, PPC_MMU_WRITE, p)))) {
+	if (!((r=ppc_effective_to_physical<PPC_MMU_WRITE>(addr, p)))) {
 		return ppc_write_physical_byte(p, data);
 	}
 	return r;
@@ -821,7 +822,7 @@ bool ppc_prom_set_sdr1(uint32 newval, bool quiesce)
 
 bool ppc_prom_effective_to_physical(uint32 &result, uint32 ea)
 {
-	return ppc_effective_to_physical(ea, PPC_MMU_READ|PPC_MMU_SV|PPC_MMU_NO_EXC, result) == PPC_MMU_OK;
+	return ppc_effective_to_physical<PPC_MMU_READ|PPC_MMU_SV|PPC_MMU_NO_EXC>(ea, result) == PPC_MMU_OK;
 }
 
 bool ppc_prom_page_create(uint32 ea, uint32 pa)

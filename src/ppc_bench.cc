@@ -48,7 +48,7 @@ int ppc_bench() {
         uint32 instr_code_be = ppc_word_to_BE(instr_code);
         uint32 instr_addr = i * 4;
         uint32 instr_physical_addr;
-	    int r = ppc_effective_to_physical(instr_addr, PPC_MMU_WRITE | PPC_MMU_CODE, instr_physical_addr);
+	    int r = ppc_effective_to_physical<PPC_MMU_WRITE>(instr_addr, instr_physical_addr);
         if (r != PPC_MMU_OK) {
             ht_printf("MMU error when mapping instruction address: %d\n", r);
             return 1;
@@ -82,7 +82,7 @@ int ppc_bench() {
 
         uint32 addr = 0x1000+i;
         uint32 physical_addr;
-	    int r = ppc_effective_to_physical(addr, PPC_MMU_WRITE, physical_addr);
+	    int r = ppc_effective_to_physical<PPC_MMU_WRITE>(addr, physical_addr);
         if (r != PPC_MMU_OK) {
             ht_printf("MMU error when mapping data address: %d\n", r);
             return 1;
