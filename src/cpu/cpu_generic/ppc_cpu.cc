@@ -22,6 +22,7 @@
 #include <cstring>
 #include <cstdio>
 
+#include "system/sysclk.h"
 #include "system/systhread.h"
 #include "system/arch/sysendian.h"
 #include "system/ui/gui.h"
@@ -102,6 +103,8 @@ void ppc_cpu_wakeup()
 {
 }
 
+//#define TRACE_CPU_OPS_TICKS 1
+
 void ppc_cpu_run()
 {
 //	gDebugger = new Debugger();
@@ -174,6 +177,16 @@ void ppc_cpu_run()
 				ht_printf("\n");
 #endif
 			}
+
+#ifdef TRACE_CPU_OPS_TICKS
+			static uint64 lastOpsTicks = sys_get_hiresclk_ticks();
+			if ((ops & 0x3fffffff) == 0) {
+				uint64 opsTicks = sys_get_hiresclk_ticks();
+				uint64 deltaTicks = opsTicks - lastOpsTicks;
+				printf("[CPU/CPU] %llu ticks to execute 1G ops\n", deltaTicks);
+				lastOpsTicks = opsTicks;
+			}
+#endif
 		}
 		
 		gCPU.pc = gCPU.npc;
