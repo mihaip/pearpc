@@ -30,7 +30,8 @@ typedef void (*ppc_opc_function)(uint32 opc);
 
 #define PPC_OPC_ASSERT(v)
 
-#define PPC_OPC_MAIN(opc)		(((opc)>>26)&0x3f)
+#define PPC_OPC_MAIN(opc)		(((opc)>>15)&0x1f800)
+#define PPC_OPC_MOD(opc)		((opc)&0x7ff)
 #define PPC_OPC_EXT(opc)		(((opc)>>1)&0x3ff)
 #define PPC_OPC_Rc			1
 #define PPC_OPC_OE			(1<<10)

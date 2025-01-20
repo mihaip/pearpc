@@ -20,7 +20,8 @@
  *	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "cstring"
+#include <algorithm>
+#include <cstring>
 
 #include "system/types.h"
 #include "cpu/debug.h"
@@ -94,7 +95,7 @@ static void ppc_opc_invalid(uint32 opc)
 	}
 	fprintf(stderr, "[PPC/DEC] Bad opcode: %08x (%u:%u)\n",
 		opc, PPC_OPC_MAIN(opc),
-		PPC_OPC_EXT(opc));
+		PPC_OPC_MOD(opc));
 
 	SINGLESTEP("unknown instruction\n");
 
@@ -534,84 +535,86 @@ static void ppc_opc_group_v(uint32 opc)
 	return ppc_opc_table_groupv[ext](opc);
 }
 
-static ppc_opc_function ppc_opc_table_main[64] = {
-	&ppc_opc_invalid,	//  0
-	&ppc_opc_invalid,	//  1
-	&ppc_opc_invalid,	//  2  (tdi on 64 bit platforms)
-	&ppc_opc_twi,		//  3
-	&ppc_opc_invalid,	//  4  (altivec group 1)
-	&ppc_opc_invalid,	//  5
-	&ppc_opc_invalid,	//  6
-	&ppc_opc_mulli,		//  7
-	&ppc_opc_subfic,	//  8
-	&ppc_opc_invalid,	//  9
-	&ppc_opc_cmpli,		// 10
-	&ppc_opc_cmpi,		// 11
-	&ppc_opc_addic,		// 12
-	&ppc_opc_addic_,	// 13
-	&ppc_opc_addi,		// 14
-	&ppc_opc_addis,		// 15
-	&ppc_opc_bcx,		// 16
-	&ppc_opc_sc,		// 17
-	&ppc_opc_bx,		// 18
-	&ppc_opc_group_1,	// 19
-	&ppc_opc_rlwimix,	// 20
-	&ppc_opc_rlwinmx,	// 21
-	&ppc_opc_invalid,	// 22
-	&ppc_opc_rlwnmx,	// 23
-	&ppc_opc_ori,		// 24
-	&ppc_opc_oris,		// 25
-	&ppc_opc_xori,		// 26
-	&ppc_opc_xoris,		// 27
-	&ppc_opc_andi_,		// 28
-	&ppc_opc_andis_,	// 29
-	&ppc_opc_invalid,	// 30  (group_rld on 64 bit platforms)
-	&ppc_opc_group_2,	// 31
-	&ppc_opc_lwz,		// 32
-	&ppc_opc_lwzu,		// 33
-	&ppc_opc_lbz,		// 34
-	&ppc_opc_lbzu,		// 35
-	&ppc_opc_stw,		// 36
-	&ppc_opc_stwu,		// 37
-	&ppc_opc_stb,		// 38
-	&ppc_opc_stbu,		// 39
-	&ppc_opc_lhz,		// 40
-	&ppc_opc_lhzu,		// 41
-	&ppc_opc_lha,		// 42
-	&ppc_opc_lhau,		// 43
-	&ppc_opc_sth,		// 44
-	&ppc_opc_sthu,		// 45
-	&ppc_opc_lmw,		// 46
-	&ppc_opc_stmw,		// 47
-	&ppc_opc_lfs,		// 48
-	&ppc_opc_lfsu,		// 49
-	&ppc_opc_lfd,		// 50
-	&ppc_opc_lfdu,		// 51
-	&ppc_opc_stfs,		// 52
-	&ppc_opc_stfsu,		// 53
-	&ppc_opc_stfd,		// 54
-	&ppc_opc_stfdu,		// 55
-	&ppc_opc_invalid,	// 56
-	&ppc_opc_invalid,	// 57
-	&ppc_opc_invalid,	// 58  (ld on 64 bit platforms)
-	&ppc_opc_group_f1,	// 59
-	&ppc_opc_invalid,	// 60
-	&ppc_opc_invalid,	// 61
-	&ppc_opc_invalid,	// 62
-	&ppc_opc_group_f2,	// 63
-};
+// Opcode lookup table, indexed by primary opcode (bits 0...5) and modifier (bits 21...31).
+static ppc_opc_function ppc_opc_table[64 * 2048];
+
+#define OP(opcode, fn) \
+do { \
+for (uint32_t mod = 0; mod < 2048; mod++) { \
+    ppc_opc_table[((opcode) << 11) | mod] = fn; \
+} \
+} while (0)
 
 void FASTCALL ppc_exec_opc(uint32 opc)
 {
-	uint32 mainopc = PPC_OPC_MAIN(opc);
-	ppc_opc_table_main[mainopc](opc);
+	ppc_opc_table[PPC_OPC_MAIN(opc) | PPC_OPC_MOD(opc)](opc);
 }
 
 void ppc_dec_init()
 {
+	auto ppc_opc_table_size = sizeof(ppc_opc_table) / sizeof(ppc_opc_table[0]);
+	std::fill_n(ppc_opc_table, ppc_opc_table_size, ppc_opc_invalid);
+
+	OP(3, ppc_opc_twi);
+	OP(7, ppc_opc_mulli);
+	OP(8, ppc_opc_subfic);
+	OP(10, ppc_opc_cmpli);
+	OP(11, ppc_opc_cmpi);
+	OP(12, ppc_opc_addic);
+	OP(13, ppc_opc_addic_);
+	OP(14, ppc_opc_addi);
+	OP(15, ppc_opc_addis);
+	OP(16, ppc_opc_bcx);
+	OP(17, ppc_opc_sc);
+	OP(18, ppc_opc_bx);
+	OP(19, ppc_opc_group_1);
+	OP(20, ppc_opc_rlwimix);
+	OP(21, ppc_opc_rlwinmx);
+	OP(23, ppc_opc_rlwnmx);
+	OP(24, ppc_opc_ori);
+	OP(25, ppc_opc_oris);
+	OP(26, ppc_opc_xori);
+	OP(27, ppc_opc_xoris);
+	OP(28, ppc_opc_andi_);
+	OP(29, ppc_opc_andis_);
+	OP(31, ppc_opc_group_2);
+	OP(32, ppc_opc_lwz);
+	OP(33, ppc_opc_lwzu);
+	OP(34, ppc_opc_lbz);
+	OP(35, ppc_opc_lbzu);
+	OP(36, ppc_opc_stw);
+	OP(37, ppc_opc_stwu);
+	OP(38, ppc_opc_stb);
+	OP(39, ppc_opc_stbu);
+	OP(40, ppc_opc_lhz);
+	OP(41, ppc_opc_lhzu);
+	OP(42, ppc_opc_lha);
+	OP(43, ppc_opc_lhau);
+	OP(44, ppc_opc_sth);
+	OP(45, ppc_opc_sthu);
+	OP(46, ppc_opc_lmw);
+	OP(47, ppc_opc_stmw);
+	OP(48, ppc_opc_lfs);
+	OP(49, ppc_opc_lfsu);
+	OP(50, ppc_opc_lfd);
+	OP(51, ppc_opc_lfdu);
+	OP(52, ppc_opc_stfs);
+	OP(53, ppc_opc_stfsu);
+	OP(54, ppc_opc_stfd);
+	OP(55, ppc_opc_stfdu);
+	OP(59, ppc_opc_group_f1);
+	OP(63, ppc_opc_group_f2);
+
 	ppc_opc_init_group2();
+
+	// G4 CPU
 	if ((ppc_cpu_get_pvr(0) & 0xffff0000) == 0x000c0000) {
-		ppc_opc_table_main[4] = ppc_opc_group_v;
+		OP(4, ppc_opc_group_v);
 		ppc_opc_init_groupv();
 	}
+
+	// 64-bit CPU
+	// OP(2, ppc_opc_tdi);
+	// OP(30, ppc_opc_group_rld);
+	// OP(58, ppc_opc_ld);
 }
