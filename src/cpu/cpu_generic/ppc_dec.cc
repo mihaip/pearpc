@@ -26,6 +26,7 @@
 #include "system/types.h"
 #include "cpu/debug.h"
 #include "cpu/cpu.h"
+#include "debug/tracers.h"
 #include "ppc_alu.h"
 #include "ppc_cpu.h"
 #include "ppc_dec.h"
@@ -102,178 +103,6 @@ static void ppc_opc_invalid(uint32 opc)
 	// Avoids some benchmarking overhead.
 	__builtin_unreachable();
 }
-
-// main opcode 19
-static void ppc_opc_group_1(uint32 opc)
-{
-	uint32 ext = PPC_OPC_EXT(opc);
-	if (ext & 1) {
-		// crxxx
-		if (ext <= 225) {
-			switch (ext) {
-				case 33: ppc_opc_crnor(opc); return;
-				case 129: ppc_opc_crandc(opc); return;
-				case 193: ppc_opc_crxor(opc); return;
-				case 225: ppc_opc_crnand(opc); return;
-			}
-		} else {
-			switch (ext) {
-				case 257: ppc_opc_crand(opc); return;
-				case 289: ppc_opc_creqv(opc); return;
-				case 417: ppc_opc_crorc(opc); return;
-				case 449: ppc_opc_cror(opc); return;
-			}
-		}
-	} else if (ext & (1<<9)) {
-		// bcctrx
-		if (ext == 528) {
-			ppc_opc_bcctrx(opc); 
-			return;
-		}
-	} else {
-		switch (ext) {
-			case 16: ppc_opc_bclrx(opc); return;
-			case 0: ppc_opc_mcrf(opc); return;
-			case 50: ppc_opc_rfi(opc); return;
-			case 150: ppc_opc_isync(opc); return;
-		}
-	}
-	ppc_opc_invalid(opc);
-}
-
-ppc_opc_function ppc_opc_table_group2[1015];
-
-// main opcode 31
-static void ppc_opc_init_group2()
-{
-	for (uint i=0; i<(sizeof ppc_opc_table_group2 / sizeof ppc_opc_table_group2[0]); i++) {
-		ppc_opc_table_group2[i] = ppc_opc_invalid;
-	}
-	ppc_opc_table_group2[0] = ppc_opc_cmp;
-	ppc_opc_table_group2[4] = ppc_opc_tw;
-	ppc_opc_table_group2[8] = ppc_opc_subfcx;//+
-	ppc_opc_table_group2[10] = ppc_opc_addcx;//+
-	ppc_opc_table_group2[11] = ppc_opc_mulhwux;
-	ppc_opc_table_group2[19] = ppc_opc_mfcr;
-	ppc_opc_table_group2[20] = ppc_opc_lwarx;
-	ppc_opc_table_group2[23] = ppc_opc_lwzx;
-	ppc_opc_table_group2[24] = ppc_opc_slwx;
-	ppc_opc_table_group2[26] = ppc_opc_cntlzwx;
-	ppc_opc_table_group2[28] = ppc_opc_andx;
-	ppc_opc_table_group2[32] = ppc_opc_cmpl;
-	ppc_opc_table_group2[40] = ppc_opc_subfx;
-	ppc_opc_table_group2[54] = ppc_opc_dcbst;
-	ppc_opc_table_group2[55] = ppc_opc_lwzux;
-	ppc_opc_table_group2[60] = ppc_opc_andcx;
-	ppc_opc_table_group2[75] = ppc_opc_mulhwx;
-	ppc_opc_table_group2[83] = ppc_opc_mfmsr;
-	ppc_opc_table_group2[86] = ppc_opc_dcbf;
-	ppc_opc_table_group2[87] = ppc_opc_lbzx;
-	ppc_opc_table_group2[104] = ppc_opc_negx;
-	ppc_opc_table_group2[119] = ppc_opc_lbzux;
-	ppc_opc_table_group2[124] = ppc_opc_norx;
-	ppc_opc_table_group2[136] = ppc_opc_subfex;//+
-	ppc_opc_table_group2[138] = ppc_opc_addex;//+
-	ppc_opc_table_group2[144] = ppc_opc_mtcrf;
-	ppc_opc_table_group2[146] = ppc_opc_mtmsr;
-	ppc_opc_table_group2[150] = ppc_opc_stwcx_;
-	ppc_opc_table_group2[151] = ppc_opc_stwx;
-	ppc_opc_table_group2[183] = ppc_opc_stwux;
-	ppc_opc_table_group2[200] = ppc_opc_subfzex;//+
-	ppc_opc_table_group2[202] = ppc_opc_addzex;//+
-	ppc_opc_table_group2[210] = ppc_opc_mtsr;
-	ppc_opc_table_group2[215] = ppc_opc_stbx;
-	ppc_opc_table_group2[232] = ppc_opc_subfmex;//+
-	ppc_opc_table_group2[234] = ppc_opc_addmex;
-	ppc_opc_table_group2[235] = ppc_opc_mullwx;//+
-	ppc_opc_table_group2[242] = ppc_opc_mtsrin;
-	ppc_opc_table_group2[246] = ppc_opc_dcbtst;
-	ppc_opc_table_group2[247] = ppc_opc_stbux;
-	ppc_opc_table_group2[266] = ppc_opc_addx;//+
-	ppc_opc_table_group2[278] = ppc_opc_dcbt;
-	ppc_opc_table_group2[279] = ppc_opc_lhzx;
-	ppc_opc_table_group2[284] = ppc_opc_eqvx;
-	ppc_opc_table_group2[306] = ppc_opc_tlbie;
-	ppc_opc_table_group2[310] = ppc_opc_eciwx;
-	ppc_opc_table_group2[311] = ppc_opc_lhzux;
-	ppc_opc_table_group2[316] = ppc_opc_xorx;
-	ppc_opc_table_group2[339] = ppc_opc_mfspr;
-	ppc_opc_table_group2[343] = ppc_opc_lhax;
-	ppc_opc_table_group2[370] = ppc_opc_tlbia;
-	ppc_opc_table_group2[371] = ppc_opc_mftb;
-	ppc_opc_table_group2[375] = ppc_opc_lhaux;
-	ppc_opc_table_group2[407] = ppc_opc_sthx;
-	ppc_opc_table_group2[412] = ppc_opc_orcx;
-	ppc_opc_table_group2[438] = ppc_opc_ecowx;
-	ppc_opc_table_group2[439] = ppc_opc_sthux;
-	ppc_opc_table_group2[444] = ppc_opc_orx;
-	ppc_opc_table_group2[459] = ppc_opc_divwux;//+
-	ppc_opc_table_group2[467] = ppc_opc_mtspr;
-	ppc_opc_table_group2[470] = ppc_opc_dcbi;
-	ppc_opc_table_group2[476] = ppc_opc_nandx;
-	ppc_opc_table_group2[491] = ppc_opc_divwx;//+
-	ppc_opc_table_group2[512] = ppc_opc_mcrxr;
-	ppc_opc_table_group2[533] = ppc_opc_lswx;
-	ppc_opc_table_group2[534] = ppc_opc_lwbrx;
-	ppc_opc_table_group2[535] = ppc_opc_lfsx;
-	ppc_opc_table_group2[536] = ppc_opc_srwx;
-	ppc_opc_table_group2[566] = ppc_opc_tlbsync;
-	ppc_opc_table_group2[567] = ppc_opc_lfsux;
-	ppc_opc_table_group2[595] = ppc_opc_mfsr;
-	ppc_opc_table_group2[597] = ppc_opc_lswi;
-	ppc_opc_table_group2[598] = ppc_opc_sync;
-	ppc_opc_table_group2[599] = ppc_opc_lfdx;
-	ppc_opc_table_group2[631] = ppc_opc_lfdux;
-	ppc_opc_table_group2[659] = ppc_opc_mfsrin;
-	ppc_opc_table_group2[661] = ppc_opc_stswx;
-	ppc_opc_table_group2[662] = ppc_opc_stwbrx;
-	ppc_opc_table_group2[663] = ppc_opc_stfsx;
-	ppc_opc_table_group2[695] = ppc_opc_stfsux;
-	ppc_opc_table_group2[725] = ppc_opc_stswi;
-	ppc_opc_table_group2[727] = ppc_opc_stfdx;
-	ppc_opc_table_group2[758] = ppc_opc_dcba;
-	ppc_opc_table_group2[759] = ppc_opc_stfdux;
-	ppc_opc_table_group2[790] = ppc_opc_lhbrx;
-	ppc_opc_table_group2[792] = ppc_opc_srawx;
-	ppc_opc_table_group2[824] = ppc_opc_srawix;
-	ppc_opc_table_group2[854] = ppc_opc_eieio;
-	ppc_opc_table_group2[918] = ppc_opc_sthbrx;
-	ppc_opc_table_group2[922] = ppc_opc_extshx;
-	ppc_opc_table_group2[954] = ppc_opc_extsbx;
-	ppc_opc_table_group2[982] = ppc_opc_icbi;
-	ppc_opc_table_group2[983] = ppc_opc_stfiwx;
-	ppc_opc_table_group2[1014] = ppc_opc_dcbz;
-
-	if ((ppc_cpu_get_pvr(0) & 0xffff0000) == 0x000c0000) {
-		/* Added for Altivec support */
-		ppc_opc_table_group2[6] = ppc_opc_lvsl;
-		ppc_opc_table_group2[7] = ppc_opc_lvebx;
-		ppc_opc_table_group2[38] = ppc_opc_lvsr;
-		ppc_opc_table_group2[39] = ppc_opc_lvehx;
-		ppc_opc_table_group2[71] = ppc_opc_lvewx;
-		ppc_opc_table_group2[103] = ppc_opc_lvx;
-		ppc_opc_table_group2[135] = ppc_opc_stvebx;
-		ppc_opc_table_group2[167] = ppc_opc_stvehx;
-		ppc_opc_table_group2[199] = ppc_opc_stvewx;
-		ppc_opc_table_group2[231] = ppc_opc_stvx;
-		ppc_opc_table_group2[342] = ppc_opc_dst;
-		ppc_opc_table_group2[359] = ppc_opc_lvxl;
-		ppc_opc_table_group2[374] = ppc_opc_dstst;
-		ppc_opc_table_group2[487] = ppc_opc_stvxl;
-		ppc_opc_table_group2[822] = ppc_opc_dss;
-	}
-}
-
-// main opcode 31
-inline static void ppc_opc_group_2(uint32 opc)
-{
-	uint32 ext = PPC_OPC_EXT(opc);
-	if (ext >= (sizeof ppc_opc_table_group2 / sizeof ppc_opc_table_group2[0])) {
-		ppc_opc_invalid(opc);
-	}
-	ppc_opc_table_group2[ext](opc);
-}
-
 // main opcode 59
 static void ppc_opc_group_f1(uint32 opc)
 {
@@ -538,11 +367,55 @@ static void ppc_opc_group_v(uint32 opc)
 // Opcode lookup table, indexed by primary opcode (bits 0...5) and modifier (bits 21...31).
 static ppc_opc_function ppc_opc_table[64 * 2048];
 
+#define OPr(opcode, mod, fn) \
+do { \
+	uint64_t index = ((opcode) << 11) | (mod); \
+	if (ppc_opc_table[index] != ppc_opc_invalid) { \
+		PPC_DEC_WARN("Opcode %d-%d already had a funtion, will overwrite.\n", opcode, mod); \
+	} \
+	ppc_opc_table[index] = fn; \
+} while (0)
+
 #define OP(opcode, fn) \
 do { \
 for (uint32_t mod = 0; mod < 2048; mod++) { \
-    ppc_opc_table[((opcode) << 11) | mod] = fn; \
+	OPr(opcode, mod, fn); \
 } \
+} while (0)
+
+#define OPla(opcode, subopcode, fn) \
+do { \
+for (uint32_t mod = 0; mod < 512; mod++) { \
+	OPr(opcode, (mod << 2) | (subopcode), fn); \
+} \
+} while (0)
+
+#define OP31(subopcode, fn) \
+do { \
+	OPr(31, ((subopcode)<<1) | 0x0, fn); \
+	OPr(31, ((subopcode)<<1) | 0x1, fn); \
+} while (0)
+
+#define OP59(subopcode, fn) \
+do { \
+for (uint32_t mod = 0; mod < 32; mod++) { \
+	OPr(59, (mod << 6) | ((subopcode)<<1) | 0x0, fn); \
+	OPr(59, (mod << 6) | ((subopcode)<<1) | 0x1, fn); \
+} \
+} while (0)
+
+#define OP63a(subopcode, fn) \
+do { \
+for (uint32_t mod = 0; mod < 32; mod++) { \
+	OPr(63, (mod << 6) | ((subopcode)<<1) | 0x0, fn); \
+	OPr(63, (mod << 6) | ((subopcode)<<1) | 0x1, fn); \
+} \
+} while (0)
+
+#define OP63b(subopcode, fn) \
+do { \
+	OPr(63, ((subopcode)<<1) | 0x0, fn); \
+	OPr(63, ((subopcode)<<1) | 0x1, fn); \
 } while (0)
 
 void FASTCALL ppc_exec_opc(uint32 opc)
@@ -555,6 +428,8 @@ void ppc_dec_init()
 	auto ppc_opc_table_size = sizeof(ppc_opc_table) / sizeof(ppc_opc_table[0]);
 	std::fill_n(ppc_opc_table, ppc_opc_table_size, ppc_opc_invalid);
 
+	bool is_g4 = (ppc_cpu_get_pvr(0) & 0xffff0000) == 0x000c0000;
+
 	OP(3, ppc_opc_twi);
 	OP(7, ppc_opc_mulli);
 	OP(8, ppc_opc_subfic);
@@ -564,10 +439,7 @@ void ppc_dec_init()
 	OP(13, ppc_opc_addic_);
 	OP(14, ppc_opc_addi);
 	OP(15, ppc_opc_addis);
-	OP(16, ppc_opc_bcx);
 	OP(17, ppc_opc_sc);
-	OP(18, ppc_opc_bx);
-	OP(19, ppc_opc_group_1);
 	OP(20, ppc_opc_rlwimix);
 	OP(21, ppc_opc_rlwinmx);
 	OP(23, ppc_opc_rlwnmx);
@@ -577,7 +449,6 @@ void ppc_dec_init()
 	OP(27, ppc_opc_xoris);
 	OP(28, ppc_opc_andi_);
 	OP(29, ppc_opc_andis_);
-	OP(31, ppc_opc_group_2);
 	OP(32, ppc_opc_lwz);
 	OP(33, ppc_opc_lwzu);
 	OP(34, ppc_opc_lbz);
@@ -602,13 +473,194 @@ void ppc_dec_init()
 	OP(53, ppc_opc_stfsu);
 	OP(54, ppc_opc_stfd);
 	OP(55, ppc_opc_stfdu);
-	OP(59, ppc_opc_group_f1);
-	OP(63, ppc_opc_group_f2);
+	OP(59, ppc_opc_group_f1); // TODO
+	OP(63, ppc_opc_group_f2); // TODO
 
-	ppc_opc_init_group2();
+	OPla(16, 0x0, (ppc_opc_bcx<LK0, AA0>)); // bc
+	OPla(16, 0x1, (ppc_opc_bcx<LK1, AA0>)); // bcl
+	OPla(16, 0x2, (ppc_opc_bcx<LK0, AA1>)); // bca
+	OPla(16, 0x3, (ppc_opc_bcx<LK1, AA1>)); // bcla
 
-	// G4 CPU
-	if ((ppc_cpu_get_pvr(0) & 0xffff0000) == 0x000c0000) {
+	OPla(18, 0x0, (ppc_opc_bx<LK0, AA0>)); // b
+	OPla(18, 0x1, (ppc_opc_bx<LK1, AA0>)); // bl
+	OPla(18, 0x2, (ppc_opc_bx<LK0, AA1>)); // ba
+	OPla(18, 0x3, (ppc_opc_bx<LK1, AA1>)); // bla
+
+	OPr(19, 0, ppc_opc_mcrf);
+	OPr(19, 32, ppc_opc_bclrx<LK0>);
+	OPr(19, 33, ppc_opc_bclrx<LK1>);
+	OPr(19, 66, ppc_opc_crnor);
+	OPr(19, 100, ppc_opc_rfi);
+	OPr(19, 258, ppc_opc_crandc);
+	OPr(19, 300, ppc_opc_isync);
+	OPr(19, 386, ppc_opc_crxor);
+	OPr(19, 450, ppc_opc_crnand);
+	OPr(19, 514, ppc_opc_crand);
+	OPr(19, 578, ppc_opc_creqv);
+	OPr(19, 834, ppc_opc_crorc);
+	OPr(19, 898, ppc_opc_cror);
+	OPr(19, 1056, ppc_opc_bcctrx<LK0>);
+	OPr(19, 1057, ppc_opc_bcctrx<LK1>);
+
+	OP31(   0, ppc_opc_cmp);
+	OP31(   4, ppc_opc_tw);
+	OP31(   8, ppc_opc_subfcx);//+
+	OP31(  10, ppc_opc_addcx);//+
+	OP31(  11, ppc_opc_mulhwux);
+	OP31(  19, ppc_opc_mfcr);
+	OP31(  20, ppc_opc_lwarx);
+	OP31(  23, ppc_opc_lwzx);
+	OP31(  24, ppc_opc_slwx);
+	OP31(  26, ppc_opc_cntlzwx);
+	OP31(  28, ppc_opc_andx);
+	OP31(  32, ppc_opc_cmpl);
+	OP31(  40, ppc_opc_subfx);
+	OP31(  54, ppc_opc_dcbst);
+	OP31(  55, ppc_opc_lwzux);
+	OP31(  60, ppc_opc_andcx);
+	OP31(  75, ppc_opc_mulhwx);
+	OP31(  83, ppc_opc_mfmsr);
+	OP31(  86, ppc_opc_dcbf);
+	OP31(  87, ppc_opc_lbzx);
+	OP31( 104, ppc_opc_negx);
+	OP31( 119, ppc_opc_lbzux);
+	OP31( 124, ppc_opc_norx);
+	OP31( 136, ppc_opc_subfex);//+
+	OP31( 138, ppc_opc_addex);//+
+	OP31( 144, ppc_opc_mtcrf);
+	OP31( 146, ppc_opc_mtmsr);
+	OP31( 150, ppc_opc_stwcx_);
+	OP31( 151, ppc_opc_stwx);
+	OP31( 183, ppc_opc_stwux);
+	OP31( 200, ppc_opc_subfzex);//+
+	OP31( 202, ppc_opc_addzex);//+
+	OP31( 210, ppc_opc_mtsr);
+	OP31( 215, ppc_opc_stbx);
+	OP31( 232, ppc_opc_subfmex);//+
+	OP31( 234, ppc_opc_addmex);
+	OP31( 235, ppc_opc_mullwx);//+
+	OP31( 242, ppc_opc_mtsrin);
+	OP31( 246, ppc_opc_dcbtst);
+	OP31( 247, ppc_opc_stbux);
+	OP31( 266, ppc_opc_addx);//+
+	OP31( 278, ppc_opc_dcbt);
+	OP31( 279, ppc_opc_lhzx);
+	OP31( 284, ppc_opc_eqvx);
+	OP31( 306, ppc_opc_tlbie);
+	OP31( 310, ppc_opc_eciwx);
+	OP31( 311, ppc_opc_lhzux);
+	OP31( 316, ppc_opc_xorx);
+	OP31( 339, ppc_opc_mfspr);
+	OP31( 343, ppc_opc_lhax);
+	OP31( 370, ppc_opc_tlbia);
+	OP31( 371, ppc_opc_mftb);
+	OP31( 375, ppc_opc_lhaux);
+	OP31( 407, ppc_opc_sthx);
+	OP31( 412, ppc_opc_orcx);
+	OP31( 438, ppc_opc_ecowx);
+	OP31( 439, ppc_opc_sthux);
+	OP31( 444, ppc_opc_orx);
+	OP31( 459, ppc_opc_divwux);//+
+	OP31( 467, ppc_opc_mtspr);
+	OP31( 470, ppc_opc_dcbi);
+	OP31( 476, ppc_opc_nandx);
+	OP31( 491, ppc_opc_divwx);//+
+	OP31( 512, ppc_opc_mcrxr);
+	OP31( 533, ppc_opc_lswx);
+	OP31( 534, ppc_opc_lwbrx);
+	OP31( 535, ppc_opc_lfsx);
+	OP31( 536, ppc_opc_srwx);
+	OP31( 566, ppc_opc_tlbsync);
+	OP31( 567, ppc_opc_lfsux);
+	OP31( 595, ppc_opc_mfsr);
+	OP31( 597, ppc_opc_lswi);
+	OP31( 598, ppc_opc_sync);
+	OP31( 599, ppc_opc_lfdx);
+	OP31( 631, ppc_opc_lfdux);
+	OP31( 659, ppc_opc_mfsrin);
+	OP31( 661, ppc_opc_stswx);
+	OP31( 662, ppc_opc_stwbrx);
+	OP31( 663, ppc_opc_stfsx);
+	OP31( 695, ppc_opc_stfsux);
+	OP31( 725, ppc_opc_stswi);
+	OP31( 727, ppc_opc_stfdx);
+	OP31( 758, ppc_opc_dcba);
+	OP31( 759, ppc_opc_stfdux);
+	OP31( 790, ppc_opc_lhbrx);
+	OP31( 792, ppc_opc_srawx);
+	OP31( 824, ppc_opc_srawix);
+	OP31( 854, ppc_opc_eieio);
+	OP31( 918, ppc_opc_sthbrx);
+	OP31( 922, ppc_opc_extshx);
+	OP31( 954, ppc_opc_extsbx);
+	OP31( 982, ppc_opc_icbi);
+	OP31( 983, ppc_opc_stfiwx);
+	OP31(1014, ppc_opc_dcbz);
+
+	if (is_g4) {
+		/* Added for Altivec support */
+		OP31(  6, ppc_opc_lvsl);
+		OP31(  7, ppc_opc_lvebx);
+		OP31( 38, ppc_opc_lvsr);
+		OP31( 39, ppc_opc_lvehx);
+		OP31( 71, ppc_opc_lvewx);
+		OP31(103, ppc_opc_lvx);
+		OP31(135, ppc_opc_stvebx);
+		OP31(167, ppc_opc_stvehx);
+		OP31(199, ppc_opc_stvewx);
+		OP31(231, ppc_opc_stvx);
+		OP31(342, ppc_opc_dst);
+		OP31(359, ppc_opc_lvxl);
+		OP31(374, ppc_opc_dstst);
+		OP31(487, ppc_opc_stvxl);
+		OP31(822, ppc_opc_dss);
+	}
+
+	/*
+	TODO: enable once we can respect the MSR FP bit
+	OP59(18, ppc_opc_fdivsx);
+	OP59(20, ppc_opc_fsubsx);
+	OP59(21, ppc_opc_faddsx);
+	OP59(22, ppc_opc_fsqrtsx);
+	OP59(24, ppc_opc_fresx);
+	OP59(25, ppc_opc_fmulsx);
+	OP59(28, ppc_opc_fmsubsx);
+	OP59(29, ppc_opc_fmaddsx);
+	OP59(30, ppc_opc_fnmsubsx);
+	OP59(31, ppc_opc_fnmaddsx);
+
+	// Op 63 instructions where bits 21-25 are wildcards.
+	OP63a(18, ppc_opc_fdivx);
+	OP63a(20, ppc_opc_fsubx);
+	OP63a(21, ppc_opc_faddx);
+	OP63a(22, ppc_opc_fsqrtx);
+	OP63a(23, ppc_opc_fselx);
+	OP63a(25, ppc_opc_fmulx);
+	OP63a(26, ppc_opc_frsqrtex);
+	OP63a(28, ppc_opc_fmsubx);
+	OP63a(29, ppc_opc_fmaddx);
+	OP63a(30, ppc_opc_fnmsubx);
+	OP63a(31, ppc_opc_fnmaddx);
+
+	// Op 63 instructions where bits 21-25 are part of the subopcode
+	OP63b(  0, ppc_opc_fcmpu);
+	OP63b( 12, ppc_opc_frspx);
+	OP63b( 14, ppc_opc_fctiwx);
+	OP63b( 15, ppc_opc_fctiwzx);
+	OP63b( 32, ppc_opc_fcmpo);
+	OP63b( 38, ppc_opc_mtfsb1x);
+	OP63b( 40, ppc_opc_fnegx);
+	OP63b( 64, ppc_opc_mcrfs);
+	OP63b( 70, ppc_opc_mtfsb0x);
+	OP63b( 72, ppc_opc_fmrx);
+	OP63b(134, ppc_opc_mtfsfix);
+	OP63b(136, ppc_opc_fnabsx);
+	OP63b(264, ppc_opc_fabsx);
+	OP63b(583, ppc_opc_mffsx);
+	OP63b(711, ppc_opc_mtfsfx);
+	*/
+
+	if (is_g4) {
 		OP(4, ppc_opc_group_v);
 		ppc_opc_init_groupv();
 	}

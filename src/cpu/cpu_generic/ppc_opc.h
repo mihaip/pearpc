@@ -23,6 +23,16 @@
 
 #include "system/types.h"
 
+typedef enum {
+    LK0,
+    LK1,
+} LKBit;
+
+typedef enum {
+    AA0,
+    AA1,
+} AABit;
+
 static inline void ppc_update_cr0(uint32 r)
 {
 	gCPU.cr &= 0x0fffffff;
@@ -36,10 +46,10 @@ static inline void ppc_update_cr0(uint32 r)
 	if (gCPU.xer & XER_SO) gCPU.cr |= CR_CR0_SO;
 }
 
-void ppc_opc_bx(uint32 opc);
-void ppc_opc_bcx(uint32 opc);
-void ppc_opc_bcctrx(uint32 opc);
-void ppc_opc_bclrx(uint32 opc);
+template <LKBit lk, AABit aa> void ppc_opc_bx(uint32 opc);
+template <LKBit lk, AABit aa> void ppc_opc_bcx(uint32 opc);
+template <LKBit lk> void ppc_opc_bcctrx(uint32 opc);
+template <LKBit lk> void ppc_opc_bclrx(uint32 opc);
 
 void ppc_opc_dcba(uint32 opc);
 void ppc_opc_dcbf(uint32 opc);

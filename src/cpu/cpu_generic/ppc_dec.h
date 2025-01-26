@@ -32,11 +32,9 @@ typedef void (*ppc_opc_function)(uint32 opc);
 
 #define PPC_OPC_MAIN(opc)		(((opc)>>15)&0x1f800)
 #define PPC_OPC_MOD(opc)		((opc)&0x7ff)
-#define PPC_OPC_EXT(opc)		(((opc)>>1)&0x3ff)
+#define PPC_OPC_EXT(opc)		(((opc)>>1)&0x3ff) // TODO: remove once migration to unified table is complete
 #define PPC_OPC_Rc			1
 #define PPC_OPC_OE			(1<<10)
-#define PPC_OPC_LK			1
-#define PPC_OPC_AA			(1<<1)
 
 #define PPC_OPC_TEMPL_A(opc, rD, rA, rB, rC) {rD=((opc)>>21)&0x1f;rA=((opc)>>16)&0x1f;rB=((opc)>>11)&0x1f;rC=((opc)>>6)&0x1f;}
 #define PPC_OPC_TEMPL_B(opc, BO, BI, BD) {BO=((opc)>>21)&0x1f;BI=((opc)>>16)&0x1f;BD=(opc)&0xfffc;if (BD&0x8000) BD |= 0xffff0000;}

@@ -62,23 +62,30 @@ void ppc_set_msr(uint32 newmsr)
  *	bx		Branch
  *	.435
  */
+template <LKBit lk, AABit aa>
 void ppc_opc_bx(uint32 opc)
 {
 	uint32 li;
 	PPC_OPC_TEMPL_I(opc, li);
-	if (!(opc & PPC_OPC_AA)) {
+	if (aa == AA0) {
 		li += gCPU.pc;
 	}
-	if (opc & PPC_OPC_LK) {
+	if (lk == LK1) {
 		gCPU.lr = gCPU.pc + 4;
 	}
 	gCPU.npc = li;
 }
 
+template void ppc_opc_bx<LK0, AA0>(uint32 opc);
+template void ppc_opc_bx<LK0, AA1>(uint32 opc);
+template void ppc_opc_bx<LK1, AA0>(uint32 opc);
+template void ppc_opc_bx<LK1, AA1>(uint32 opc);
+
 /*
  *	bcx		Branch Conditional
  *	.436
  */
+template <LKBit lk, AABit aa>
 void ppc_opc_bcx(uint32 opc)
 {
 	uint32 BO, BI, BD;
@@ -91,39 +98,51 @@ void ppc_opc_bcx(uint32 opc)
 	bool cr = (gCPU.cr & (1<<(31-BI)));
 	if (((BO & 4) || ((gCPU.ctr!=0) ^ bo2))
 	&& ((BO & 16) || (!(cr ^ bo8)))) {
-		if (!(opc & PPC_OPC_AA)) {
+		if (aa == AA0) {
 			BD += gCPU.pc;
 		}
-		if (opc & PPC_OPC_LK) {
+		 if (lk == LK1) {
 			gCPU.lr = gCPU.pc + 4;
 		}
 		gCPU.npc = BD;
 	}
 }
 
+template void ppc_opc_bcx<LK0, AA0>(uint32 opc);
+template void ppc_opc_bcx<LK0, AA1>(uint32 opc);
+template void ppc_opc_bcx<LK1, AA0>(uint32 opc);
+template void ppc_opc_bcx<LK1, AA1>(uint32 opc);
+
 /*
  *	bcctrx		Branch Conditional to Count Register
  *	.438
  */
+template <LKBit lk>
 void ppc_opc_bcctrx(uint32 opc)
 {
 	uint32 BO, BI, BD;
 	PPC_OPC_TEMPL_XL(opc, BO, BI, BD);
 	PPC_OPC_ASSERT(BD==0);
-	PPC_OPC_ASSERT(!(BO & 2));     
+	PPC_OPC_ASSERT(!(BO & 2));
 	bool bo8 = (BO & 8);
 	bool cr = (gCPU.cr & (1<<(31-BI)));
 	if ((BO & 16) || (!(cr ^ bo8))) {
-		if (opc & PPC_OPC_LK) {
+		if (lk == LK1) {
 			gCPU.lr = gCPU.pc + 4;
 		}
 		gCPU.npc = gCPU.ctr & 0xfffffffc;
 	}
 }
+
+template void ppc_opc_bcctrx<LK0>(uint32 opc);
+template void ppc_opc_bcctrx<LK1>(uint32 opc);
+
+
 /*
  *	bclrx		Branch Conditional to Link Register
  *	.440
  */
+template <LKBit lk>
 void ppc_opc_bclrx(uint32 opc)
 {
 	uint32 BO, BI, BD;
@@ -138,12 +157,15 @@ void ppc_opc_bclrx(uint32 opc)
 	if (((BO & 4) || ((gCPU.ctr!=0) ^ bo2))
 	&& ((BO & 16) || (!(cr ^ bo8)))) {
 		BD = gCPU.lr & 0xfffffffc;
-		if (opc & PPC_OPC_LK) {
+		if (lk == LK1) {
 			gCPU.lr = gCPU.pc + 4;
 		}
 		gCPU.npc = BD;
 	}
 }
+
+template void ppc_opc_bclrx<LK0>(uint32 opc);
+template void ppc_opc_bclrx<LK1>(uint32 opc);
 
 /*
  *	dcbf		Data Cache Block Flush
