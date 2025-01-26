@@ -117,7 +117,7 @@ void ppc_cpu_run()
 //	return;
 	while (true) {
 		gCPU.npc = gCPU.pc+4;
-		if ((gCPU.pc & ~0xfff) == gCPU.effective_code_page) {
+		if ((gCPU.pc & ~0xfff) == gCPU.effective_code_page) [[likely]] {
 			opc = ppc_word_from_BE(*((uint32*)(&gCPU.physical_code_page[gCPU.pc & 0xfff])));
 			//ppc_debug_hook();
 		} else {
@@ -136,14 +136,14 @@ void ppc_cpu_run()
 		ppc_exec_opc(opc);
 		ops++;
 		gCPU.ptb++;
-		if (gCPU.pdec == 0) {
+		if (gCPU.pdec == 0) [[unlikely]] {
 			gCPU.exception_pending = true;
 			gCPU.dec_exception = true;
 			gCPU.pdec=0xffffffff*TB_TO_PTB_FACTOR;
 		} else {
 			gCPU.pdec--;
 		}
-		if ((ops & 0x3ffff)==0) {
+		if ((ops & 0x3ffff)==0) [[unlikely]] {
 #ifdef EMSCRIPTEN
 			sys_gui_cpu_ops_hook(ops);
 #endif
@@ -191,7 +191,7 @@ void ppc_cpu_run()
 		
 		gCPU.pc = gCPU.npc;
 		
-		if (gCPU.exception_pending) {
+		if (gCPU.exception_pending) [[unlikely]] {
 			if (gCPU.stop_exception) {
 				gCPU.stop_exception = false;
 				if (!gCPU.dec_exception && !gCPU.ext_exception) gCPU.exception_pending = false;
