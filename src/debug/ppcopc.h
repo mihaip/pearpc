@@ -21,8 +21,8 @@
  *	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __PPC_OPC_H__
-#define __PPC_OPC_H__
+#ifndef __PPC_DEBUG_OPC_H__
+#define __PPC_DEBUG_OPC_H__
 
 #include "system/types.h"
 
