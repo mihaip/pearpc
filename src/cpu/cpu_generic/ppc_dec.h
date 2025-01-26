@@ -23,6 +23,21 @@
 
 #include "system/types.h"
 
+typedef enum {
+    LK0,
+    LK1,
+} LKBit;
+
+typedef enum {
+    AA0,
+    AA1,
+} AABit;
+
+typedef enum {
+    Rc0,
+    Rc1,
+} RcBit;
+
 void FASTCALL ppc_exec_opc(uint32 opc);
 void ppc_dec_init();
 
@@ -33,7 +48,7 @@ typedef void (*ppc_opc_function)(uint32 opc);
 #define PPC_OPC_MAIN(opc)		(((opc)>>15)&0x1f800)
 #define PPC_OPC_MOD(opc)		((opc)&0x7ff)
 #define PPC_OPC_EXT(opc)		(((opc)>>1)&0x3ff) // TODO: remove once migration to unified table is complete
-#define PPC_OPC_Rc			1
+#define PPC_OPC_Rc			1 // TODO: remove once migration to templated functions is complete
 #define PPC_OPC_OE			(1<<10)
 
 #define PPC_OPC_TEMPL_A(opc, rD, rA, rB, rC) {rD=((opc)>>21)&0x1f;rA=((opc)>>16)&0x1f;rB=((opc)>>11)&0x1f;rC=((opc)>>6)&0x1f;}

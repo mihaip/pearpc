@@ -390,10 +390,24 @@ for (uint32_t mod = 0; mod < 512; mod++) { \
 } \
 } while (0)
 
+#define OPrc(opcode, fn) \
+do { \
+for (uint32_t mod = 0; mod < 1024; mod++) { \
+	OPr(opcode, (mod << 1) | 0x0, fn<Rc0>); \
+	OPr(opcode, (mod << 1) | 0x1, fn<Rc1>); \
+} \
+} while (0)
+
 #define OP31(subopcode, fn) \
 do { \
 	OPr(31, ((subopcode)<<1) | 0x0, fn); \
 	OPr(31, ((subopcode)<<1) | 0x1, fn); \
+} while (0)
+
+#define OP31rc(subopcode, fn) \
+do { \
+	OPr(31, ((subopcode)<<1) | 0x0, fn<Rc0>); \
+	OPr(31, ((subopcode)<<1) | 0x1, fn<Rc1>); \
 } while (0)
 
 #define OP59(subopcode, fn) \
@@ -440,9 +454,6 @@ void ppc_dec_init()
 	OP(14, ppc_opc_addi);
 	OP(15, ppc_opc_addis);
 	OP(17, ppc_opc_sc);
-	OP(20, ppc_opc_rlwimix);
-	OP(21, ppc_opc_rlwinmx);
-	OP(23, ppc_opc_rlwnmx);
 	OP(24, ppc_opc_ori);
 	OP(25, ppc_opc_oris);
 	OP(26, ppc_opc_xori);
@@ -502,100 +513,104 @@ void ppc_dec_init()
 	OPr(19, 1056, ppc_opc_bcctrx<LK0>);
 	OPr(19, 1057, ppc_opc_bcctrx<LK1>);
 
-	OP31(   0, ppc_opc_cmp);
-	OP31(   4, ppc_opc_tw);
-	OP31(   8, ppc_opc_subfcx);//+
-	OP31(  10, ppc_opc_addcx);//+
-	OP31(  11, ppc_opc_mulhwux);
-	OP31(  19, ppc_opc_mfcr);
-	OP31(  20, ppc_opc_lwarx);
-	OP31(  23, ppc_opc_lwzx);
-	OP31(  24, ppc_opc_slwx);
-	OP31(  26, ppc_opc_cntlzwx);
-	OP31(  28, ppc_opc_andx);
-	OP31(  32, ppc_opc_cmpl);
-	OP31(  40, ppc_opc_subfx);
-	OP31(  54, ppc_opc_dcbst);
-	OP31(  55, ppc_opc_lwzux);
-	OP31(  60, ppc_opc_andcx);
-	OP31(  75, ppc_opc_mulhwx);
-	OP31(  83, ppc_opc_mfmsr);
-	OP31(  86, ppc_opc_dcbf);
-	OP31(  87, ppc_opc_lbzx);
-	OP31( 104, ppc_opc_negx);
-	OP31( 119, ppc_opc_lbzux);
-	OP31( 124, ppc_opc_norx);
-	OP31( 136, ppc_opc_subfex);//+
-	OP31( 138, ppc_opc_addex);//+
-	OP31( 144, ppc_opc_mtcrf);
-	OP31( 146, ppc_opc_mtmsr);
-	OP31( 150, ppc_opc_stwcx_);
-	OP31( 151, ppc_opc_stwx);
-	OP31( 183, ppc_opc_stwux);
-	OP31( 200, ppc_opc_subfzex);//+
-	OP31( 202, ppc_opc_addzex);//+
-	OP31( 210, ppc_opc_mtsr);
-	OP31( 215, ppc_opc_stbx);
-	OP31( 232, ppc_opc_subfmex);//+
-	OP31( 234, ppc_opc_addmex);
-	OP31( 235, ppc_opc_mullwx);//+
-	OP31( 242, ppc_opc_mtsrin);
-	OP31( 246, ppc_opc_dcbtst);
-	OP31( 247, ppc_opc_stbux);
-	OP31( 266, ppc_opc_addx);//+
-	OP31( 278, ppc_opc_dcbt);
-	OP31( 279, ppc_opc_lhzx);
-	OP31( 284, ppc_opc_eqvx);
-	OP31( 306, ppc_opc_tlbie);
-	OP31( 310, ppc_opc_eciwx);
-	OP31( 311, ppc_opc_lhzux);
-	OP31( 316, ppc_opc_xorx);
-	OP31( 339, ppc_opc_mfspr);
-	OP31( 343, ppc_opc_lhax);
-	OP31( 370, ppc_opc_tlbia);
-	OP31( 371, ppc_opc_mftb);
-	OP31( 375, ppc_opc_lhaux);
-	OP31( 407, ppc_opc_sthx);
-	OP31( 412, ppc_opc_orcx);
-	OP31( 438, ppc_opc_ecowx);
-	OP31( 439, ppc_opc_sthux);
-	OP31( 444, ppc_opc_orx);
-	OP31( 459, ppc_opc_divwux);//+
-	OP31( 467, ppc_opc_mtspr);
-	OP31( 470, ppc_opc_dcbi);
-	OP31( 476, ppc_opc_nandx);
-	OP31( 491, ppc_opc_divwx);//+
-	OP31( 512, ppc_opc_mcrxr);
-	OP31( 533, ppc_opc_lswx);
-	OP31( 534, ppc_opc_lwbrx);
-	OP31( 535, ppc_opc_lfsx);
-	OP31( 536, ppc_opc_srwx);
-	OP31( 566, ppc_opc_tlbsync);
-	OP31( 567, ppc_opc_lfsux);
-	OP31( 595, ppc_opc_mfsr);
-	OP31( 597, ppc_opc_lswi);
-	OP31( 598, ppc_opc_sync);
-	OP31( 599, ppc_opc_lfdx);
-	OP31( 631, ppc_opc_lfdux);
-	OP31( 659, ppc_opc_mfsrin);
-	OP31( 661, ppc_opc_stswx);
-	OP31( 662, ppc_opc_stwbrx);
-	OP31( 663, ppc_opc_stfsx);
-	OP31( 695, ppc_opc_stfsux);
-	OP31( 725, ppc_opc_stswi);
-	OP31( 727, ppc_opc_stfdx);
-	OP31( 758, ppc_opc_dcba);
-	OP31( 759, ppc_opc_stfdux);
-	OP31( 790, ppc_opc_lhbrx);
-	OP31( 792, ppc_opc_srawx);
-	OP31( 824, ppc_opc_srawix);
-	OP31( 854, ppc_opc_eieio);
-	OP31( 918, ppc_opc_sthbrx);
-	OP31( 922, ppc_opc_extshx);
-	OP31( 954, ppc_opc_extsbx);
-	OP31( 982, ppc_opc_icbi);
-	OP31( 983, ppc_opc_stfiwx);
-	OP31(1014, ppc_opc_dcbz);
+	OPrc(20, ppc_opc_rlwimix);
+	OPrc(21, ppc_opc_rlwinmx);
+	OPrc(23, ppc_opc_rlwnmx);
+
+	OP31  (   0, ppc_opc_cmp);
+	OP31  (   4, ppc_opc_tw);
+	OP31rc(   8, ppc_opc_subfcx);//+
+	OP31rc(  10, ppc_opc_addcx);//+
+	OP31rc(  11, ppc_opc_mulhwux);
+	OP31  (  19, ppc_opc_mfcr);
+	OP31  (  20, ppc_opc_lwarx);
+	OP31  (  23, ppc_opc_lwzx);
+	OP31rc(  24, ppc_opc_slwx);
+	OP31rc(  26, ppc_opc_cntlzwx);
+	OP31rc(  28, ppc_opc_andx);
+	OP31  (  32, ppc_opc_cmpl);
+	OP31rc(  40, ppc_opc_subfx);
+	OP31  (  54, ppc_opc_dcbst);
+	OP31  (  55, ppc_opc_lwzux);
+	OP31rc(  60, ppc_opc_andcx);
+	OP31rc(  75, ppc_opc_mulhwx);
+	OP31  (  83, ppc_opc_mfmsr);
+	OP31  (  86, ppc_opc_dcbf);
+	OP31  (  87, ppc_opc_lbzx);
+	OP31rc( 104, ppc_opc_negx);
+	OP31  ( 119, ppc_opc_lbzux);
+	OP31rc( 124, ppc_opc_norx);
+	OP31rc( 136, ppc_opc_subfex);//+
+	OP31rc( 138, ppc_opc_addex);//+
+	OP31  ( 144, ppc_opc_mtcrf);
+	OP31  ( 146, ppc_opc_mtmsr);
+	OP31  ( 150, ppc_opc_stwcx_);
+	OP31  ( 151, ppc_opc_stwx);
+	OP31  ( 183, ppc_opc_stwux);
+	OP31rc( 200, ppc_opc_subfzex);//+
+	OP31rc( 202, ppc_opc_addzex);//+
+	OP31  ( 210, ppc_opc_mtsr);
+	OP31  ( 215, ppc_opc_stbx);
+	OP31rc( 232, ppc_opc_subfmex);//+
+	OP31rc( 234, ppc_opc_addmex);
+	OP31rc( 235, ppc_opc_mullwx);//+
+	OP31  ( 242, ppc_opc_mtsrin);
+	OP31  ( 246, ppc_opc_dcbtst);
+	OP31  ( 247, ppc_opc_stbux);
+	OP31rc( 266, ppc_opc_addx);//+
+	OP31  ( 278, ppc_opc_dcbt);
+	OP31  ( 279, ppc_opc_lhzx);
+	OP31rc( 284, ppc_opc_eqvx);
+	OP31  ( 306, ppc_opc_tlbie);
+	OP31  ( 310, ppc_opc_eciwx);
+	OP31  ( 311, ppc_opc_lhzux);
+	OP31rc( 316, ppc_opc_xorx);
+	OP31  ( 339, ppc_opc_mfspr);
+	OP31  ( 343, ppc_opc_lhax);
+	OP31  ( 370, ppc_opc_tlbia);
+	OP31  ( 371, ppc_opc_mftb);
+	OP31  ( 375, ppc_opc_lhaux);
+	OP31  ( 407, ppc_opc_sthx);
+	OP31rc( 412, ppc_opc_orcx);
+	OP31  ( 438, ppc_opc_ecowx);
+	OP31  ( 439, ppc_opc_sthux);
+	OP31rc( 444, ppc_opc_orx);
+	OP31rc( 459, ppc_opc_divwux);//+
+	OP31  ( 467, ppc_opc_mtspr);
+	OP31  ( 470, ppc_opc_dcbi);
+	OP31rc( 476, ppc_opc_nandx);
+	OP31rc( 491, ppc_opc_divwx);//+
+	OP31  ( 512, ppc_opc_mcrxr);
+	OP31  ( 533, ppc_opc_lswx);
+	OP31  ( 534, ppc_opc_lwbrx);
+	OP31  ( 535, ppc_opc_lfsx);
+	OP31rc( 536, ppc_opc_srwx);
+	OP31  ( 566, ppc_opc_tlbsync);
+	OP31  ( 567, ppc_opc_lfsux);
+	OP31  ( 595, ppc_opc_mfsr);
+	OP31  ( 597, ppc_opc_lswi);
+	OP31  ( 598, ppc_opc_sync);
+	OP31  ( 599, ppc_opc_lfdx);
+	OP31  ( 631, ppc_opc_lfdux);
+	OP31  ( 659, ppc_opc_mfsrin);
+	OP31  ( 661, ppc_opc_stswx);
+	OP31  ( 662, ppc_opc_stwbrx);
+	OP31  ( 663, ppc_opc_stfsx);
+	OP31  ( 695, ppc_opc_stfsux);
+	OP31  ( 725, ppc_opc_stswi);
+	OP31  ( 727, ppc_opc_stfdx);
+	OP31  ( 758, ppc_opc_dcba);
+	OP31  ( 759, ppc_opc_stfdux);
+	OP31  ( 790, ppc_opc_lhbrx);
+	OP31rc( 792, ppc_opc_srawx);
+	OP31rc( 824, ppc_opc_srawix);
+	OP31  ( 854, ppc_opc_eieio);
+	OP31  ( 918, ppc_opc_sthbrx);
+	OP31rc( 922, ppc_opc_extshx);
+	OP31rc( 954, ppc_opc_extsbx);
+	OP31  ( 982, ppc_opc_icbi);
+	OP31  ( 983, ppc_opc_stfiwx);
+	OP31  (1014, ppc_opc_dcbz);
 
 	if (is_g4) {
 		/* Added for Altivec support */

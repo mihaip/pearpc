@@ -22,16 +22,7 @@
 #define __PPC_OPC_H__
 
 #include "system/types.h"
-
-typedef enum {
-    LK0,
-    LK1,
-} LKBit;
-
-typedef enum {
-    AA0,
-    AA1,
-} AABit;
+#include "ppc_dec.h"
 
 static inline void ppc_update_cr0(uint32 r)
 {
