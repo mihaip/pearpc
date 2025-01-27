@@ -391,32 +391,40 @@ do { \
 	OPr(31, ((subopcode)<<1) | 0x1, fn<Rc1>); \
 } while (0)
 
-// Inserts an opcode 59 handler identified by bits 26...30. But 31 can be
-// anything.
-#define FP59(subopcode, fn) \
+// Inserts an opcode 59 handler identified by bits 26...30. Bit 31 is the Rc
+// bit (the function is assumed to be templated using it).
+#define FP59rc(subopcode, fn) \
 do { \
 for (uint32_t mod = 0; mod < 32; mod++) { \
-	FPr(59, (mod << 6) | ((subopcode)<<1) | 0x0, fn); \
-	FPr(59, (mod << 6) | ((subopcode)<<1) | 0x1, fn); \
+	FPr(59, (mod << 6) | ((subopcode)<<1) | 0x0, fn<Rc0>); \
+	FPr(59, (mod << 6) | ((subopcode)<<1) | 0x1, fn<Rc1>); \
 } \
 } while (0)
 
-// Inserts an opcode 63 handler identified by bits 26...30. But 31 can be
-// anything.
-#define FP63a(subopcode, fn) \
+// Inserts an opcode 63 handler identified by bits 26...30. Bit 31 is the Rc
+// bit (the function is assumed to be templated using it).
+#define FP63arc(subopcode, fn) \
 do { \
 for (uint32_t mod = 0; mod < 32; mod++) { \
-	FPr(63, (mod << 6) | ((subopcode)<<1) | 0x0, fn); \
-	FPr(63, (mod << 6) | ((subopcode)<<1) | 0x1, fn); \
+	FPr(63, (mod << 6) | ((subopcode)<<1) | 0x0, fn<Rc0>); \
+	FPr(63, (mod << 6) | ((subopcode)<<1) | 0x1, fn<Rc1>); \
 } \
 } while (0)
 
-// Inserts an opcode 63 handler identified by bits 21...30. But 31 can be
+// Inserts an opcode 63 handler identified by bits 21...30. Bit 31 can be
 // anything.
 #define FP63b(subopcode, fn) \
 do { \
 	FPr(63, ((subopcode)<<1) | 0x0, fn); \
 	FPr(63, ((subopcode)<<1) | 0x1, fn); \
+} while (0)
+
+// Inserts an opcode 63 handler identified by bits 21...30. Bit 31 is the Rc
+// bit (the function is assumed to be templated using it).
+#define FP63brc(subopcode, fn) \
+do { \
+	FPr(63, ((subopcode)<<1) | 0x0, fn<Rc0>); \
+	FPr(63, ((subopcode)<<1) | 0x1, fn<Rc1>); \
 } while (0)
 
 void FASTCALL ppc_exec_opc(ppc_opc_function *opc_table, uint32 opc)
@@ -621,46 +629,46 @@ void ppc_dec_init()
 		OP31(822, ppc_opc_dss);
 	}
 
-	FP59(18, ppc_opc_fdivsx);
-	FP59(20, ppc_opc_fsubsx);
-	FP59(21, ppc_opc_faddsx);
-	FP59(22, ppc_opc_fsqrtsx);
-	FP59(24, ppc_opc_fresx);
-	FP59(25, ppc_opc_fmulsx);
-	FP59(28, ppc_opc_fmsubsx);
-	FP59(29, ppc_opc_fmaddsx);
-	FP59(30, ppc_opc_fnmsubsx);
-	FP59(31, ppc_opc_fnmaddsx);
+	FP59rc(18, ppc_opc_fdivsx);
+	FP59rc(20, ppc_opc_fsubsx);
+	FP59rc(21, ppc_opc_faddsx);
+	FP59rc(22, ppc_opc_fsqrtsx);
+	FP59rc(24, ppc_opc_fresx);
+	FP59rc(25, ppc_opc_fmulsx);
+	FP59rc(28, ppc_opc_fmsubsx);
+	FP59rc(29, ppc_opc_fmaddsx);
+	FP59rc(30, ppc_opc_fnmsubsx);
+	FP59rc(31, ppc_opc_fnmaddsx);
 
 	// Op 63 instructions where bits 21-25 are wildcards.
-	FP63a(18, ppc_opc_fdivx);
-	FP63a(20, ppc_opc_fsubx);
-	FP63a(21, ppc_opc_faddx);
-	FP63a(22, ppc_opc_fsqrtx);
-	FP63a(23, ppc_opc_fselx);
-	FP63a(25, ppc_opc_fmulx);
-	FP63a(26, ppc_opc_frsqrtex);
-	FP63a(28, ppc_opc_fmsubx);
-	FP63a(29, ppc_opc_fmaddx);
-	FP63a(30, ppc_opc_fnmsubx);
-	FP63a(31, ppc_opc_fnmaddx);
+	FP63arc(18, ppc_opc_fdivx);
+	FP63arc(20, ppc_opc_fsubx);
+	FP63arc(21, ppc_opc_faddx);
+	FP63arc(22, ppc_opc_fsqrtx);
+	FP63arc(23, ppc_opc_fselx);
+	FP63arc(25, ppc_opc_fmulx);
+	FP63arc(26, ppc_opc_frsqrtex);
+	FP63arc(28, ppc_opc_fmsubx);
+	FP63arc(29, ppc_opc_fmaddx);
+	FP63arc(30, ppc_opc_fnmsubx);
+	FP63arc(31, ppc_opc_fnmaddx);
 
 	// Op 63 instructions where bits 21-25 are part of the subopcode
-	FP63b(  0, ppc_opc_fcmpu);
-	FP63b( 12, ppc_opc_frspx);
-	FP63b( 14, ppc_opc_fctiwx);
-	FP63b( 15, ppc_opc_fctiwzx);
-	FP63b( 32, ppc_opc_fcmpo);
-	FP63b( 38, ppc_opc_mtfsb1x);
-	FP63b( 40, ppc_opc_fnegx);
-	FP63b( 64, ppc_opc_mcrfs);
-	FP63b( 70, ppc_opc_mtfsb0x);
-	FP63b( 72, ppc_opc_fmrx);
-	FP63b(134, ppc_opc_mtfsfix);
-	FP63b(136, ppc_opc_fnabsx);
-	FP63b(264, ppc_opc_fabsx);
-	FP63b(583, ppc_opc_mffsx);
-	FP63b(711, ppc_opc_mtfsfx);
+	FP63b  (  0, ppc_opc_fcmpu);
+	FP63brc( 12, ppc_opc_frspx);
+	FP63brc( 14, ppc_opc_fctiwx);
+	FP63brc( 15, ppc_opc_fctiwzx);
+	FP63b  ( 32, ppc_opc_fcmpo);
+	FP63brc( 38, ppc_opc_mtfsb1x);
+	FP63brc( 40, ppc_opc_fnegx);
+	FP63b  ( 64, ppc_opc_mcrfs);
+	FP63brc( 70, ppc_opc_mtfsb0x);
+	FP63brc( 72, ppc_opc_fmrx);
+	FP63brc(134, ppc_opc_mtfsfix);
+	FP63brc(136, ppc_opc_fnabsx);
+	FP63brc(264, ppc_opc_fabsx);
+	FP63brc(583, ppc_opc_mffsx);
+	FP63brc(711, ppc_opc_mtfsfx);
 
 	if (is_g4) {
 		OP(4, ppc_opc_group_v);

@@ -21,6 +21,7 @@
 #ifndef __PPC_FPU_H__
 #define __PPC_FPU_H__
 
+#include "ppc_dec.h"
 
 #define FPU_SIGN_BIT (0x8000000000000000ULL)
 
@@ -575,35 +576,35 @@ inline uint32 ppc_fpu_double_to_int(ppc_double &d)
 double ppc_fpu_get_double(uint64 d);
 double ppc_fpu_get_double(ppc_double &d);
 
-void ppc_opc_fabsx(uint32 opc);
-void ppc_opc_faddx(uint32 opc);
-void ppc_opc_faddsx(uint32 opc);
+template <RcBit rc> void ppc_opc_fabsx(uint32 opc);
+template <RcBit rc> void ppc_opc_faddx(uint32 opc);
+template <RcBit rc> void ppc_opc_faddsx(uint32 opc);
 void ppc_opc_fcmpo(uint32 opc);
 void ppc_opc_fcmpu(uint32 opc);
-void ppc_opc_fctiwx(uint32 opc);
-void ppc_opc_fctiwzx(uint32 opc);
-void ppc_opc_fdivx(uint32 opc);
-void ppc_opc_fdivsx(uint32 opc);
-void ppc_opc_fmaddx(uint32 opc);
-void ppc_opc_fmaddsx(uint32 opc);
-void ppc_opc_fmrx(uint32 opc);
-void ppc_opc_fmsubx(uint32 opc);
-void ppc_opc_fmsubsx(uint32 opc);
-void ppc_opc_fmulx(uint32 opc);
-void ppc_opc_fmulsx(uint32 opc);
-void ppc_opc_fnabsx(uint32 opc);
-void ppc_opc_fnegx(uint32 opc);
-void ppc_opc_fnmaddx(uint32 opc);
-void ppc_opc_fnmaddsx(uint32 opc);
-void ppc_opc_fnmsubx(uint32 opc);
-void ppc_opc_fnmsubsx(uint32 opc);
-void ppc_opc_fresx(uint32 opc);
-void ppc_opc_frspx(uint32 opc);
-void ppc_opc_frsqrtex(uint32 opc);
-void ppc_opc_fselx(uint32 opc);
-void ppc_opc_fsqrtx(uint32 opc);
-void ppc_opc_fsqrtsx(uint32 opc);
-void ppc_opc_fsubx(uint32 opc);
-void ppc_opc_fsubsx(uint32 opc);
+template <RcBit rc> void ppc_opc_fctiwx(uint32 opc);
+template <RcBit rc> void ppc_opc_fctiwzx(uint32 opc);
+template <RcBit rc> void ppc_opc_fdivx(uint32 opc);
+template <RcBit rc> void ppc_opc_fdivsx(uint32 opc);
+template <RcBit rc> void ppc_opc_fmaddx(uint32 opc);
+template <RcBit rc> void ppc_opc_fmaddsx(uint32 opc);
+template <RcBit rc> void ppc_opc_fmrx(uint32 opc);
+template <RcBit rc> void ppc_opc_fmsubx(uint32 opc);
+template <RcBit rc> void ppc_opc_fmsubsx(uint32 opc);
+template <RcBit rc> void ppc_opc_fmulx(uint32 opc);
+template <RcBit rc> void ppc_opc_fmulsx(uint32 opc);
+template <RcBit rc> void ppc_opc_fnabsx(uint32 opc);
+template <RcBit rc> void ppc_opc_fnegx(uint32 opc);
+template <RcBit rc> void ppc_opc_fnmaddx(uint32 opc);
+template <RcBit rc> void ppc_opc_fnmaddsx(uint32 opc);
+template <RcBit rc> void ppc_opc_fnmsubx(uint32 opc);
+template <RcBit rc> void ppc_opc_fnmsubsx(uint32 opc);
+template <RcBit rc> void ppc_opc_fresx(uint32 opc);
+template <RcBit rc> void ppc_opc_frspx(uint32 opc);
+template <RcBit rc> void ppc_opc_frsqrtex(uint32 opc);
+template <RcBit rc> void ppc_opc_fselx(uint32 opc);
+template <RcBit rc> void ppc_opc_fsqrtx(uint32 opc);
+template <RcBit rc> void ppc_opc_fsqrtsx(uint32 opc);
+template <RcBit rc> void ppc_opc_fsubx(uint32 opc);
+template <RcBit rc> void ppc_opc_fsubsx(uint32 opc);
 
 #endif

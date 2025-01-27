@@ -734,21 +734,27 @@ double ppc_fpu_get_double(ppc_double &d)
  *	fabsx		Floating Absolute Value
  *	.484
  */
+template <RcBit rc>
 void ppc_opc_fabsx(uint32 opc)
 {
 	int frD, frA, frB;
 	PPC_OPC_TEMPL_X(opc, frD, frA, frB);
 	PPC_OPC_ASSERT(frA==0);
 	gCPU.fpr[frD] = gCPU.fpr[frB] & ~FPU_SIGN_BIT;
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fabs.\n");
 	}
 }
+
+template void ppc_opc_fabsx<Rc0>(uint32 opc);
+template void ppc_opc_fabsx<Rc1>(uint32 opc);
+
 /*
  *	faddx		Floating Add (Double-Precision)
  *	.485
  */
+template <RcBit rc>
 void ppc_opc_faddx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -762,15 +768,19 @@ void ppc_opc_faddx(uint32 opc)
 	}
 	ppc_fpu_add(D, A, B);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fadd.\n");
 	}
 }
+template void ppc_opc_faddx<Rc0>(uint32 opc);
+template void ppc_opc_faddx<Rc1>(uint32 opc);
+
 /*
  *	faddx		Floating Add Single
  *	.486
  */
+template <RcBit rc>
 void ppc_opc_faddsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -784,11 +794,14 @@ void ppc_opc_faddsx(uint32 opc)
 	}
 	ppc_fpu_add(D, A, B);
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fadds.\n");
 	}
 }
+template void ppc_opc_faddsx<Rc0>(uint32 opc);
+template void ppc_opc_faddsx<Rc1>(uint32 opc);
+
 /*
  *	fcmpo		Floating Compare Ordered
  *	.488
@@ -854,6 +867,7 @@ void ppc_opc_fcmpu(uint32 opc)
  *	fctiwx		Floating Convert to Integer Word
  *	.492
  */
+template <RcBit rc>
 void ppc_opc_fctiwx(uint32 opc)
 {
 	int frD, frA, frB;
@@ -862,15 +876,19 @@ void ppc_opc_fctiwx(uint32 opc)
 	ppc_double B;
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
 	gCPU.fpr[frD] = ppc_fpu_double_to_int(B);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fctiw.\n");
 	}
 }
+template void ppc_opc_fctiwx<Rc0>(uint32 opc);
+template void ppc_opc_fctiwx<Rc1>(uint32 opc);
+
 /*
  *	fctiwzx		Floating Convert to Integer Word with Round toward Zero
  *	.493
  */
+template <RcBit rc>
 void ppc_opc_fctiwzx(uint32 opc)
 {
 	int frD, frA, frB;
@@ -883,15 +901,19 @@ void ppc_opc_fctiwzx(uint32 opc)
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
 	gCPU.fpr[frD] = ppc_fpu_double_to_int(B);
 	gCPU.fpscr = oldfpscr;
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fctiwz.\n");
 	}
 }
+template void ppc_opc_fctiwzx<Rc0>(uint32 opc);
+template void ppc_opc_fctiwzx<Rc1>(uint32 opc);
+
 /*
  *	fdivx		Floating Divide (Double-Precision)
  *	.494
  */
+template <RcBit rc>
 void ppc_opc_fdivx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -912,15 +934,19 @@ void ppc_opc_fdivx(uint32 opc)
 	}
 	ppc_fpu_div(D, A, B);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fdiv.\n");
 	}
 }
+template void ppc_opc_fdivx<Rc0>(uint32 opc);
+template void ppc_opc_fdivx<Rc1>(uint32 opc);
+
 /*
  *	fdivsx		Floating Divide Single
  *	.495
  */
+template <RcBit rc>
 void ppc_opc_fdivsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -941,15 +967,19 @@ void ppc_opc_fdivsx(uint32 opc)
 	}
 	ppc_fpu_div(D, A, B);
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fdivs.\n");
 	}
 }
+template void ppc_opc_fdivsx<Rc0>(uint32 opc);
+template void ppc_opc_fdivsx<Rc1>(uint32 opc);
+
 /*
  *	fmaddx		Floating Multiply-Add (Double-Precision)
  *	.496
  */
+template <RcBit rc>
 void ppc_opc_fmaddx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -960,15 +990,19 @@ void ppc_opc_fmaddx(uint32 opc)
 	ppc_fpu_unpack_double(C, gCPU.fpr[frC]);
 	ppc_fpu_mul_add(D, A, C, B);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fmadd.\n");
 	}
 }
+template void ppc_opc_fmaddx<Rc0>(uint32 opc);
+template void ppc_opc_fmaddx<Rc1>(uint32 opc);
+
 /*
  *	fmaddx		Floating Multiply-Add Single
  *	.497
  */
+template <RcBit rc>
 void ppc_opc_fmaddsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -979,30 +1013,38 @@ void ppc_opc_fmaddsx(uint32 opc)
 	ppc_fpu_unpack_double(C, gCPU.fpr[frC]);
 	ppc_fpu_mul_add(D, A, C, B);
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fmadds.\n");
 	}
 }
+template void ppc_opc_fmaddsx<Rc0>(uint32 opc);
+template void ppc_opc_fmaddsx<Rc1>(uint32 opc);
+
 /*
  *	fmrx		Floating Move Register
  *	.498
  */
+template <RcBit rc>
 void ppc_opc_fmrx(uint32 opc)
 {
 	int frD, rA, frB;
 	PPC_OPC_TEMPL_X(opc, frD, rA, frB);
 	PPC_OPC_ASSERT(rA==0);
 	gCPU.fpr[frD] = gCPU.fpr[frB];
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fmr.\n");
 	}
 }
+template void ppc_opc_fmrx<Rc0>(uint32 opc);
+template void ppc_opc_fmrx<Rc1>(uint32 opc);
+
 /*
  *	fmsubx		Floating Multiply-Subtract (Double-Precision)
  *	.499
  */
+template <RcBit rc>
 void ppc_opc_fmsubx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -1014,15 +1056,19 @@ void ppc_opc_fmsubx(uint32 opc)
 	B.s ^= 1;
 	ppc_fpu_mul_add(D, A, C, B);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fmsub.\n");
 	}
 }
+template void ppc_opc_fmsubx<Rc0>(uint32 opc);
+template void ppc_opc_fmsubx<Rc1>(uint32 opc);
+
 /*
  *	fmsubsx		Floating Multiply-Subtract Single
  *	.500
  */
+template <RcBit rc>
 void ppc_opc_fmsubsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -1033,15 +1079,19 @@ void ppc_opc_fmsubsx(uint32 opc)
 	ppc_fpu_unpack_double(C, gCPU.fpr[frC]);
 	ppc_fpu_mul_add(D, A, C, B);
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fmsubs.\n");
 	}
 }
+template void ppc_opc_fmsubsx<Rc0>(uint32 opc);
+template void ppc_opc_fmsubsx<Rc1>(uint32 opc);
+
 /*
  *	fmulx		Floating Multipy (Double-Precision)
  *	.501
  */
+template <RcBit rc>
 void ppc_opc_fmulx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -1056,16 +1106,19 @@ void ppc_opc_fmulx(uint32 opc)
 	}
 	ppc_fpu_mul(D, A, C);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-//	*((double*)&gCPU.fpr[frD]) = *((double*)(&gCPU.fpr[frA]))*(*((double*)(&gCPU.fpr[frC])));
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fmul.\n");
 	}
 }
+template void ppc_opc_fmulx<Rc0>(uint32 opc);
+template void ppc_opc_fmulx<Rc1>(uint32 opc);
+
 /*
  *	fmulsx		Floating Multipy Single
  *	.502
  */
+template <RcBit rc>
 void ppc_opc_fmulsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -1080,45 +1133,57 @@ void ppc_opc_fmulsx(uint32 opc)
 	}
 	ppc_fpu_mul(D, A, C);
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fmuls.\n");
 	}
 }
+template void ppc_opc_fmulsx<Rc0>(uint32 opc);
+template void ppc_opc_fmulsx<Rc1>(uint32 opc);
+
 /*
  *	fnabsx		Floating Negative Absolute Value
  *	.503
  */
+template <RcBit rc>
 void ppc_opc_fnabsx(uint32 opc)
 {
 	int frD, frA, frB;
 	PPC_OPC_TEMPL_X(opc, frD, frA, frB);
 	PPC_OPC_ASSERT(frA==0);
 	gCPU.fpr[frD] = gCPU.fpr[frB] | FPU_SIGN_BIT;
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fnabs.\n");
 	}
 }
+template void ppc_opc_fnabsx<Rc0>(uint32 opc);
+template void ppc_opc_fnabsx<Rc1>(uint32 opc);
+
 /*
  *	fnegx		Floating Negate
  *	.504
  */
+template <RcBit rc>
 void ppc_opc_fnegx(uint32 opc)
 {
 	int frD, frA, frB;
 	PPC_OPC_TEMPL_X(opc, frD, frA, frB);
 	PPC_OPC_ASSERT(frA==0);
 	gCPU.fpr[frD] = gCPU.fpr[frB] ^ FPU_SIGN_BIT;
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fneg.\n");
 	}
 }
+template void ppc_opc_fnegx<Rc0>(uint32 opc);
+template void ppc_opc_fnegx<Rc1>(uint32 opc);
+
 /*
  *	fnmaddx		Floating Negative Multiply-Add (Double-Precision) 
  *	.505
  */
+template <RcBit rc>
 void ppc_opc_fnmaddx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -1130,15 +1195,19 @@ void ppc_opc_fnmaddx(uint32 opc)
 	ppc_fpu_mul_add(D, A, C, B);
 	D.s ^= 1;
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fnmadd.\n");
 	}
 }
+template void ppc_opc_fnmaddx<Rc0>(uint32 opc);
+template void ppc_opc_fnmaddx<Rc1>(uint32 opc);
+
 /*
  *	fnmaddsx	Floating Negative Multiply-Add Single
  *	.506
  */
+template <RcBit rc>
 void ppc_opc_fnmaddsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -1150,15 +1219,19 @@ void ppc_opc_fnmaddsx(uint32 opc)
 	ppc_fpu_mul_add(D, A, C, B);
 	D.s ^= 1;
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fnmadds.\n");
 	}
 }
+template void ppc_opc_fnmaddsx<Rc0>(uint32 opc);
+template void ppc_opc_fnmaddsx<Rc1>(uint32 opc);
+
 /*
  *	fnmsubx		Floating Negative Multiply-Subtract (Double-Precision)
  *	.507
  */
+template <RcBit rc>
 void ppc_opc_fnmsubx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -1171,15 +1244,19 @@ void ppc_opc_fnmsubx(uint32 opc)
 	ppc_fpu_mul_add(D, A, C, B);
 	D.s ^= 1;
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fnmsub.\n");
 	}
 }
+template void ppc_opc_fnmsubx<Rc0>(uint32 opc);
+template void ppc_opc_fnmsubx<Rc1>(uint32 opc);
+
 /*
  *	fnsubsx		Floating Negative Multiply-Subtract Single
  *	.508
  */
+template <RcBit rc>
 void ppc_opc_fnmsubsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -1192,30 +1269,38 @@ void ppc_opc_fnmsubsx(uint32 opc)
 	ppc_fpu_mul_add(D, A, C, B);
 	D.s ^= 1;
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fnmsubs.\n");
 	}
 }
+template void ppc_opc_fnmsubsx<Rc0>(uint32 opc);
+template void ppc_opc_fnmsubsx<Rc1>(uint32 opc);
+
 /*
  *	fresx		Floating Reciprocal Estimate Single
  *	.509
  */
+template <RcBit rc>
 void ppc_opc_fresx(uint32 opc)
 {
 	int frD, frA, frB, frC;
 	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	PPC_OPC_ASSERT(frA==0 && frC==0);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fres.\n");
 	}
 	PPC_FPU_ERR("fres\n");
 }
+template void ppc_opc_fresx<Rc0>(uint32 opc);
+template void ppc_opc_fresx<Rc1>(uint32 opc);
+
 /*
  *	frspx		Floating Round to Single
  *	.511
  */
+template <RcBit rc>
 void ppc_opc_frspx(uint32 opc)
 {
 	int frD, frA, frB;
@@ -1224,15 +1309,19 @@ void ppc_opc_frspx(uint32 opc)
 	ppc_double B;
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(B, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("frsp.\n");
 	}
 }
+template void ppc_opc_frspx<Rc0>(uint32 opc);
+template void ppc_opc_frspx<Rc1>(uint32 opc);
+
 /*
  *	frsqrtex	Floating Reciprocal Square Root Estimate
  *	.512
  */
+template <RcBit rc>
 void ppc_opc_frsqrtex(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -1247,15 +1336,19 @@ void ppc_opc_frsqrtex(uint32 opc)
 	E.type = ppc_fpr_norm; E.s = 0; E.e = 0; E.m = 0x80000000000000ULL;
 	ppc_fpu_div(D, E, Q);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);	
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("frsqrte.\n");
 	}
 }
+template void ppc_opc_frsqrtex<Rc0>(uint32 opc);
+template void ppc_opc_frsqrtex<Rc1>(uint32 opc);
+
 /*
  *	fselx		Floating Select
  *	.514
  */
+template <RcBit rc>
 void ppc_opc_fselx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -1267,15 +1360,19 @@ void ppc_opc_fselx(uint32 opc)
 	} else {
 		gCPU.fpr[frD] = gCPU.fpr[frC];
 	}
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fsel.\n");
 	}
 }
+template void ppc_opc_fselx<Rc0>(uint32 opc);
+template void ppc_opc_fselx<Rc1>(uint32 opc);
+
 /*
  *	fsqrtx		Floating Square Root (Double-Precision)
  *	.515
  */
+template <RcBit rc>
 void ppc_opc_fsqrtx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -1286,30 +1383,38 @@ void ppc_opc_fsqrtx(uint32 opc)
 	ppc_fpu_unpack_double(B, gCPU.fpr[frB]);
 	ppc_fpu_sqrt(D, B);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fsqrt.\n");
 	}
 }
+template void ppc_opc_fsqrtx<Rc0>(uint32 opc);
+template void ppc_opc_fsqrtx<Rc1>(uint32 opc);
+
 /*
  *	fsqrtsx		Floating Square Root Single
  *	.515
  */
+template <RcBit rc>
 void ppc_opc_fsqrtsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
 	PPC_OPC_TEMPL_A(opc, frD, frA, frB, frC);
 	PPC_OPC_ASSERT(frA==0 && frC==0);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fsqrts.\n");
 	}
 	PPC_FPU_ERR("fsqrts\n");
 }
+template void ppc_opc_fsqrtsx<Rc0>(uint32 opc);
+template void ppc_opc_fsqrtsx<Rc1>(uint32 opc);
+
 /*
  *	fsubx		Floating Subtract (Double-Precision)
  *	.517
  */
+template <RcBit rc>
 void ppc_opc_fsubx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -1326,15 +1431,19 @@ void ppc_opc_fsubx(uint32 opc)
 	}
 	ppc_fpu_add(D, A, B);
 	gCPU.fpscr |= ppc_fpu_pack_double(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fsub.\n");
 	}
 }
+template void ppc_opc_fsubx<Rc0>(uint32 opc);
+template void ppc_opc_fsubx<Rc1>(uint32 opc);
+
 /*
  *	fsubsx		Floating Subtract Single
  *	.518
  */
+template <RcBit rc>
 void ppc_opc_fsubsx(uint32 opc)
 {
 	int frD, frA, frB, frC;
@@ -1351,9 +1460,11 @@ void ppc_opc_fsubsx(uint32 opc)
 	}
 	ppc_fpu_add(D, A, B);
 	gCPU.fpscr |= ppc_fpu_pack_double_as_single(D, gCPU.fpr[frD]);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_FPU_ERR("fsubs.\n");
 	}
 }
+template void ppc_opc_fsubsx<Rc0>(uint32 opc);
+template void ppc_opc_fsubsx<Rc1>(uint32 opc);
 

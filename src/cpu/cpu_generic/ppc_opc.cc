@@ -312,17 +312,22 @@ void ppc_opc_mfcr(uint32 opc)
  *	mffs		Move from FPSCR
  *	.565
  */
+template <RcBit rc> 
 void ppc_opc_mffsx(uint32 opc)
 {
 	int frD, rA, rB;
 	PPC_OPC_TEMPL_X(opc, frD, rA, rB);
 	PPC_OPC_ASSERT(rA==0 && rB==0);
 	gCPU.fpr[frD] = gCPU.fpscr;
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_OPC_ERR("mffs. unimplemented.\n");
 	}
 }
+
+template void ppc_opc_mffsx<Rc0>(uint32 opc);
+template void ppc_opc_mffsx<Rc1>(uint32 opc);
+
 /*
  *	mfmsr		Move from Machine State Register
  *	.566
@@ -574,6 +579,7 @@ void ppc_opc_mtcrf(uint32 opc)
  *	mtfsb0x		Move to FPSCR Bit 0
  *	.577
  */
+template <RcBit rc>
 void ppc_opc_mtfsb0x(uint32 opc)
 {
 	int crbD, n1, n2;
@@ -581,15 +587,20 @@ void ppc_opc_mtfsb0x(uint32 opc)
 	if (crbD != 1 && crbD != 2) {
 		gCPU.fpscr &= ~(1<<(31-crbD));
 	}
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_OPC_ERR("mtfsb0. unimplemented.\n");
 	}
 }
+
+template void ppc_opc_mtfsb0x<Rc0>(uint32 opc);
+template void ppc_opc_mtfsb0x<Rc1>(uint32 opc);
+
 /*
  *	mtfsb1x		Move to FPSCR Bit 1
  *	.578
  */
+template <RcBit rc>
 void ppc_opc_mtfsb1x(uint32 opc)
 {
 	int crbD, n1, n2;
@@ -597,15 +608,20 @@ void ppc_opc_mtfsb1x(uint32 opc)
 	if (crbD != 1 && crbD != 2) {
 		gCPU.fpscr |= 1<<(31-crbD);
 	}
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_OPC_ERR("mtfsb1. unimplemented.\n");
 	}
 }
+
+template void ppc_opc_mtfsb1x<Rc0>(uint32 opc);
+template void ppc_opc_mtfsb1x<Rc1>(uint32 opc);
+
 /*
  *	mtfsfx		Move to FPSCR Fields
  *	.579
  */
+template <RcBit rc>
 void ppc_opc_mtfsfx(uint32 opc)
 {
 	int frB;
@@ -614,15 +630,20 @@ void ppc_opc_mtfsfx(uint32 opc)
 	FM = ((fm&0x80)?0xf0000000:0)|((fm&0x40)?0x0f000000:0)|((fm&0x20)?0x00f00000:0)|((fm&0x10)?0x000f0000:0)|
 	     ((fm&0x08)?0x0000f000:0)|((fm&0x04)?0x00000f00:0)|((fm&0x02)?0x000000f0:0)|((fm&0x01)?0x0000000f:0);
 	gCPU.fpscr = (gCPU.fpr[frB] & FM) | (gCPU.fpscr & ~FM);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_OPC_ERR("mtfsf. unimplemented.\n");
 	}
 }
+
+template void ppc_opc_mtfsfx<Rc0>(uint32 opc);
+template void ppc_opc_mtfsfx<Rc1>(uint32 opc);
+
 /*
  *	mtfsfix		Move to FPSCR Field Immediate
  *	.580
  */
+template <RcBit rc>
 void ppc_opc_mtfsfix(uint32 opc)
 {
 	int crfD, n1;
@@ -633,11 +654,15 @@ void ppc_opc_mtfsfix(uint32 opc)
 	crfD = 7-crfD;
 	gCPU.fpscr &= ppc_cmp_and_mask[crfD];
 	gCPU.fpscr |= imm<<(crfD*4);
-	if (opc & PPC_OPC_Rc) {
+	if (rc == Rc1) {
 		// update cr1 flags
 		PPC_OPC_ERR("mtfsfi. unimplemented.\n");
 	}
 }
+
+template void ppc_opc_mtfsfix<Rc0>(uint32 opc);
+template void ppc_opc_mtfsfix<Rc1>(uint32 opc);
+
 /*
  *	mtmsr		Move to Machine State Register
  *	.581
