@@ -958,10 +958,6 @@ void ppc_opc_lbzx(uint32 opc)
  */
 void ppc_opc_lfd(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frD;
 	uint32 imm;
 	PPC_OPC_TEMPL_D_SImm(opc, frD, rA, imm);
@@ -977,10 +973,6 @@ void ppc_opc_lfd(uint32 opc)
  */
 void ppc_opc_lfdu(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frD;
 	uint32 imm;
 	PPC_OPC_TEMPL_D_SImm(opc, frD, rA, imm);
@@ -998,10 +990,6 @@ void ppc_opc_lfdu(uint32 opc)
  */
 void ppc_opc_lfdux(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frD, rB;
 	PPC_OPC_TEMPL_X(opc, frD, rA, rB);
 	// FIXME: check rA!=0
@@ -1018,10 +1006,6 @@ void ppc_opc_lfdux(uint32 opc)
  */
 void ppc_opc_lfdx(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frD, rB;
 	PPC_OPC_TEMPL_X(opc, frD, rA, rB);
 	uint64 r;
@@ -1036,10 +1020,6 @@ void ppc_opc_lfdx(uint32 opc)
  */
 void ppc_opc_lfs(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frD;
 	uint32 imm;
 	PPC_OPC_TEMPL_D_SImm(opc, frD, rA, imm);
@@ -1059,10 +1039,6 @@ void ppc_opc_lfs(uint32 opc)
  */
 void ppc_opc_lfsu(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frD;
 	uint32 imm;
 	PPC_OPC_TEMPL_D_SImm(opc, frD, rA, imm);
@@ -1084,10 +1060,6 @@ void ppc_opc_lfsu(uint32 opc)
  */
 void ppc_opc_lfsux(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frD, rB;
 	PPC_OPC_TEMPL_X(opc, frD, rA, rB);
 	// FIXME: check rA!=0
@@ -1108,10 +1080,6 @@ void ppc_opc_lfsux(uint32 opc)
  */
 void ppc_opc_lfsx(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frD, rB;
 	PPC_OPC_TEMPL_X(opc, frD, rA, rB);
 	uint32 r;
@@ -1682,10 +1650,6 @@ void ppc_opc_stbx(uint32 opc)
  */
 void ppc_opc_stfd(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frS;
 	uint32 imm;
 	PPC_OPC_TEMPL_D_SImm(opc, frS, rA, imm);
@@ -1697,10 +1661,6 @@ void ppc_opc_stfd(uint32 opc)
  */
 void ppc_opc_stfdu(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frS;
 	uint32 imm;
 	PPC_OPC_TEMPL_D_SImm(opc, frS, rA, imm);
@@ -1716,10 +1676,6 @@ void ppc_opc_stfdu(uint32 opc)
  */
 void ppc_opc_stfdux(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frS, rB;
 	PPC_OPC_TEMPL_X(opc, frS, rA, rB);
 	// FIXME: check rA!=0
@@ -1734,10 +1690,6 @@ void ppc_opc_stfdux(uint32 opc)
  */
 void ppc_opc_stfdx(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frS, rB;
 	PPC_OPC_TEMPL_X(opc, frS, rA, rB);
 	ppc_write_effective_dword((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], gCPU.fpr[frS]) != PPC_MMU_FATAL;
@@ -1748,10 +1700,6 @@ void ppc_opc_stfdx(uint32 opc)
  */
 void ppc_opc_stfiwx(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frS, rB;
 	PPC_OPC_TEMPL_X(opc, frS, rA, rB);
 	ppc_write_effective_word((rA?gCPU.gpr[rA]:0)+gCPU.gpr[rB], (uint32)gCPU.fpr[frS]) != PPC_MMU_FATAL;
@@ -1762,10 +1710,6 @@ void ppc_opc_stfiwx(uint32 opc)
  */
 void ppc_opc_stfs(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frS;
 	uint32 imm;
 	PPC_OPC_TEMPL_D_SImm(opc, frS, rA, imm);
@@ -1781,10 +1725,6 @@ void ppc_opc_stfs(uint32 opc)
  */
 void ppc_opc_stfsu(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frS;
 	uint32 imm;
 	PPC_OPC_TEMPL_D_SImm(opc, frS, rA, imm);
@@ -1804,10 +1744,6 @@ void ppc_opc_stfsu(uint32 opc)
  */
 void ppc_opc_stfsux(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frS, rB;
 	PPC_OPC_TEMPL_X(opc, frS, rA, rB);
 	// FIXME: check rA!=0
@@ -1826,10 +1762,6 @@ void ppc_opc_stfsux(uint32 opc)
  */
 void ppc_opc_stfsx(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
 	int rA, frS, rB;
 	PPC_OPC_TEMPL_X(opc, frS, rA, rB);
 	uint32 s;

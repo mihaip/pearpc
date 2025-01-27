@@ -112,6 +112,8 @@ void ppc_cpu_run()
 	PPC_CPU_TRACE("execution started at %08x\n", gCPU.pc);
 	uint ops=0;
 	uint32 opc;
+	ppc_opc_function *opc_table = ppc_current_opc_table();
+	uint32 opc_table_msr = gCPU.msr;
 	gCPU.effective_code_page = 0xffffffff;
 //	ppc_fpu_test();
 //	return;
@@ -133,7 +135,7 @@ void ppc_cpu_run()
 			gCPU.effective_code_page = gCPU.pc & ~0xfff;
 			continue;
 		}
-		ppc_exec_opc(opc);
+		ppc_exec_opc(opc_table, opc);
 		ops++;
 		gCPU.ptb++;
 		if (gCPU.pdec == 0) [[unlikely]] {
@@ -190,6 +192,11 @@ void ppc_cpu_run()
 		}
 		
 		gCPU.pc = gCPU.npc;
+
+		if ((opc_table_msr ^ gCPU.msr) & PPC_OPC_TABLE_MSR_BITS) [[unlikely]] {
+			opc_table = ppc_current_opc_table();
+			opc_table_msr = gCPU.msr;
+		}
 		
 		if (gCPU.exception_pending) [[unlikely]] {
 			if (gCPU.stop_exception) {

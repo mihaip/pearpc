@@ -38,10 +38,13 @@ typedef enum {
     Rc1,
 } RcBit;
 
-void FASTCALL ppc_exec_opc(uint32 opc);
-void ppc_dec_init();
-
 typedef void (*ppc_opc_function)(uint32 opc);
+void ppc_dec_init();
+ppc_opc_function* ppc_current_opc_table();
+// MSR bits that affect the return value of ppc_current_opc_table
+#define PPC_OPC_TABLE_MSR_BITS MSR_FP
+
+void FASTCALL ppc_exec_opc(ppc_opc_function *opc_table, uint32 opc);
 
 #define PPC_OPC_ASSERT(v)
 

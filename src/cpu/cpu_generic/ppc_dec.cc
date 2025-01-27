@@ -103,72 +103,10 @@ static void ppc_opc_invalid(uint32 opc)
 	// Avoids some benchmarking overhead.
 	__builtin_unreachable();
 }
-// main opcode 59
-static void ppc_opc_group_f1(uint32 opc)
-{
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
-	uint32 ext = PPC_OPC_EXT(opc);
-	switch (ext & 0x1f) {
-		case 18: ppc_opc_fdivsx(opc); return;
-		case 20: ppc_opc_fsubsx(opc); return;
-		case 21: ppc_opc_faddsx(opc); return;
-		case 22: ppc_opc_fsqrtsx(opc); return;
-		case 24: ppc_opc_fresx(opc); return;
-		case 25: ppc_opc_fmulsx(opc); return;
-		case 28: ppc_opc_fmsubsx(opc); return;
-		case 29: ppc_opc_fmaddsx(opc); return;
-		case 30: ppc_opc_fnmsubsx(opc); return;
-		case 31: ppc_opc_fnmaddsx(opc); return;
-	}
-	ppc_opc_invalid(opc);
-}
 
-// main opcode 63
-static void ppc_opc_group_f2(uint32 opc)
+static void ppc_opc_no_fpu(uint32 opc)
 {
-	if ((gCPU.msr & MSR_FP) == 0) {
-		ppc_exception(PPC_EXC_NO_FPU);
-		return;
-	}
-	uint32 ext = PPC_OPC_EXT(opc);
-	if (ext & 16) {
-		switch (ext & 0x1f) {
-		case 18: ppc_opc_fdivx(opc); return;
-		case 20: ppc_opc_fsubx(opc); return;
-		case 21: ppc_opc_faddx(opc); return;
-		case 22: ppc_opc_fsqrtx(opc); return;
-		case 23: ppc_opc_fselx(opc); return;
-		case 25: ppc_opc_fmulx(opc); return;
-		case 26: ppc_opc_frsqrtex(opc); return;
-		case 28: ppc_opc_fmsubx(opc); return;
-		case 29: ppc_opc_fmaddx(opc); return;
-		case 30: ppc_opc_fnmsubx(opc); return;
-		case 31: ppc_opc_fnmaddx(opc); return;
-		}
-	} else {
-		switch (ext) {
-		case 0: ppc_opc_fcmpu(opc); return;
-		case 12: ppc_opc_frspx(opc); return;
-		case 14: ppc_opc_fctiwx(opc); return;
-		case 15: ppc_opc_fctiwzx(opc); return;
-		//--
-		case 32: ppc_opc_fcmpo(opc); return;
-		case 38: ppc_opc_mtfsb1x(opc); return;
-		case 40: ppc_opc_fnegx(opc); return;
-		case 64: ppc_opc_mcrfs(opc); return;
-		case 70: ppc_opc_mtfsb0x(opc); return;
-		case 72: ppc_opc_fmrx(opc); return;
-		case 134: ppc_opc_mtfsfix(opc); return;
-		case 136: ppc_opc_fnabsx(opc); return;
-		case 264: ppc_opc_fabsx(opc); return;
-		case 583: ppc_opc_mffsx(opc); return;
-		case 711: ppc_opc_mtfsfx(opc); return;
-		}
-	}
-	ppc_opc_invalid(opc);
+	ppc_exception(PPC_EXC_NO_FPU);
 }
 
 ppc_opc_function ppc_opc_table_groupv[965];
@@ -367,6 +305,11 @@ static void ppc_opc_group_v(uint32 opc)
 // Opcode lookup table, indexed by primary opcode (bits 0...5) and modifier (bits 21...31).
 static ppc_opc_function ppc_opc_table[64 * 2048];
 
+// Variant opccode lookup table, where FPU instructions trigger a "NO FPU" exception.
+// Used when the FP bit in the MSR is off.
+static ppc_opc_function ppc_opc_no_fpu_table[64 * 2048];
+
+// "raw" insertion into the opcode table
 #define OPr(opcode, mod, fn) \
 do { \
 	uint64_t index = ((opcode) << 11) | (mod); \
@@ -374,8 +317,21 @@ do { \
 		PPC_DEC_WARN("Opcode %d-%d already had a funtion, will overwrite.\n", opcode, mod); \
 	} \
 	ppc_opc_table[index] = fn; \
+	ppc_opc_no_fpu_table[index] = fn; \
 } while (0)
 
+// "raw" insertion into the opcode table (FPU instruction variant)
+#define FPr(opcode, mod, fn) \
+do { \
+	uint64_t index = ((opcode) << 11) | (mod); \
+	if (ppc_opc_table[index] != ppc_opc_invalid) { \
+		PPC_DEC_WARN("Opcode %d-%d already had a funtion, will overwrite.\n", opcode, mod); \
+	} \
+	ppc_opc_table[index] = fn; \
+	ppc_opc_no_fpu_table[index] = ppc_opc_no_fpu; \
+} while (0)
+
+// Inserts a top-level opcode (identified by bits 0...5) into the opcode table
 #define OP(opcode, fn) \
 do { \
 for (uint32_t mod = 0; mod < 2048; mod++) { \
@@ -383,6 +339,17 @@ for (uint32_t mod = 0; mod < 2048; mod++) { \
 } \
 } while (0)
 
+// Inserts a top-level opcode (identified by bits 0...5) into the opcode table
+// (FPU instruction variant)
+#define FP(opcode, fn) \
+do { \
+for (uint32_t mod = 0; mod < 2048; mod++) { \
+	FPr(opcode, mod, fn); \
+} \
+} while (0)
+
+// Inserts an opcode identified by the top level (bits 0..5) and the final
+// two bits (AA and LK).
 #define OPla(opcode, subopcode, fn) \
 do { \
 for (uint32_t mod = 0; mod < 512; mod++) { \
@@ -390,6 +357,8 @@ for (uint32_t mod = 0; mod < 512; mod++) { \
 } \
 } while (0)
 
+// Inserts an opcode identified by the the top level (bits 0..5) that supports a
+// a final Rc bit (the function is assumed to be templated using it).
 #define OPrc(opcode, fn) \
 do { \
 for (uint32_t mod = 0; mod < 1024; mod++) { \
@@ -398,49 +367,72 @@ for (uint32_t mod = 0; mod < 1024; mod++) { \
 } \
 } while (0)
 
+// Inserts an opcode 31 handler identified by bits 21...30. Bit 31 can be
+// anything.
 #define OP31(subopcode, fn) \
 do { \
 	OPr(31, ((subopcode)<<1) | 0x0, fn); \
 	OPr(31, ((subopcode)<<1) | 0x1, fn); \
 } while (0)
 
+// Inserts an opcode 31 handler identified by bits 21...30. Bit 31 can be
+// anything (FPU instruction variant).
+#define FP31(subopcode, fn) \
+do { \
+	FPr(31, ((subopcode)<<1) | 0x0, fn); \
+	FPr(31, ((subopcode)<<1) | 0x1, fn); \
+} while (0)
+
+// Inserts an opcode 31 handler identified by bits 21...30. Bit 31 is the Rc
+// bit (the function is assumed to be templated using it).
 #define OP31rc(subopcode, fn) \
 do { \
 	OPr(31, ((subopcode)<<1) | 0x0, fn<Rc0>); \
 	OPr(31, ((subopcode)<<1) | 0x1, fn<Rc1>); \
 } while (0)
 
-#define OP59(subopcode, fn) \
+// Inserts an opcode 59 handler identified by bits 26...30. But 31 can be
+// anything.
+#define FP59(subopcode, fn) \
 do { \
 for (uint32_t mod = 0; mod < 32; mod++) { \
-	OPr(59, (mod << 6) | ((subopcode)<<1) | 0x0, fn); \
-	OPr(59, (mod << 6) | ((subopcode)<<1) | 0x1, fn); \
+	FPr(59, (mod << 6) | ((subopcode)<<1) | 0x0, fn); \
+	FPr(59, (mod << 6) | ((subopcode)<<1) | 0x1, fn); \
 } \
 } while (0)
 
-#define OP63a(subopcode, fn) \
+// Inserts an opcode 63 handler identified by bits 26...30. But 31 can be
+// anything.
+#define FP63a(subopcode, fn) \
 do { \
 for (uint32_t mod = 0; mod < 32; mod++) { \
-	OPr(63, (mod << 6) | ((subopcode)<<1) | 0x0, fn); \
-	OPr(63, (mod << 6) | ((subopcode)<<1) | 0x1, fn); \
+	FPr(63, (mod << 6) | ((subopcode)<<1) | 0x0, fn); \
+	FPr(63, (mod << 6) | ((subopcode)<<1) | 0x1, fn); \
 } \
 } while (0)
 
-#define OP63b(subopcode, fn) \
+// Inserts an opcode 63 handler identified by bits 21...30. But 31 can be
+// anything.
+#define FP63b(subopcode, fn) \
 do { \
-	OPr(63, ((subopcode)<<1) | 0x0, fn); \
-	OPr(63, ((subopcode)<<1) | 0x1, fn); \
+	FPr(63, ((subopcode)<<1) | 0x0, fn); \
+	FPr(63, ((subopcode)<<1) | 0x1, fn); \
 } while (0)
 
-void FASTCALL ppc_exec_opc(uint32 opc)
+void FASTCALL ppc_exec_opc(ppc_opc_function *opc_table, uint32 opc)
 {
-	ppc_opc_table[PPC_OPC_MAIN(opc) | PPC_OPC_MOD(opc)](opc);
+	opc_table[PPC_OPC_MAIN(opc) | PPC_OPC_MOD(opc)](opc);
+}
+
+ppc_opc_function* ppc_current_opc_table() {
+	return gCPU.msr & MSR_FP ? ppc_opc_table : ppc_opc_no_fpu_table;
 }
 
 void ppc_dec_init()
 {
 	auto ppc_opc_table_size = sizeof(ppc_opc_table) / sizeof(ppc_opc_table[0]);
 	std::fill_n(ppc_opc_table, ppc_opc_table_size, ppc_opc_invalid);
+	std::fill_n(ppc_opc_no_fpu_table, ppc_opc_table_size, ppc_opc_invalid);
 
 	bool is_g4 = (ppc_cpu_get_pvr(0) & 0xffff0000) == 0x000c0000;
 
@@ -476,16 +468,14 @@ void ppc_dec_init()
 	OP(45, ppc_opc_sthu);
 	OP(46, ppc_opc_lmw);
 	OP(47, ppc_opc_stmw);
-	OP(48, ppc_opc_lfs);
-	OP(49, ppc_opc_lfsu);
-	OP(50, ppc_opc_lfd);
-	OP(51, ppc_opc_lfdu);
-	OP(52, ppc_opc_stfs);
-	OP(53, ppc_opc_stfsu);
-	OP(54, ppc_opc_stfd);
-	OP(55, ppc_opc_stfdu);
-	OP(59, ppc_opc_group_f1); // TODO
-	OP(63, ppc_opc_group_f2); // TODO
+	FP(48, ppc_opc_lfs);
+	FP(49, ppc_opc_lfsu);
+	FP(50, ppc_opc_lfd);
+	FP(51, ppc_opc_lfdu);
+	FP(52, ppc_opc_stfs);
+	FP(53, ppc_opc_stfsu);
+	FP(54, ppc_opc_stfd);
+	FP(55, ppc_opc_stfdu);
 
 	OPla(16, 0x0, (ppc_opc_bcx<LK0, AA0>)); // bc
 	OPla(16, 0x1, (ppc_opc_bcx<LK1, AA0>)); // bcl
@@ -583,24 +573,24 @@ void ppc_dec_init()
 	OP31  ( 512, ppc_opc_mcrxr);
 	OP31  ( 533, ppc_opc_lswx);
 	OP31  ( 534, ppc_opc_lwbrx);
-	OP31  ( 535, ppc_opc_lfsx);
+	FP31  ( 535, ppc_opc_lfsx);
 	OP31rc( 536, ppc_opc_srwx);
 	OP31  ( 566, ppc_opc_tlbsync);
-	OP31  ( 567, ppc_opc_lfsux);
+	FP31  ( 567, ppc_opc_lfsux);
 	OP31  ( 595, ppc_opc_mfsr);
 	OP31  ( 597, ppc_opc_lswi);
 	OP31  ( 598, ppc_opc_sync);
-	OP31  ( 599, ppc_opc_lfdx);
-	OP31  ( 631, ppc_opc_lfdux);
+	FP31  ( 599, ppc_opc_lfdx);
+	FP31  ( 631, ppc_opc_lfdux);
 	OP31  ( 659, ppc_opc_mfsrin);
 	OP31  ( 661, ppc_opc_stswx);
 	OP31  ( 662, ppc_opc_stwbrx);
-	OP31  ( 663, ppc_opc_stfsx);
-	OP31  ( 695, ppc_opc_stfsux);
+	FP31  ( 663, ppc_opc_stfsx);
+	FP31  ( 695, ppc_opc_stfsux);
 	OP31  ( 725, ppc_opc_stswi);
-	OP31  ( 727, ppc_opc_stfdx);
+	FP31  ( 727, ppc_opc_stfdx);
 	OP31  ( 758, ppc_opc_dcba);
-	OP31  ( 759, ppc_opc_stfdux);
+	FP31  ( 759, ppc_opc_stfdux);
 	OP31  ( 790, ppc_opc_lhbrx);
 	OP31rc( 792, ppc_opc_srawx);
 	OP31rc( 824, ppc_opc_srawix);
@@ -609,7 +599,7 @@ void ppc_dec_init()
 	OP31rc( 922, ppc_opc_extshx);
 	OP31rc( 954, ppc_opc_extsbx);
 	OP31  ( 982, ppc_opc_icbi);
-	OP31  ( 983, ppc_opc_stfiwx);
+	FP31  ( 983, ppc_opc_stfiwx);
 	OP31  (1014, ppc_opc_dcbz);
 
 	if (is_g4) {
@@ -631,49 +621,46 @@ void ppc_dec_init()
 		OP31(822, ppc_opc_dss);
 	}
 
-	/*
-	TODO: enable once we can respect the MSR FP bit
-	OP59(18, ppc_opc_fdivsx);
-	OP59(20, ppc_opc_fsubsx);
-	OP59(21, ppc_opc_faddsx);
-	OP59(22, ppc_opc_fsqrtsx);
-	OP59(24, ppc_opc_fresx);
-	OP59(25, ppc_opc_fmulsx);
-	OP59(28, ppc_opc_fmsubsx);
-	OP59(29, ppc_opc_fmaddsx);
-	OP59(30, ppc_opc_fnmsubsx);
-	OP59(31, ppc_opc_fnmaddsx);
+	FP59(18, ppc_opc_fdivsx);
+	FP59(20, ppc_opc_fsubsx);
+	FP59(21, ppc_opc_faddsx);
+	FP59(22, ppc_opc_fsqrtsx);
+	FP59(24, ppc_opc_fresx);
+	FP59(25, ppc_opc_fmulsx);
+	FP59(28, ppc_opc_fmsubsx);
+	FP59(29, ppc_opc_fmaddsx);
+	FP59(30, ppc_opc_fnmsubsx);
+	FP59(31, ppc_opc_fnmaddsx);
 
 	// Op 63 instructions where bits 21-25 are wildcards.
-	OP63a(18, ppc_opc_fdivx);
-	OP63a(20, ppc_opc_fsubx);
-	OP63a(21, ppc_opc_faddx);
-	OP63a(22, ppc_opc_fsqrtx);
-	OP63a(23, ppc_opc_fselx);
-	OP63a(25, ppc_opc_fmulx);
-	OP63a(26, ppc_opc_frsqrtex);
-	OP63a(28, ppc_opc_fmsubx);
-	OP63a(29, ppc_opc_fmaddx);
-	OP63a(30, ppc_opc_fnmsubx);
-	OP63a(31, ppc_opc_fnmaddx);
+	FP63a(18, ppc_opc_fdivx);
+	FP63a(20, ppc_opc_fsubx);
+	FP63a(21, ppc_opc_faddx);
+	FP63a(22, ppc_opc_fsqrtx);
+	FP63a(23, ppc_opc_fselx);
+	FP63a(25, ppc_opc_fmulx);
+	FP63a(26, ppc_opc_frsqrtex);
+	FP63a(28, ppc_opc_fmsubx);
+	FP63a(29, ppc_opc_fmaddx);
+	FP63a(30, ppc_opc_fnmsubx);
+	FP63a(31, ppc_opc_fnmaddx);
 
 	// Op 63 instructions where bits 21-25 are part of the subopcode
-	OP63b(  0, ppc_opc_fcmpu);
-	OP63b( 12, ppc_opc_frspx);
-	OP63b( 14, ppc_opc_fctiwx);
-	OP63b( 15, ppc_opc_fctiwzx);
-	OP63b( 32, ppc_opc_fcmpo);
-	OP63b( 38, ppc_opc_mtfsb1x);
-	OP63b( 40, ppc_opc_fnegx);
-	OP63b( 64, ppc_opc_mcrfs);
-	OP63b( 70, ppc_opc_mtfsb0x);
-	OP63b( 72, ppc_opc_fmrx);
-	OP63b(134, ppc_opc_mtfsfix);
-	OP63b(136, ppc_opc_fnabsx);
-	OP63b(264, ppc_opc_fabsx);
-	OP63b(583, ppc_opc_mffsx);
-	OP63b(711, ppc_opc_mtfsfx);
-	*/
+	FP63b(  0, ppc_opc_fcmpu);
+	FP63b( 12, ppc_opc_frspx);
+	FP63b( 14, ppc_opc_fctiwx);
+	FP63b( 15, ppc_opc_fctiwzx);
+	FP63b( 32, ppc_opc_fcmpo);
+	FP63b( 38, ppc_opc_mtfsb1x);
+	FP63b( 40, ppc_opc_fnegx);
+	FP63b( 64, ppc_opc_mcrfs);
+	FP63b( 70, ppc_opc_mtfsb0x);
+	FP63b( 72, ppc_opc_fmrx);
+	FP63b(134, ppc_opc_mtfsfix);
+	FP63b(136, ppc_opc_fnabsx);
+	FP63b(264, ppc_opc_fabsx);
+	FP63b(583, ppc_opc_mffsx);
+	FP63b(711, ppc_opc_mtfsfx);
 
 	if (is_g4) {
 		OP(4, ppc_opc_group_v);
