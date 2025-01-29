@@ -19,6 +19,7 @@
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
+#include <chrono>
 #include <signal.h>
 #include <time.h>
 #include <stdio.h>
@@ -238,24 +239,11 @@ uint64 sys_get_timer_resolution(sys_timer t)
 
 uint64 sys_get_hiresclk_ticks()
 {
-#if HAVE_GETTIMEOFDAY
-	struct timeval tv;
-	struct timezone tz;
-
-	gettimeofday(&tv, &tz);
-	//__asm__ __volatile__("rdtsc" : "=A" (retval));
-
-	return (uint64(tv.tv_sec) * 1000000) + tv.tv_usec;
-#else
-	return clock();
-#endif
+    return std::chrono::high_resolution_clock::now().time_since_epoch().count();
 }
 
 uint64 sys_get_hiresclk_ticks_per_second()
 {
-#if HAVE_GETTIMEOFDAY
-	return 1000000;
-#else
-	return clock();
-#endif
+    return std::chrono::high_resolution_clock::period::den /
+           std::chrono::high_resolution_clock::period::num;
 }
