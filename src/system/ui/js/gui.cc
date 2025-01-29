@@ -2,6 +2,7 @@
 #include "system/display.h"
 #include "system/keyboard.h"
 #include "system/mouse.h"
+#include "system/sysclk.h"
 #include "system/ui/gui.h"
 
 #include "sysjs.h"
@@ -131,10 +132,12 @@ void sys_gui_event() {
 void sys_gui_cpu_ops_hook(uint ops) {
     sys_gui_poll_events();
 
-    // We get invoked every 0x3ffff (256K ops), but for now blit every
-    // 0x7ffff (512K) ops which is roughly 60 Hz on my machine.
-    // TODO: use realtime click to actually try to hit 60fps.
-    if ((ops & 0x7ffff) == 0) {
+    // Try to hit 60fps, with a bit (10%) of slack.
+    static uint64 lastBlitTicks = sys_get_hiresclk_ticks();
+    static uint ticksPerBlit = sys_get_hiresclk_ticks_per_second()/66;
+    uint64 currentTicks = sys_get_hiresclk_ticks();
+    if (currentTicks - lastBlitTicks > ticksPerBlit) {
+        lastBlitTicks = currentTicks;
         static_cast<JSSystemDisplay*>(gDisplay)->blit();
     }
 }
