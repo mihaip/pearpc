@@ -211,6 +211,7 @@ struct cuda_control {
 	int	mousehandler;
 
 	sys_semaphore idle_sem;
+	bool adb_ready;
 };
 
 static cuda_control	gCUDA;
@@ -250,6 +251,7 @@ static void cuda_receive_adb_packet()
 //	gSinglestep = true;
 	IO_CUDA_TRACE2("ADB_PACKET ");
 	if (gCUDA.data[1] == ADB_BUSRESET) {
+		gCUDA.adb_ready = true;
 		IO_CUDA_TRACE2("ADB_BUSRESET %02x\n", gCUDA.data[2]);
 		cuda_send_packet(ADB_PACKET, 2, 0, 0);
 		return;
@@ -888,6 +890,10 @@ static bool doProcessCudaEvent(const SystemEvent &ev)
 
 static bool tryProcessCudaEvent(const SystemEvent &ev)
 {
+	if (!gCUDA.adb_ready) {
+		return false;
+	}
+
 	uint timeout_msec = 200;
 	uint64 time_end = sys_get_hiresclk_ticks() + sys_get_hiresclk_ticks_per_second()
 		* timeout_msec / 1000;
@@ -981,6 +987,7 @@ void cuda_init()
 	gCUDA.T1_end = 0;
 	gCUDA.rT1LL = 0xff;
 	gCUDA.rT1LH = 0xff;
+	gCUDA.adb_ready = false;
 
 	if (sys_create_mutex(&gCUDAMutex)) {
 		IO_CUDA_ERR("Can't create mutex\n");
