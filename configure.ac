@@ -24,6 +24,8 @@ AC_ARG_ENABLE(ui,
 	[  --enable-ui             choose ui (beos, gtk, js, qt, sdl, win32, or x11) [system-specific defaults]],,enable_ui="sdl")
 AC_ARG_ENABLE(emscripten,
 	[  --enable-emscripten     Emscripten is the real target [default=no]],,enable_emscripten="no")
+AC_ARG_ENABLE(sanitizer,
+	[  --enable-sanitizer      Name of Clang runtime checks to enable (address, thread, memory, undefined, etc. ) to help catch potential issues [default=off]],,enable_sanitizer="off")
 
 PPC_CFLAGS="-Wundef -Wall -fsigned-char"
 PPC_CXXFLAGS="-Wundef -Wall -Woverloaded-virtual -std=c++11 -fsigned-char"
@@ -56,6 +58,11 @@ else
 	fi
 fi
 
+if ! test "x$enable_sanitizer" = "xoff"; then
+	PPC_CFLAGS="$PPC_CFLAGS -fsanitize=$enable_sanitizer"
+	PPC_CXXFLAGS="$PPC_CXXFLAGS -fsanitize=$enable_sanitizer"
+fi
+
 AC_CONFIG_SRCDIR([src/system/types.h])
 AM_INIT_AUTOMAKE(no-define)
 
@@ -73,18 +80,18 @@ linux* | gnu* | k*bsd*-gnu)
 		OSAPI_DIR=posix
 		if test "x$enable_ui" = "xno"; then
 			enable_ui="x11"
-		fi	
+		fi
 		AC_MSG_RESULT([*** GNU, building POSIX version. we need pthread and rt.])
 		PPC_CFLAGS="$PPC_CFLAGS -pthread"
 		PPC_CXXFLAGS="$PPC_CXXFLAGS -pthread"
 		PPC_LDADD="$PPC_LDADD -lpthread -lrt"
 	fi
 ;;
-freebsd*) 
+freebsd*)
 	OSAPI_DIR=posix
 	if test "x$enable_ui" = "xno"; then
 		enable_ui="x11"
-	fi	
+	fi
 	AC_MSG_RESULT([*** FREEBSD, building native FreeBSD version. we need pthread.])
 	PPC_LDFLAGS="$PPC_LDFLAGS -pthread"
 ;;
@@ -92,7 +99,7 @@ cygwin*)
 	OSAPI_DIR=win32
 	if test "x$enable_ui" = "xno"; then
 		enable_ui="win32"
-	fi	
+	fi
 	AC_MSG_RESULT([*** CYGWIN, building native Win32 version (without cygwin.dll)])
 	PPC_CFLAGS="$PPC_CFLAGS -mno-cygwin"
 	PPC_CXXFLAGS="$PPC_CXXFLAGS -mno-cygwin"
@@ -138,27 +145,27 @@ haiku*)
 	PPC_CFLAGS="$PPC_CFLAGS -Wno-multichar"
 	PPC_CXXFLAGS="$PPC_CXXFLAGS -Wno-multichar"
 ;;
-*) 
+*)
 	AC_MSG_WARN([configure: warning: $target_os: unknown target OS, assuming POSIX-compatible...])
 	OSAPI_DIR=posix
 	AC_MSG_WARN([*** assuming POSIX OS, we need pthread])
 	PPC_LDADD="$PPC_LDADD -lpthread"
-;;	
+;;
 esac
 
 case "$enable_cpu" in
 jitc_x86_64*)
 	CPU_DIR="cpu_jitc_x86_64"
-;;	
+;;
 jitc_x86*)
 	CPU_DIR="cpu_jitc_x86"
-;;	
+;;
 generic*)
 	CPU_DIR="cpu_generic"
-;;	
+;;
 *)
 	CPU_DIR=""
-;;	
+;;
 esac
 
 case "$target" in
@@ -252,7 +259,7 @@ if test "x$OSAPI_DIR" = "xposix"; then
 	]
 	)
 	AC_DEFINE_UNQUOTED(SYSTIMER_SIGNAL, $syssignal, [Which signal to use for clock timer])
-fi	
+fi
 
 AC_C_BIGENDIAN(
 	AC_DEFINE(HOST_ENDIANESS, HOST_ENDIANESS_BE, [Which host endianess/byte-order?]),
@@ -391,7 +398,7 @@ sdl)
 		    :,
 		    AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
 	)
-	
+
 	SDL_CFLAGS=`echo "$SDL_CFLAGS" | sed 's/-Dmain=SDL_main//'`
 	SDL_LIBS=`echo "$SDL_LIBS" | sed 's/-mwindows//' | sed 's/-lmingw32//'`
 	LDFLAGS="$LDFLAGS $SDL_LIBS"
@@ -423,14 +430,14 @@ dnl Checks for some functions.
 AC_CHECK_FUNCS([gettimeofday memset setenv])
 
 AC_CHECK_FUNCS(log2, , AC_MSG_CHECKING(for log2 in math.h)
-	AC_TRY_LINK([#include <math.h>], 
-	[ log2(1.0); ], 
+	AC_TRY_LINK([#include <math.h>],
+	[ log2(1.0); ],
 	AC_DEFINE(HAVE_LOG2) AC_MSG_RESULT(yes),
 	AC_MSG_RESULT(no)))
 
 AC_CHECK_FUNCS(exp2, , AC_MSG_CHECKING(for exp2 in math.h)
-	AC_TRY_LINK([#include <math.h>], 
-	[ exp2(0.0); ], 
+	AC_TRY_LINK([#include <math.h>],
+	[ exp2(0.0); ],
 	AC_DEFINE(HAVE_EXP2) AC_MSG_RESULT(yes),
 	AC_MSG_RESULT(no)))
 
@@ -444,7 +451,7 @@ AC_CHECK_HEADERS([stdint.h])
 case "$target_os" in
 linux*)
         AC_CHECK_HEADERS([asm/types.h])
-        
+
         dnl Have Linux TUN?
         AC_CHECK_HEADERS(linux/netlink.h, AC_DEFINE(HAVE_LINUX_TUN, 1, [Have TUN/TAP headers?]),,
              [[
