@@ -1417,7 +1417,7 @@ public:
 static void read_partitions(Container &brs, bool only_bootable)
 {
 	brs.delAll();
-	const char *boot_devices[] = {"cdrom0", "cdrom1", "disk0", "disk1", NULL};
+	const char *boot_devices[] = {"disk0", "cdrom0", "cdrom1", "disk1", NULL};
 	const char **boot_device = boot_devices;
 	while (*boot_device) {
 		PromNode *node = findDevice(*boot_device, FIND_DEVICE_FIND, NULL);
