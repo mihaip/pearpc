@@ -67,12 +67,12 @@ ATADeviceFile::ATADeviceFile(const char *name, const char *filename)
 		blocks = size / 512;
 		if ((size % 516096) || cyl > 65535) {
 			// we only support disk images with 16 heads and 63 spt
-			sys_fclose(mFile);
-			mFile = NULL;
-			setError("invalid format (filesize isn't a multiple of 516096)");
-		} else {
-			init(16, cyl, 63);
+			IO_IDE_WARN("ATADeviceFile: disk image %s has invalid format, buyer beware (invalid multiple=%s, invalid size=%s).\n",
+				filename,
+				(size % 516096) ? "true" : "false",
+				(cyl > 65535) ? "true" : "false");
 		}
+		init(16, cyl, 63);
 	} else {
 		char buf[256];
 		ht_snprintf(buf, sizeof buf, "%s: could not open file (%s)", filename, strerror(errno));
