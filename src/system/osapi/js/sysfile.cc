@@ -1,14 +1,16 @@
 #include <cerrno>
 #include <cstdlib>
 #include <cstdio>
+#include <sstream>
 #include <emscripten.h>
 #include <sys/stat.h>
 
 #include "debug/tracers.h"
 #include "system/file.h"
+#include "metaimgfile.h"
 
 typedef struct {
-    int diskId;
+    MetaImgFile *disk;
     FileOfs pos;
 } JSFile;
 
@@ -93,30 +95,33 @@ bool sys_filename_is_absolute(const char *filename) {
 }
 
 SYS_FILE *sys_fopen(const char *filename, int openmode) {
-    int diskId = EM_ASM_INT({
-        return workerApi.disks.open(UTF8ToString($0));
-    }, filename);
-    if (diskId == -1) {
-        SYS_FILE_WARN("Failing non-disk sys_fopen(%s, %d)\n", filename, openmode);
-        return nullptr;
+    MetaImgFile *disk = new MetaImgFile();
+
+    std::string single_image_path;
+    std::istringstream filename_stream(filename);
+    while (std::getline(filename_stream, single_image_path, ':')) {
+        if (!disk->open(single_image_path)) {
+            delete disk;
+            SYS_FILE_WARN("Failing sys_fopen(%s, %d), single_image_path=%s\n", filename, openmode, single_image_path.c_str());
+            return nullptr;
+        }
     }
 
     SYS_FILE_TRACE("sys_fopen %s -> disk ID %d\n", filename, diskId);
 
-    return new JSFile{diskId, 0};
+    return new JSFile{disk, 0};
 }
 
 void sys_fclose(SYS_FILE *file) {
     JSFile *jsFile = static_cast<JSFile*>(file);
-    EM_ASM_({ workerApi.disks.close($0); }, jsFile->diskId);
+    jsFile->disk->close();
+    delete jsFile->disk;
     delete jsFile;
 }
 
 int sys_fread(SYS_FILE *file, byte *buf, int size) {
     JSFile *jsFile = static_cast<JSFile*>(file);
-    uint64 readSize = EM_ASM_DOUBLE({
-        return workerApi.disks.read($0, $1, $2, $3);
-    }, jsFile->diskId, buf, double(jsFile->pos), double(size));
+    uint64 readSize = jsFile->disk->read(buf, jsFile->pos, size);
     SYS_FILE_TRACE("[disk %d] sys_fread %d bytes at %d\n", jsFile->diskId, size, jsFile->pos);
     jsFile->pos += readSize;
     return readSize;
@@ -124,9 +129,7 @@ int sys_fread(SYS_FILE *file, byte *buf, int size) {
 
 int sys_fwrite(SYS_FILE *file, byte *buf, int size) {
     JSFile *jsFile = static_cast<JSFile*>(file);
-    uint64 writeSize = EM_ASM_DOUBLE({
-        return workerApi.disks.write($0, $1, $2, $3);
-    }, jsFile->diskId, buf, double(jsFile->pos), double(size));
+    uint64 writeSize = jsFile->disk->write(buf, jsFile->pos, size);
     SYS_FILE_TRACE("[disk %d] sys_fwrite %d bytes at %llu\n", jsFile->diskId, size, jsFile->pos);
     jsFile->pos += writeSize;
     return writeSize;
@@ -136,23 +139,23 @@ int sys_fseek(SYS_FILE *file, FileOfs newofs, int seekmode) {
     JSFile *jsFile = static_cast<JSFile*>(file);
     switch (seekmode) {
         case SYS_SEEK_SET: {
-            SYS_FILE_TRACE("[disk %d] sys_fseek SEEK_SET to %llu\n", jsFile->diskId, newofs);
+            SYS_FILE_TRACE("sys_fseek SEEK_SET to %llu\n", newofs);
             jsFile->pos = newofs;
             break;
         }
         case SYS_SEEK_REL: {
             jsFile->pos += newofs;
-            SYS_FILE_TRACE("[disk %d] sys_fseek SEEK_CUR by %llu -> %llu\n", jsFile->diskId, newofs, jsFile->pos);
+            SYS_FILE_TRACE("sys_fseek SEEK_CUR by %llu -> %llu\n", newofs, jsFile->pos);
             break;
         }
         case SYS_SEEK_END: {
-            FileOfs size = EM_ASM_DOUBLE({ return workerApi.disks.size($0); }, jsFile->diskId);
+            FileOfs size = jsFile->disk->size();
             jsFile->pos = size - newofs;
-            SYS_FILE_TRACE("[disk %d] sys_fseek SEEK_END by %llu -> %llu\n", jsFile->diskId, newofs, jsFile->pos);
+            SYS_FILE_TRACE("sys_fseek SEEK_END by %llu -> %llu\n", newofs, jsFile->pos);
             break;
         }
         default:
-            SYS_FILE_TRACE("disk %d] unknown sys_fseek mode %d\n", jsFile->diskId, seekmode);
+            SYS_FILE_TRACE("unknown sys_fseek mode %d\n", seekmode);
             break;
     }
     return 0;
