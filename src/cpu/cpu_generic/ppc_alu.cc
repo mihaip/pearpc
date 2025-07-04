@@ -708,12 +708,13 @@ void ppc_opc_divwx(uint32 opc)
 	int rD, rA, rB;
 	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	if (!gCPU.gpr[rB]) {
-		PPC_ALU_WARN("division by zero @%08x\n", gCPU.pc);
-		SINGLESTEP("");
+		PPC_ALU_WARN("division by zero\n");
+		gCPU.gpr[rD] = 0;
+	} else {
+		sint32 a = gCPU.gpr[rA];
+		sint32 b = gCPU.gpr[rB];
+		gCPU.gpr[rD] = a / b;
 	}
-	sint32 a = gCPU.gpr[rA];
-	sint32 b = gCPU.gpr[rB];
-	gCPU.gpr[rD] = a / b;
 	if (rc == Rc1) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
@@ -733,11 +734,13 @@ void ppc_opc_divwox(uint32 opc)
 	int rD, rA, rB;
 	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	if (!gCPU.gpr[rB]) {
-		PPC_ALU_ERR("division by zero\n");
+		PPC_ALU_WARN("division by zero\n");
+		gCPU.gpr[rD] = 0;
+	} else {
+		sint32 a = gCPU.gpr[rA];
+		sint32 b = gCPU.gpr[rB];
+		gCPU.gpr[rD] = a / b;
 	}
-	sint32 a = gCPU.gpr[rA];
-	sint32 b = gCPU.gpr[rB];
-	gCPU.gpr[rD] = a / b;
 	if (rc == Rc1) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
@@ -759,10 +762,11 @@ void ppc_opc_divwux(uint32 opc)
 	int rD, rA, rB;
 	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	if (!gCPU.gpr[rB]) {
-		PPC_ALU_WARN("division by zero @%08x\n", gCPU.pc);
-		SINGLESTEP("");
+		PPC_ALU_WARN("division by zero\n");
+		gCPU.gpr[rD] = 0;
+	} else {
+		gCPU.gpr[rD] = gCPU.gpr[rA] / gCPU.gpr[rB];
 	}
-	gCPU.gpr[rD] = gCPU.gpr[rA] / gCPU.gpr[rB];
 	if (rc == Rc1) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
@@ -782,9 +786,11 @@ void ppc_opc_divwuox(uint32 opc)
 	int rD, rA, rB;
 	PPC_OPC_TEMPL_XO(opc, rD, rA, rB);
 	if (!gCPU.gpr[rB]) {
-//		PPC_ALU_ERR("division by zero\n");
+		PPC_ALU_WARN("division by zero\n");
+		gCPU.gpr[rD] = 0;
+	} else {
+		gCPU.gpr[rD] = gCPU.gpr[rA] / gCPU.gpr[rB];
 	}
-	gCPU.gpr[rD] = gCPU.gpr[rA] / gCPU.gpr[rB];
 	if (rc == Rc1) {
 		// update cr0 flags
 		ppc_update_cr0(gCPU.gpr[rD]);
