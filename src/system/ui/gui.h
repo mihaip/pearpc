@@ -40,7 +40,7 @@ int sys_gui_messagebox(const String &title, const String &text, int buttons);
 
 void sys_gui_event();
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include "system/event.h"
 
 void sys_gui_cpu_ops_hook(uint ops);

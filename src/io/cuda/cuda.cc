@@ -942,7 +942,7 @@ static void processCudaEvents()
 	}
 }
 
-#ifndef EMSCRIPTEN
+#ifndef __EMSCRIPTEN__
 static void *cudaEventLoop(void *arg)
 {
 	gKeyboard->attachEventHandler(cudaEventHandler);
@@ -997,7 +997,7 @@ void cuda_init()
 		IO_CUDA_ERR("Can't create semaphore\n");
 	}
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 	sys_gui_cuda_hook(cudaEventHandler, processCudaEvents);
 #else
 	sys_thread cudaEventLoopThread;

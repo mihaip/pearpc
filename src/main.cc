@@ -197,7 +197,7 @@ extern "C" int SDL_main(int argc, char *argv[])
 }
 #endif
 
-#ifndef EMSCRIPTEN
+#ifndef __EMSCRIPTEN__
 static bool running;
 void *cpuThreadLoop(void *) {
 	ppc_cpu_run();
@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 
-#ifndef EMSCRIPTEN
+#ifndef __EMSCRIPTEN__
 		ht_printf("This program is free software; you can redistribute it and/or modify\n"
 			"it under the terms of the GNU General Public License version 2 as published by\n"
 			"the Free Software Foundation.\n"
@@ -446,7 +446,7 @@ int main(int argc, char *argv[])
 		gDisplay->print("now starting client...");
 		gDisplay->setAnsiColor(VCP(VC_WHITE, CONSOLE_BG));
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 		ppc_cpu_run();
 #else
 		running = true;

@@ -195,7 +195,7 @@ void SystemDisplay::printf(const char *s, ...)
 	va_start(ap, s);
 	char buf[1024];
 	ht_vsnprintf(buf, sizeof buf, s, ap);
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 	::printf("VT100 print: %s\n", buf);
 #endif
 	print(buf);

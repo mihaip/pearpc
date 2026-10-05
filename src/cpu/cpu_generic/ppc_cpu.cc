@@ -146,7 +146,7 @@ void ppc_cpu_run()
 			gCPU.pdec--;
 		}
 		if ((ops & 0x3ffff)==0) [[unlikely]] {
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 			sys_gui_cpu_ops_hook(ops);
 #endif
 /*			if (pic_check_interrupt()) {
@@ -339,7 +339,7 @@ bool ppc_cpu_init()
 	}
 	sys_create_mutex(&exception_mutex);
 
-#ifndef EMSCRIPTEN
+#ifndef __EMSCRIPTEN__
 	PPC_CPU_WARN("You are using the generic CPU!\n");
 	PPC_CPU_WARN("This is much slower than the just-in-time compiler and\n");
 	PPC_CPU_WARN("should only be used for debugging purposes or if there's\n");
